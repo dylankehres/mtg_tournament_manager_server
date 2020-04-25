@@ -2,11 +2,14 @@ package com.djk.tournament_manager.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import java.util.UUID;
+import javax.validation.constraints.NotBlank;
+import java.util.*;
 
 public class Tournament {
 
     private final UUID id;
+
+    @NotBlank
     private final String name;
 
     public Tournament(@JsonProperty("id") UUID id,
