@@ -34,6 +34,10 @@ class HostTmt extends Component {
     this.setState({ selectedFormat: eventKey });
   }
 
+  handleOpenTmt = () => {
+    console.log("Open tournament");
+  };
+
   render() {
     return (
       <Form>
@@ -73,7 +77,7 @@ class HostTmt extends Component {
         </Dropdown>
         <Button
           className="btn btn-primary m-2"
-          onClick={() => this.props.onOpenTmt(this.state)}
+          onClick={() => this.handleOpenTmt}
           href="/host/waiting"
         >
           Open Tournament

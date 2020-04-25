@@ -7,7 +7,7 @@ class PlayerWaiting extends Component {
   render() {
     return (
       <div className="m-2">
-        <PlayerList playerList={this.props.playerList} />
+        <PlayerList />
         <Form>
           <Button className="btn btn-danger m-2" href="/join">
             Leave Tournament

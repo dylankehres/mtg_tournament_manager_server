@@ -7,9 +7,11 @@ class StartTmt extends Component {
   render() {
     return (
       <div className="m-2">
-        <PlayerList playerList={this.props.playerList} />
+        <PlayerList />
         <Form>
-          <Button className="btn btn-primary m-2">Start Tournament</Button>
+          <Button className="btn btn-primary m-2" href="/host/pairings">
+            Start Tournament
+          </Button>
           <Button className="btn btn-danger m-2" href="/host">
             Cancel Tournament
           </Button>

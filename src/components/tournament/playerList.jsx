@@ -2,7 +2,29 @@ import React, { Component } from "react";
 import Table from "react-bootstrap/table";
 
 class PlayerList extends Component {
-  state = {};
+  state = {
+    playerList: [
+      {
+        id: 1,
+        userName: "Dylan",
+        roomCode: "TitanEDH",
+        selectedFormat: "Commander",
+      },
+      {
+        id: 2,
+        userName: "Matt",
+        roomCode: "TitanEDH",
+        selectedFormat: "Commander",
+      },
+      {
+        id: 3,
+        userName: "Preston",
+        roomCode: "TitanEDH",
+        selectedFormat: "Commander",
+      },
+    ],
+  };
+
   render() {
     return (
       <div className="m-2" style={{ width: "300px" }}>
@@ -17,7 +39,7 @@ class PlayerList extends Component {
             </tr>
           </thead>
           <tbody>
-            {this.props.playerList.map((player) => (
+            {this.state.playerList.map((player) => (
               <tr key={player.id}>
                 <td>{player.id}</td>
                 <td>{player.userName}</td>

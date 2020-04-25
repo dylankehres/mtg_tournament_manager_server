@@ -22,6 +22,10 @@ class JoinTmt extends Component {
   handleFormatSelect = this.handleFormatSelect.bind(this);
   handleDeckChange = this.handleDeckChange.bind(this);
 
+  handleJoinTmt = () => {
+    console.log("Joining tournament");
+  };
+
   handleNameChange(event) {
     this.setState({ userName: event.target.value });
   }
@@ -83,7 +87,7 @@ class JoinTmt extends Component {
           </Dropdown>
           <Button
             className="btn btn-primary m-2"
-            onClick={() => this.props.onJoinTmt(this.state)}
+            onClick={() => this.handleJoinTmt}
             href="/join/waiting"
           >
             Join Tournament
