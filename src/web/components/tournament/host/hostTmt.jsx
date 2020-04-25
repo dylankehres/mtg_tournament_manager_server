@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+// import XMLHttpRequest from "xmlhttprequest";
 import Form from "react-bootstrap/Form";
 import Dropdown from "react-bootstrap/Dropdown";
 import Button from "react-bootstrap/Button";
@@ -6,7 +7,7 @@ import Button from "react-bootstrap/Button";
 class HostTmt extends Component {
   state = {
     id: 1,
-    userName: "",
+    tmtName: "",
     roomCode: "",
     selectedFormat: "Select Format",
   };
@@ -18,12 +19,17 @@ class HostTmt extends Component {
     { name: "Commander", id: 4 },
   ];
 
+  XMLHttpRequest = require("xmlhttprequest").XMLHttpRequest;
+  xhttp = new XMLHttpRequest();
+
+  serverAddress = "localhost:8080/api/v1/tournament/";
+
   handleNameChange = this.handleNameChange.bind(this);
   handleRoomChange = this.handleRoomChange.bind(this);
   handleFormatSelect = this.handleFormatSelect.bind(this);
 
   handleNameChange(event) {
-    this.setState({ userName: event.target.value });
+    this.setState({ tmtName: event.target.value });
   }
 
   handleRoomChange(event) {
@@ -34,10 +40,6 @@ class HostTmt extends Component {
     this.setState({ selectedFormat: eventKey });
   }
 
-  handleOpenTmt = () => {
-    console.log("Open tournament");
-  };
-
   render() {
     return (
       <Form>
@@ -46,7 +48,7 @@ class HostTmt extends Component {
           <Form.Control
             type="text"
             placeholder="Enter name"
-            value={this.state.userName}
+            value={this.state.tmtName}
             onChange={this.handleNameChange}
           ></Form.Control>
         </Form.Group>
@@ -77,13 +79,28 @@ class HostTmt extends Component {
         </Dropdown>
         <Button
           className="btn btn-primary m-2"
-          onClick={() => this.handleOpenTmt}
+          onClick={() => this.handleOpenTmt()}
           href="/host/waiting"
         >
           Open Tournament
         </Button>
       </Form>
     );
+  }
+
+  handleOpenTmt() {
+    debugger;
+    console.log("Open tournament");
+    this.xhttp.onreadystatechange = () => {
+      if (this.readyState === 4 && this.status === 200) {
+        //Why did they do this to select an element?
+        // document.getElementById("demo").innerHTML = this.responseText;
+        console.log("Ready for AJAX Request");
+      }
+    };
+
+    this.xhttp.open("POST", this.serverAddress, true);
+    this.xhttp.send('{"name": "' + this.state.tmtName + '"}');
   }
 }
 
