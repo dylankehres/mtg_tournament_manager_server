@@ -13,7 +13,7 @@ public class FakeTournamentDataAccessService implements TournamentDao {
     @Override
     public int insertTournament(UUID id, Tournament tournament)
     {
-        DB.add(new Tournament(id, tournament.getName()));
+        DB.add(new Tournament(id, tournament.getName(), tournament.getRoomCode(), tournament.getFormat()));
         return 1;
     }
 
@@ -46,7 +46,7 @@ public class FakeTournamentDataAccessService implements TournamentDao {
                 .map(t -> {
                     int indexOfTournamentToUpdate = DB.indexOf(t);
                     if(indexOfTournamentToUpdate >= 0){
-                        DB.set(indexOfTournamentToUpdate, new Tournament(id, update.getName()));
+                        DB.set(indexOfTournamentToUpdate, new Tournament(id, update.getName(), update.getRoomCode(), update.getFormat()));
                         return 1;
                     }
                     return 0;

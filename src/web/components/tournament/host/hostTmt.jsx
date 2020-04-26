@@ -5,10 +5,9 @@ import { Form, Dropdown, Button } from "react-bootstrap";
 
 class HostTmt extends Component {
   state = {
-    id: 1,
     tmtName: "",
     roomCode: "",
-    selectedFormat: "Select Format",
+    format: "Select Format",
   };
 
   formats = [
@@ -33,7 +32,7 @@ class HostTmt extends Component {
   }
 
   handleFormatSelect(eventKey) {
-    this.setState({ selectedFormat: eventKey });
+    this.setState({ format: eventKey });
   }
 
   render() {
@@ -59,7 +58,7 @@ class HostTmt extends Component {
         </Form.Group>
         <Dropdown className="m-2" onSelect={this.handleFormatSelect}>
           <Dropdown.Toggle variant="success" id="dropdown-basic">
-            {this.state.selectedFormat}
+            {this.state.format}
           </Dropdown.Toggle>
           <Dropdown.Menu>
             {this.formats.map((format) => (
@@ -85,10 +84,8 @@ class HostTmt extends Component {
   }
 
   handleOpenTmt() {
+    debugger;
     console.log("Open tournament");
-    let tournament = {
-      name: this.state.tmtName,
-    };
 
     $.ajax({
       headers: {
@@ -97,7 +94,7 @@ class HostTmt extends Component {
       },
       url: this.serverAddress,
       type: "POST",
-      data: JSON.stringify(tournament),
+      data: JSON.stringify(this.state),
       success: function (data) {
         console.log("Ajax success");
       },

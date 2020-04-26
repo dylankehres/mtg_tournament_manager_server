@@ -10,13 +10,19 @@ public class Tournament {
     private final UUID id;
 
     @NotBlank
-    private final String name;
+    private final String tmtName;
+    private final String roomCode;
+    private final String format;
 
     public Tournament(@JsonProperty("id") UUID id,
-                      @JsonProperty("name") String name)
+                      @JsonProperty("tmtName") String tmtName,
+                      @JsonProperty("roomCode") String roomCode,
+                      @JsonProperty("format") String format)
     {
         this.id = id;
-        this.name = name;
+        this.tmtName = tmtName;
+        this.roomCode = roomCode;
+        this.format = format;
     }
 
 
@@ -27,7 +33,16 @@ public class Tournament {
 
     public String getName()
     {
-        return this.name;
+        return this.tmtName;
     }
 
+    public String getRoomCode()
+    {
+        return this.roomCode;
+    }
+
+    public String getFormat()
+    {
+        return this.format;
+    }
 }
