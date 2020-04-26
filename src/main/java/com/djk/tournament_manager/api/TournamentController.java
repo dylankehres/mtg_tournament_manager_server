@@ -11,7 +11,10 @@ import java.util.*;
 
 import static sun.management.snmp.jvminstr.JvmThreadInstanceEntryImpl.ThreadStateMap.Byte1.other;
 
+
 @RequestMapping("api/v1/tournament")
+//@CrossOrigin(origins = "http://localhost:3000/")
+@CrossOrigin
 @RestController
 public class TournamentController {
 

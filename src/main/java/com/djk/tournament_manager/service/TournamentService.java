@@ -5,6 +5,8 @@ import com.djk.tournament_manager.model.Tournament;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import java.util.*;
 
@@ -12,6 +14,16 @@ import java.util.*;
 public class TournamentService {
 
     private final TournamentDao tournamentDao;
+
+//    public WebMvcConfigurer corsConfigurer() {
+//        return new WebMvcConfigurer() {
+//            @Override
+//            public void addCorsMappings(CorsRegistry registry) {
+////                registry.addMapping("/api/v1/tournament").allowedOrigins("http://localhost:3000");
+//                registry.addMapping("/").allowedOrigins("*");
+//            }
+//        };
+//    }
 
     @Autowired
     public TournamentService(@Qualifier("fakeDao") TournamentDao tournamentDao)

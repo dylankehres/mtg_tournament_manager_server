@@ -1,8 +1,7 @@
 import React, { Component } from "react";
 // import XMLHttpRequest from "xmlhttprequest";
-import Form from "react-bootstrap/Form";
-import Dropdown from "react-bootstrap/Dropdown";
-import Button from "react-bootstrap/Button";
+import $ from "jquery";
+import { Form, Dropdown, Button } from "react-bootstrap";
 
 class HostTmt extends Component {
   state = {
@@ -19,10 +18,7 @@ class HostTmt extends Component {
     { name: "Commander", id: 4 },
   ];
 
-  XMLHttpRequest = require("xmlhttprequest").XMLHttpRequest;
-  xhttp = new XMLHttpRequest();
-
-  serverAddress = "localhost:8080/api/v1/tournament/";
+  serverAddress = "http://localhost:8080/api/v1/tournament";
 
   handleNameChange = this.handleNameChange.bind(this);
   handleRoomChange = this.handleRoomChange.bind(this);
@@ -80,7 +76,7 @@ class HostTmt extends Component {
         <Button
           className="btn btn-primary m-2"
           onClick={() => this.handleOpenTmt()}
-          href="/host/waiting"
+          // href="/host/waiting"
         >
           Open Tournament
         </Button>
@@ -89,18 +85,26 @@ class HostTmt extends Component {
   }
 
   handleOpenTmt() {
-    debugger;
     console.log("Open tournament");
-    this.xhttp.onreadystatechange = () => {
-      if (this.readyState === 4 && this.status === 200) {
-        //Why did they do this to select an element?
-        // document.getElementById("demo").innerHTML = this.responseText;
-        console.log("Ready for AJAX Request");
-      }
+    let tournament = {
+      name: this.state.tmtName,
     };
 
-    this.xhttp.open("POST", this.serverAddress, true);
-    this.xhttp.send('{"name": "' + this.state.tmtName + '"}');
+    $.ajax({
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      url: this.serverAddress,
+      type: "POST",
+      data: JSON.stringify(tournament),
+      success: function (data) {
+        console.log("Ajax success");
+      },
+      error: function (jqxhr, status) {
+        console.log("Ajax Error", status);
+      },
+    });
   }
 }
 
