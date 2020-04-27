@@ -11,10 +11,10 @@ public class FakeTournamentDataAccessService implements TournamentDao {
     private static List<Tournament> DB = new ArrayList<>();
 
     @Override
-    public int insertTournament(UUID id, Tournament tournament)
+    public UUID insertTournament(UUID id, Tournament tournament)
     {
         DB.add(new Tournament(id, tournament.getName(), tournament.getRoomCode(), tournament.getFormat()));
-        return 1;
+        return id;
     }
 
     @Override

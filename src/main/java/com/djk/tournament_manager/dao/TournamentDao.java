@@ -6,9 +6,9 @@ import java.util.*;
 
 public interface TournamentDao {
 
-    int insertTournament(UUID id, Tournament tournament);
+    UUID insertTournament(UUID id, Tournament tournament);
 
-    default int insertTournament(Tournament tournament) {
+    default UUID insertTournament(Tournament tournament) {
         UUID id = UUID.randomUUID();
         return insertTournament(id, tournament);
     }

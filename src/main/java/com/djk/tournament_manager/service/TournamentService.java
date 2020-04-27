@@ -31,7 +31,7 @@ public class TournamentService {
         this.tournamentDao = tournamentDao;
     }
 
-    public int addTournament(Tournament tournament)
+    public UUID addTournament(Tournament tournament)
     {
         return tournamentDao.insertTournament(tournament);
     }
