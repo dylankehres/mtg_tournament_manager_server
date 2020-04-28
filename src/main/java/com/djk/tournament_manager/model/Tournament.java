@@ -13,6 +13,7 @@ public class Tournament {
     private final String tmtName;
     private final String roomCode;
     private final String format;
+    private final List<Player> playerList = new ArrayList<>();
 
     public Tournament(@JsonProperty("id") UUID id,
                       @JsonProperty("tmtName") String tmtName,
@@ -36,13 +37,16 @@ public class Tournament {
         return this.tmtName;
     }
 
-    public String getRoomCode()
-    {
-        return this.roomCode;
-    }
+    public String getRoomCode() { return this.roomCode;}
 
     public String getFormat()
     {
         return this.format;
+    }
+
+    public List<Player> getPlayerList() {return this.playerList; }
+
+    public void addPlayer(Player player) {
+        this.playerList.add(player);
     }
 }

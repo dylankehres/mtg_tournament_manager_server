@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import $ from "jquery";
 import Table from "react-bootstrap/table";
 
 class PlayerList extends Component {
@@ -25,6 +26,25 @@ class PlayerList extends Component {
     ],
   };
 
+  componentDidMount() {
+    $.ajax({
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      url: this.props.serverAddress + "/playerList/" + this.props.roomCode,
+      type: "GET",
+      // data: JSON.stringify(this.props.roomCode),
+      success: (playerList) => {
+        console.log("Ajax success", playerList);
+        this.setState({ playerList });
+      },
+      error: function (jqxhr, status) {
+        console.log("Ajax Error", status);
+      },
+    });
+  }
+
   render() {
     return (
       <div className="m-2" style={{ width: "300px" }}>
@@ -36,13 +56,15 @@ class PlayerList extends Component {
             <tr>
               <th>#</th>
               <th>Player Name</th>
+              <th>Deck Name</th>
             </tr>
           </thead>
           <tbody>
-            {this.state.playerList.map((player) => (
+            {this.state.playerList.map((player, index) => (
               <tr key={player.id}>
-                <td>{player.id}</td>
-                <td>{player.userName}</td>
+                <td>{index + 1}</td>
+                <td>{player.name}</td>
+                <td>{player.deckName}</td>
               </tr>
             ))}
           </tbody>

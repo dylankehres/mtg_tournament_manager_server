@@ -1,5 +1,6 @@
 package com.djk.tournament_manager.api;
 
+import com.djk.tournament_manager.model.Player;
 import com.djk.tournament_manager.model.Tournament;
 import com.djk.tournament_manager.service.TournamentService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,22 +33,38 @@ public class TournamentController {
         return tournamentService.addTournament(tournament);
     }
 
+    @PostMapping(path = "join")
+    public UUID addPlayer(@Valid @NonNull @RequestBody Player player)
+    {
+        return tournamentService.addPlayer(player);
+    }
+
     @GetMapping
     public List<Tournament> getAllTournaments() {
         return tournamentService.getAllTournaments();
     }
 
-    @GetMapping(path = "{id}")
-    public Tournament getTournamentById(@PathVariable("id") UUID id)
-    {
-        return tournamentService.getTournamentById(id)
-                .orElse(null);
-    }
+//    @GetMapping(path = "{id}")
+//    public Tournament getTournamentById(@PathVariable("id") UUID id)
+//    {
+//        return tournamentService.getTournamentById(id)
+//                .orElse(null);
+//    }
 
 //    @DeleteMapping(path = "{id}")
 //    public void deleteTournamentByPathId(@PathVariable("id") UUID id)
 //    {
 //        tournamentService.deleteTournament(id);
+//    }
+
+    @GetMapping(path = "playerList/{id}")
+    public List<Player> getPlayersInTournament(@PathVariable("id") String code){
+        return tournamentService.getPlayersInTournament(code);
+    }
+
+//    @GetMapping(path = "playerList")
+//    public List<Player> getPlayersInTournament(@RequestBody String code){
+//        return tournamentService.getPlayersInTournament(code);
 //    }
 
     @DeleteMapping

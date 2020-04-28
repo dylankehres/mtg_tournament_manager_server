@@ -1,6 +1,7 @@
 package com.djk.tournament_manager.service;
 
 import com.djk.tournament_manager.dao.TournamentDao;
+import com.djk.tournament_manager.model.Player;
 import com.djk.tournament_manager.model.Tournament;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -26,7 +27,7 @@ public class TournamentService {
 //    }
 
     @Autowired
-    public TournamentService(@Qualifier("fakeDao") TournamentDao tournamentDao)
+    public TournamentService(@Qualifier("fakeTournamentDao") TournamentDao tournamentDao)
     {
         this.tournamentDao = tournamentDao;
     }
@@ -38,7 +39,7 @@ public class TournamentService {
 
     public List<Tournament> getAllTournaments()
     {
-        return tournamentDao.selectAllTournaments();
+         return tournamentDao.selectAllTournaments();
     }
 
     public Optional<Tournament> getTournamentById(UUID id)
@@ -53,6 +54,14 @@ public class TournamentService {
     public int updateTournament(UUID id, Tournament tournament)
     {
         return tournamentDao.updateTournamentById(id, tournament);
+    }
+
+    public UUID addPlayer(Player player){
+        return tournamentDao.addPlayer(player.getRoomCode(), player);
+    }
+
+    public List<Player> getPlayersInTournament(String code){
+        return tournamentDao.selectPlayersInTournament(code);
     }
 
 }

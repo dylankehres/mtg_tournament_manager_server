@@ -1,5 +1,6 @@
 package com.djk.tournament_manager.dao;
 
+import com.djk.tournament_manager.model.Player;
 import com.djk.tournament_manager.model.Tournament;
 
 import java.util.*;
@@ -17,7 +18,13 @@ public interface TournamentDao {
 
     Optional<Tournament> selectTournamentById(UUID id);
 
+    Optional<Tournament> selectTournamentByCode(String code);
+
     int deleteTournamentById(UUID id);
 
     int updateTournamentById(UUID id, Tournament tournament);
+
+    UUID addPlayer(String roomCode, Player player);
+
+    List<Player> selectPlayersInTournament(String code);
 }

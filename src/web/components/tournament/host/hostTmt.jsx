@@ -21,7 +21,6 @@ class HostTmt extends Component {
   handleNameChange = this.handleNameChange.bind(this);
   handleRoomChange = this.handleRoomChange.bind(this);
   handleFormatSelect = this.handleFormatSelect.bind(this);
-  // handleOpenTmt = this.handleOpenTmt.bind(this);
 
   handleNameChange(event) {
     this.setState({ tmtName: event.target.value });
@@ -33,6 +32,49 @@ class HostTmt extends Component {
 
   handleFormatSelect(eventKey) {
     this.setState({ format: eventKey });
+  }
+
+  getOpenDisabled() {
+    if (this.formIsValid()) {
+      return false;
+    } else {
+      return true;
+    }
+  }
+
+  formIsValid() {
+    if (
+      this.state.name !== "" &&
+      this.state.roomCode !== "" &&
+      this.state.format !== "Select Format"
+    ) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  handleOpenTmt() {
+    console.log("Open tournament");
+
+    if (this.formIsValid()) {
+      $.ajax({
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+        url: this.props.serverAddress,
+        type: "POST",
+        data: JSON.stringify(this.state),
+        success: (id) => {
+          console.log("Ajax success");
+          this.setState({ id });
+        },
+        error: function (jqxhr, status) {
+          console.log("Ajax Error", status);
+        },
+      });
+    }
   }
 
   render() {
@@ -74,8 +116,9 @@ class HostTmt extends Component {
             </Dropdown.Menu>
           </Dropdown>
           <Button
-            className={"btn btn-primary m-2 " + this.getOpenEnabled()}
-            onClick={this.handleOpenTmt}
+            className="btn btn-primary m-2 "
+            onClick={() => this.handleOpenTmt()}
+            disabled={this.getOpenDisabled()}
             // href="/host/waiting/"
           >
             Open Tournament
@@ -86,48 +129,6 @@ class HostTmt extends Component {
       return (
         <StartTmt serverAddress={this.props.serverAddress} tmt={this.state} />
       );
-    }
-  }
-
-  handleOpenTmt() {
-    if (this.formIsValid()) {
-      console.log("Open tournament");
-      $.ajax({
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-        },
-        url: this.props.serverAddress,
-        type: "POST",
-        data: JSON.stringify(this.state),
-        success: (id) => {
-          console.log("Ajax success");
-          this.setState({ id });
-        },
-        error: function (jqxhr, status) {
-          console.log("Ajax Error", status);
-        },
-      });
-    }
-  }
-
-  getOpenEnabled() {
-    if (this.formIsValid()) {
-      return "";
-    } else {
-      return "disabled";
-    }
-  }
-
-  formIsValid() {
-    if (
-      this.state.name !== "" &&
-      this.state.roomCode !== "" &&
-      this.state.format !== "Select Format"
-    ) {
-      return true;
-    } else {
-      return false;
     }
   }
 }

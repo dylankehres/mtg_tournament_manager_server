@@ -1,11 +1,12 @@
 package com.djk.tournament_manager.dao;
 
+import com.djk.tournament_manager.model.Player;
 import com.djk.tournament_manager.model.Tournament;
 import org.springframework.stereotype.Repository;
 
 import java.util.*;
 
-@Repository("fakeDao")
+@Repository("fakeTournamentDao")
 public class FakeTournamentDataAccessService implements TournamentDao {
 
     private static List<Tournament> DB = new ArrayList<>();
@@ -26,6 +27,13 @@ public class FakeTournamentDataAccessService implements TournamentDao {
     public Optional<Tournament> selectTournamentById(UUID id) {
         return DB.stream()
                 .filter(tournament -> tournament.getID().equals(id))
+                .findFirst();
+    }
+
+    @Override
+    public Optional<Tournament> selectTournamentByCode(String code) {
+        return DB.stream()
+                .filter(tournament -> tournament.getRoomCode().equals(code))
                 .findFirst();
     }
 
@@ -52,4 +60,29 @@ public class FakeTournamentDataAccessService implements TournamentDao {
                     return 0;
                 }).orElse(0);
     }
+
+    @Override
+    public UUID addPlayer(String code, Player player)
+    {
+        Optional<Tournament> tournamentMaybe = selectTournamentByCode(code);
+        if (tournamentMaybe.isPresent())
+        {
+            Player newPlayer = new Player(UUID.randomUUID(), player.getName(), player.getRoomCode(), player.getFormat(), player.getDeckName());
+            tournamentMaybe.get().addPlayer(newPlayer);
+            return newPlayer.getID();
+        }
+        return null;
+    }
+
+    @Override
+    public List<Player> selectPlayersInTournament(String code) {
+        Optional<Tournament> tournamentMaybe = selectTournamentByCode(code);
+        if (tournamentMaybe.isPresent())
+        {
+            return tournamentMaybe.get().getPlayerList();
+        }
+        return new ArrayList<>();
+    }
+
+
 }

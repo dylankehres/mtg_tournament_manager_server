@@ -5,25 +5,6 @@ import $ from "jquery";
 
 class StartTmt extends Component {
   state = {};
-  render() {
-    return (
-      <div className="m-2">
-        <PlayerList />
-        <Form>
-          <Button className="btn btn-primary m-2" href="/host/pairings">
-            Start Tournament
-          </Button>
-          <Button
-            className="btn btn-danger m-2"
-            onClick={() => this.handleCancelTmt()}
-            href="/host"
-          >
-            Cancel Tournament
-          </Button>
-        </Form>
-      </div>
-    );
-  }
 
   handleCancelTmt() {
     let tmt = this;
@@ -44,6 +25,29 @@ class StartTmt extends Component {
         console.log("Ajax Error", status);
       },
     });
+  }
+
+  render() {
+    return (
+      <div className="m-2">
+        <PlayerList
+          serverAddress={this.props.serverAddress}
+          roomCode={this.props.tmt.roomCode}
+        />
+        <Form>
+          <Button className="btn btn-primary m-2" href="/host/pairings">
+            Start Tournament
+          </Button>
+          <Button
+            className="btn btn-danger m-2"
+            onClick={() => this.handleCancelTmt()}
+            href="/host"
+          >
+            Cancel Tournament
+          </Button>
+        </Form>
+      </div>
+    );
   }
 }
 
