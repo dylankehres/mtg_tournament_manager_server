@@ -14,6 +14,10 @@ public class FakeTournamentDataAccessService implements TournamentDao {
     @Override
     public UUID insertTournament(UUID id, Tournament tournament)
     {
+        if(DB.stream().anyMatch(t -> t.getRoomCode().equals(tournament.getRoomCode()))) {
+            return null;
+        }
+
         DB.add(new Tournament(id, tournament.getName(), tournament.getRoomCode(), tournament.getFormat()));
         return id;
     }

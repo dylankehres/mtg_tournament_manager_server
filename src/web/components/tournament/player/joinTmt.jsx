@@ -53,8 +53,12 @@ class JoinTmt extends Component {
         type: "POST",
         data: JSON.stringify(this.state),
         success: (id) => {
-          console.log("Ajax success");
-          this.setState({ id });
+          if (id === "") {
+            alert("Invalid room code");
+          } else {
+            console.log("Joined tournament");
+            this.setState({ id });
+          }
         },
         error: function (jqxhr, status) {
           console.log("Ajax Error", status);
