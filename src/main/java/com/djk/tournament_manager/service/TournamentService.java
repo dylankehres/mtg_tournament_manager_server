@@ -83,4 +83,6 @@ public class TournamentService {
         return playerDao.selectPlayersByTournament(code);
     }
 
+    public int deletePlayer(UUID id) { return playerDao.deletePlayerById(id); }
+
 }

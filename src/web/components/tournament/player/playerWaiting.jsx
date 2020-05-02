@@ -8,6 +8,26 @@ class PlayerWaiting extends Component {
     roomCode: "",
   };
 
+  handleLeaveTmt() {
+    console.log("Leave tournament");
+
+    $.ajax({
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      url: this.props.serverAddress + "/join",
+      type: "DELETE",
+      data: JSON.stringify(this.props.match.params.playerID),
+      success: () => {
+        console.log("Ajax success");
+      },
+      error: function (jqxhr, status) {
+        console.log("Ajax Error", status);
+      },
+    });
+  }
+
   componentDidMount() {
     $.ajax({
       headers: {
@@ -42,7 +62,11 @@ class PlayerWaiting extends Component {
             roomCode={this.state.roomCode}
           />
           <Form>
-            <Button className="btn btn-danger m-2" href="/join">
+            <Button
+              className="btn btn-danger m-2"
+              href="/join"
+              onClick={() => this.handleLeaveTmt()}
+            >
               Leave Tournament
             </Button>
           </Form>

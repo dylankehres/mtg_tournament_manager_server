@@ -27,7 +27,7 @@ public class TournamentController {
         this.tournamentService = tournamentService;
     }
 
-    @PostMapping
+    @PostMapping(path ="host")
     public UUID addTournament(@Valid @NonNull @RequestBody Tournament tournament)
     {
         return tournamentService.addTournament(tournament);
@@ -58,30 +58,22 @@ public class TournamentController {
                 .orElse(null);
     }
 
-//    @DeleteMapping(path = "{id}")
-//    public void deleteTournamentByPathId(@PathVariable("id") UUID id)
-//    {
-//        tournamentService.deleteTournament(id);
-//    }
-
     @GetMapping(path = "playerList/{id}")
     public List<Player> getPlayersInTournament(@PathVariable("id") String code){
         return tournamentService.getPlayersInTournament(code);
     }
 
-//    @GetMapping(path = "playerList")
-//    public List<Player> getPlayersInTournament(@RequestBody String code){
-//        return tournamentService.getPlayersInTournament(code);
-//    }
-
-    @DeleteMapping
+    @DeleteMapping(path = "host")
     public void deleteTournamentById(@RequestBody UUID id)
     {
-//        System.out.println("ID: "+id);
-//        tournamentService.deleteTournament(UUID.fromString(id));
         tournamentService.deleteTournament(id);
     }
 
+    @DeleteMapping(path = "join")
+    public void deletePlayerById(@RequestBody UUID id)
+    {
+        tournamentService.deletePlayer(id);
+    }
 
     @PutMapping(path = "{id}")
     public void updateTournamentById(@PathVariable("id") UUID id, @Valid @NonNull @RequestBody Tournament tournamentToUpdate)

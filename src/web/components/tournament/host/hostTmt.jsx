@@ -64,7 +64,7 @@ class HostTmt extends Component {
           Accept: "application/json",
           "Content-Type": "application/json",
         },
-        url: this.props.serverAddress,
+        url: this.props.serverAddress + "/host",
         type: "POST",
         data: JSON.stringify(this.state),
         success: (id) => {

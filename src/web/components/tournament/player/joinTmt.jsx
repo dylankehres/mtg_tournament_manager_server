@@ -3,7 +3,6 @@ import { Form, Dropdown, Button, Table } from "react-bootstrap";
 import { Redirect, withRouter } from "react-router-dom";
 import $ from "jquery";
 import TmtList from "../tmtList";
-import PlayerWaiting from "./playerWaiting";
 
 class JoinTmt extends Component {
   state = {

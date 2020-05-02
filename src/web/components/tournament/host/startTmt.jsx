@@ -11,12 +11,13 @@ class StartTmt extends Component {
   handleCancelTmt() {
     let tmt = this;
     console.log("Cancel tournament", tmt);
+
     $.ajax({
       headers: {
         Accept: "application/json",
         "Content-Type": "application/json",
       },
-      url: this.props.serverAddress,
+      url: this.props.serverAddress + "/host",
       type: "DELETE",
       data: JSON.stringify(tmt.props.tmt.id),
       success: (data) => {
