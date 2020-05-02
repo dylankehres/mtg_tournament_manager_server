@@ -31,6 +31,7 @@ class PlayerList extends Component {
   }
 
   getPlayerList() {
+    debugger;
     $.ajax({
       headers: {
         Accept: "application/json",

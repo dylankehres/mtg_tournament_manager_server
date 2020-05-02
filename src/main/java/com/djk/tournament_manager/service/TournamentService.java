@@ -1,5 +1,6 @@
 package com.djk.tournament_manager.service;
 
+import com.djk.tournament_manager.dao.PlayerDao;
 import com.djk.tournament_manager.dao.TournamentDao;
 import com.djk.tournament_manager.model.Player;
 import com.djk.tournament_manager.model.Tournament;
@@ -15,6 +16,7 @@ import java.util.*;
 public class TournamentService {
 
     private final TournamentDao tournamentDao;
+    private final PlayerDao playerDao;
 
 //    public WebMvcConfigurer corsConfigurer() {
 //        return new WebMvcConfigurer() {
@@ -27,9 +29,10 @@ public class TournamentService {
 //    }
 
     @Autowired
-    public TournamentService(@Qualifier("fakeTournamentDao") TournamentDao tournamentDao)
+    public TournamentService(@Qualifier("fakeTournamentDao") TournamentDao tournamentDao, @Qualifier("fakePlayerDao") PlayerDao playerDao)
     {
         this.tournamentDao = tournamentDao;
+        this.playerDao = playerDao;
     }
 
     public UUID addTournament(Tournament tournament)
@@ -56,12 +59,28 @@ public class TournamentService {
         return tournamentDao.updateTournamentById(id, tournament);
     }
 
+//    public UUID addPlayer(Player player){
+//        return tournamentDao.addPlayer(player.getRoomCode(), player);
+//    }
     public UUID addPlayer(Player player){
-        return tournamentDao.addPlayer(player.getRoomCode(), player);
+        Optional<Tournament> tournamentMaybe = tournamentDao.selectTournamentByCode(player.getRoomCode());
+
+        if(tournamentMaybe.isPresent())
+        {
+            player.setTournamentID(tournamentMaybe.get().getID());
+            return playerDao.insertPlayer(player);
+        }
+
+        return null;
+    }
+
+    public Optional<Player> getPlayerById(UUID id)
+    {
+        return playerDao.selectPlayerById(id);
     }
 
     public List<Player> getPlayersInTournament(String code){
-        return tournamentDao.selectPlayersInTournament(code);
+        return playerDao.selectPlayersByTournament(code);
     }
 
 }

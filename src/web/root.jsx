@@ -12,22 +12,36 @@ import StartTmt from "./components/tournament/host/startTmt";
 
 class Root extends Component {
   state = { serverAddress: "http://localhost:8080/api/v1/tournament" };
+
   render() {
+    const renderMergedProps = (component, ...rest) => {
+      const finalProps = Object.assign({}, ...rest);
+      finalProps.serverAddress = "http://localhost:8080/api/v1/tournament";
+      return React.createElement(component, finalProps);
+    };
+
+    const PropsRoute = ({ component, ...rest }) => {
+      return (
+        <Route
+          {...rest}
+          render={(routeProps) => {
+            return renderMergedProps(component, routeProps, rest);
+          }}
+        />
+      );
+    };
+
     return (
       <Router>
         <Switch>
           <Route exact path="/" component={Home} />
-          <Route exact path="/join">
-            <JoinTmt serverAddress={this.state.serverAddress} />
-          </Route>
-          <Route exact path="/tournament" component={Tournament} />
-          <Route path="/join/waiting" component={PlayerWaiting} />
-          <Route exact path="/host">
-            <HostTmt serverAddress={this.state.serverAddress} />
-          </Route>
-          <Route path="/host/waiting" component={StartTmt} />
-          <Route path="/host/pairings" component={Pairings} />
-          <Route path="/playerlist" component={PlayerList} />
+          <PropsRoute exact path="/join" component={JoinTmt} />
+          <PropsRoute exact path="/tournament" component={Tournament} />
+          <PropsRoute path="/join/:playerID" component={PlayerWaiting} />
+          <PropsRoute exact path="/host" component={HostTmt} />
+          <PropsRoute path="/host/:tmtID" component={StartTmt} />
+          <PropsRoute path="/host/pairings" component={Pairings} />
+          <PropsRoute path="/playerlist" component={PlayerList} />
         </Switch>
       </Router>
     );

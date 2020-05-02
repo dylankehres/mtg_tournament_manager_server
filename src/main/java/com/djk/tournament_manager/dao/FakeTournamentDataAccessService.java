@@ -65,26 +65,37 @@ public class FakeTournamentDataAccessService implements TournamentDao {
                 }).orElse(0);
     }
 
-    @Override
-    public UUID addPlayer(String code, Player player)
-    {
-        Optional<Tournament> tournamentMaybe = selectTournamentByCode(code);
-        if (tournamentMaybe.isPresent())
-        {
-            Player newPlayer = new Player(UUID.randomUUID(), player.getName(), player.getRoomCode(), player.getFormat(), player.getDeckName());
-            tournamentMaybe.get().addPlayer(newPlayer);
-            return newPlayer.getID();
-        }
-        return null;
-    }
+//    @Override
+//    public UUID addPlayer(String code, Player player)
+//    {
+//        Optional<Tournament> tournamentMaybe = selectTournamentByCode(code);
+//        if (tournamentMaybe.isPresent())
+//        {
+//            Player newPlayer = new Player(UUID.randomUUID(), tournamentMaybe.get().getID(), player.getName(), player.getRoomCode(), player.getFormat(), player.getDeckName());
+//            tournamentMaybe.get().addPlayer(newPlayer);
+//            return newPlayer.getID();
+//        }
+//        return null;
+//    }
+
+//    @Override
+//    public Optional<Player> selectPlayerById(UUID id) {
+//        return DB.stream()
+//                .filter(tournament -> tournament.getPlayerList().contains(id))
+//                .findFirst();
+
+//        return DB.stream().forEach(Tournament::getPlayerList().stream()
+//                .filter(player -> player.getID().equals(id))
+//                .findFirst());
+//    }
 
     @Override
     public List<Player> selectPlayersInTournament(String code) {
-        Optional<Tournament> tournamentMaybe = selectTournamentByCode(code);
-        if (tournamentMaybe.isPresent())
-        {
-            return tournamentMaybe.get().getPlayerList();
-        }
+//        Optional<Tournament> tournamentMaybe = selectTournamentByCode(code);
+//        if (tournamentMaybe.isPresent())
+//        {
+//            return tournamentMaybe.get().getPlayerList();
+//        }
         return new ArrayList<>();
     }
 

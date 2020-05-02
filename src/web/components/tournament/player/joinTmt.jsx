@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import { Form, Dropdown, Button, Table } from "react-bootstrap";
+import { Redirect, withRouter } from "react-router-dom";
 import $ from "jquery";
 import TmtList from "../tmtList";
 import PlayerWaiting from "./playerWaiting";
@@ -158,14 +159,9 @@ class JoinTmt extends Component {
         </React.Fragment>
       );
     } else {
-      return (
-        <PlayerWaiting
-          serverAddress={this.props.serverAddress}
-          roomCode={this.state.roomCode}
-        />
-      );
+      return <Redirect to={`/join/${this.state.id}`} />;
     }
   }
 }
 
-export default JoinTmt;
+export default withRouter(JoinTmt);

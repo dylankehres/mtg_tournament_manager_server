@@ -8,20 +8,23 @@ import java.util.UUID;
 public class Player {
 
     private final UUID id;
+    private UUID tournamentID;
 
     @NotBlank
-    private final String userName;
-    private final String roomCode;
-    private final String format;
-    private final String deckName;
+    private String userName;
+    private String roomCode;
+    private String format;
+    private String deckName;
 
     public Player(@JsonProperty("id") UUID id,
+                  @JsonProperty("tmtID") UUID tournamentID,
                   @JsonProperty("userName") String userName,
                   @JsonProperty("roomCode") String roomCode,
                   @JsonProperty("format") String format,
                   @JsonProperty("deckName") String deckName)
     {
         this.id = id;
+        this.tournamentID = tournamentID;
         this.userName = userName;
         this.roomCode = roomCode;
         this.format = format;
@@ -33,6 +36,8 @@ public class Player {
     {
         return this.id;
     }
+
+    public UUID getTournamentID() {return this.tournamentID; }
 
     public String getName()
     {
@@ -50,4 +55,6 @@ public class Player {
     {
         return this.deckName;
     }
+
+    public void setTournamentID(UUID tournamentID) {this.tournamentID = tournamentID; }
 }

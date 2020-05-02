@@ -4,10 +4,7 @@ import com.djk.tournament_manager.model.Player;
 import com.djk.tournament_manager.model.Tournament;
 import org.springframework.stereotype.Repository;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 @Repository("fakePlayerDao")
 public class FakePlayerDataAccessService implements PlayerDao {
@@ -15,13 +12,30 @@ public class FakePlayerDataAccessService implements PlayerDao {
 
     @Override
     public UUID insertPlayer(UUID id, Player player) {
-        DB.add(new Player(id, player.getName(), player.getRoomCode(), player.getFormat(), player.getDeckName()));
+        DB.add(new Player(id, player.getTournamentID(), player.getName(), player.getRoomCode(), player.getFormat(), player.getDeckName()));
         return id;
     }
 
     @Override
     public List<Player> selectAllPlayers() {
         return DB;
+    }
+
+    @Override
+    public List<Player> selectPlayersByTournament(String code) {
+        List<Player> playersInTournament = new ArrayList<>();
+        Iterator itr = DB.iterator();
+
+        while(itr.hasNext())
+        {
+            Player p = (Player)itr.next();
+            if(p.getRoomCode().equals(code))
+            {
+                playersInTournament.add(p);
+            }
+        }
+
+        return playersInTournament;
     }
 
     @Override
@@ -48,7 +62,7 @@ public class FakePlayerDataAccessService implements PlayerDao {
                 .map(p -> {
                     int indexOfPlayerToUpdate = DB.indexOf(p);
                     if(indexOfPlayerToUpdate >= 0){
-                        DB.set(indexOfPlayerToUpdate, new Player(id, update.getName(), update.getRoomCode(), update.getFormat(), update.getDeckName()));
+                        DB.set(indexOfPlayerToUpdate, new Player(id, update.getTournamentID(), update.getName(), update.getRoomCode(), update.getFormat(), update.getDeckName()));
                         return 1;
                     }
                     return 0;

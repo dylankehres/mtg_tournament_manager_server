@@ -1,7 +1,8 @@
 import React, { Component } from "react";
 import $ from "jquery";
 import { Form, Dropdown, Button } from "react-bootstrap";
-import StartTmt from "./startTmt";
+import { Redirect, withRouter } from "react-router-dom";
+// import StartTmt from "./startTmt";
 
 class HostTmt extends Component {
   state = {
@@ -130,11 +131,9 @@ class HostTmt extends Component {
         </Form>
       );
     } else {
-      return (
-        <StartTmt serverAddress={this.props.serverAddress} tmt={this.state} />
-      );
+      return <Redirect to={`/host/${this.state.id}`} />;
     }
   }
 }
 
-export default HostTmt;
+export default withRouter(HostTmt);

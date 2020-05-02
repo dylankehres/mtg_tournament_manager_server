@@ -24,7 +24,9 @@ public interface TournamentDao {
 
     int updateTournamentById(UUID id, Tournament tournament);
 
-    UUID addPlayer(String roomCode, Player player);
+//    UUID addPlayer(String roomCode, Player player);
+
+//    Optional<Player> selectPlayerById(UUID id);
 
     List<Player> selectPlayersInTournament(String code);
 }

@@ -44,12 +44,19 @@ public class TournamentController {
         return tournamentService.getAllTournaments();
     }
 
-//    @GetMapping(path = "{id}")
-//    public Tournament getTournamentById(@PathVariable("id") UUID id)
-//    {
-//        return tournamentService.getTournamentById(id)
-//                .orElse(null);
-//    }
+    @GetMapping(path = "host/{id}")
+    public Tournament getTournamentById(@PathVariable("id") UUID id)
+    {
+        return tournamentService.getTournamentById(id)
+                .orElse(null);
+    }
+
+    @GetMapping(path = "join/{id}")
+    public Player getPlayerById(@PathVariable("id") UUID id)
+    {
+        return tournamentService.getPlayerById(id)
+                .orElse(null);
+    }
 
 //    @DeleteMapping(path = "{id}")
 //    public void deleteTournamentByPathId(@PathVariable("id") UUID id)
