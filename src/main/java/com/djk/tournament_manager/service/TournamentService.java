@@ -94,20 +94,25 @@ public class TournamentService {
         int numGames = 3;
         Optional<Tournament> tournamentMaybe = tournamentDao.selectTournamentById(tournamentID);
 
-        if(tournamentMaybe.isPresent()) {
+        if(tournamentMaybe.isPresent())
+        {
             String code = tournamentMaybe.get().getRoomCode();
-            List<Player> waitingPlayers = playerDao.selectPlayersByTournament(code);
 
-            if (waitingPlayers.size() % 2 == 1) {
-                UUID id = UUID.randomUUID();
-                waitingPlayers.add(new Player(id, tournamentMaybe.get().getID(), "BYE", code, tournamentMaybe.get().getFormat(), ""));
-            }
-
-            Collections.shuffle(waitingPlayers);
-
-            for (int i = 0; i<waitingPlayers.size(); i+=2)
+            if (getMatchesByRoomCode(code).isEmpty())
             {
-                matchDao.insertMatch(tournamentMaybe.get().getID(), numGames, waitingPlayers.get(i), waitingPlayers.get(i+1));
+                List<Player> waitingPlayers = playerDao.selectPlayersByTournament(code);
+
+                if (waitingPlayers.size() % 2 == 1)
+                {
+                    UUID id = UUID.randomUUID();
+                    waitingPlayers.add(new Player(id, tournamentMaybe.get().getID(), "BYE", code, tournamentMaybe.get().getFormat(), ""));
+                }
+
+                Collections.shuffle(waitingPlayers);
+
+                for (int i = 0; i < waitingPlayers.size(); i += 2) {
+                 matchDao.insertMatch(tournamentMaybe.get().getID(), numGames, waitingPlayers.get(i), waitingPlayers.get(i + 1));
+                }
             }
 
             return getMatchesByRoomCode(code);

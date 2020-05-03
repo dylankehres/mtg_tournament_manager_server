@@ -39,8 +39,8 @@ class Root extends Component {
           <PropsRoute exact path="/tournament" component={Tournament} />
           <PropsRoute path="/join/:playerID" component={PlayerWaiting} />
           <PropsRoute exact path="/host" component={HostTmt} />
-          <PropsRoute path="/host/:tmtID" component={StartTmt} />
-          <PropsRoute path="/host/pairings" component={Pairings} />
+          <PropsRoute exact path="/host/:tmtID" component={StartTmt} />
+          <PropsRoute exact path="/host/pairings/:tmtID" component={Pairings} />
           <PropsRoute path="/playerlist" component={PlayerList} />
         </Switch>
       </Router>

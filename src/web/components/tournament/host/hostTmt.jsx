@@ -2,7 +2,6 @@ import React, { Component } from "react";
 import $ from "jquery";
 import { Form, Dropdown, Button } from "react-bootstrap";
 import { Redirect, withRouter } from "react-router-dom";
-// import StartTmt from "./startTmt";
 
 class HostTmt extends Component {
   state = {

@@ -2,10 +2,12 @@ import React, { Component } from "react";
 import { Button, Form } from "react-bootstrap";
 import PlayerList from "../playerList";
 import $ from "jquery";
+import { Redirect } from "react-router-dom";
 
 class StartTmt extends Component {
   state = {
     roomCode: "",
+    pairings: [],
   };
 
   handleCancelTmt() {
@@ -44,9 +46,9 @@ class StartTmt extends Component {
         "/host/pairings/" +
         tmt.props.match.params.tmtID,
       type: "GET",
-      // data: JSON.stringify(tmt.props.match.params.tmtID),
       success: (data) => {
         console.log("Ajax success", data);
+        tmt.setState({ pairings: data });
       },
       error: function (jqxhr, status) {
         console.log("Ajax Error", status);
@@ -63,6 +65,7 @@ class StartTmt extends Component {
       url: this.props.serverAddress + "/host/" + this.props.match.params.tmtID,
       type: "GET",
       success: (tmt) => {
+        debugger;
         if (tmt.roomCode === "") {
           alert("Something went wrong. Please try that again.");
         } else {
@@ -79,6 +82,11 @@ class StartTmt extends Component {
   render() {
     if (this.state.roomCode === "") {
       return <h2>Loading...</h2>;
+    } else if (this.state.pairings.length > 0) {
+      debugger;
+      return (
+        <Redirect to={`/host/pairings/${this.props.match.params.tmtID}`} />
+      );
     } else {
       return (
         <div className="m-2">
@@ -89,7 +97,6 @@ class StartTmt extends Component {
           <Form>
             <Button
               className="btn btn-primary m-2"
-              //href="/host/pairings"
               onClick={() => this.handleStartTmt()}
             >
               Start Tournament
