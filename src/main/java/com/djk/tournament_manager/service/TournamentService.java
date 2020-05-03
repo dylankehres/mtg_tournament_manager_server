@@ -1,7 +1,9 @@
 package com.djk.tournament_manager.service;
 
+import com.djk.tournament_manager.dao.MatchDao;
 import com.djk.tournament_manager.dao.PlayerDao;
 import com.djk.tournament_manager.dao.TournamentDao;
+import com.djk.tournament_manager.model.Match;
 import com.djk.tournament_manager.model.Player;
 import com.djk.tournament_manager.model.Tournament;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +19,7 @@ public class TournamentService {
 
     private final TournamentDao tournamentDao;
     private final PlayerDao playerDao;
+    private final MatchDao matchDao;
 
 //    public WebMvcConfigurer corsConfigurer() {
 //        return new WebMvcConfigurer() {
@@ -29,10 +32,11 @@ public class TournamentService {
 //    }
 
     @Autowired
-    public TournamentService(@Qualifier("fakeTournamentDao") TournamentDao tournamentDao, @Qualifier("fakePlayerDao") PlayerDao playerDao)
+    public TournamentService(@Qualifier("fakeTournamentDao") TournamentDao tournamentDao, @Qualifier("fakePlayerDao") PlayerDao playerDao, @Qualifier("fakeMatchDao") MatchDao matchDao)
     {
         this.tournamentDao = tournamentDao;
         this.playerDao = playerDao;
+        this.matchDao = matchDao;
     }
 
     public UUID addTournament(Tournament tournament)
@@ -84,5 +88,44 @@ public class TournamentService {
     }
 
     public int deletePlayer(UUID id) { return playerDao.deletePlayerById(id); }
+
+    public List<Match> generatePairings(UUID tournamentID)
+    {
+        int numGames = 3;
+        Optional<Tournament> tournamentMaybe = tournamentDao.selectTournamentById(tournamentID);
+
+        if(tournamentMaybe.isPresent()) {
+            String code = tournamentMaybe.get().getRoomCode();
+            List<Player> waitingPlayers = playerDao.selectPlayersByTournament(code);
+
+            if (waitingPlayers.size() % 2 == 1) {
+                UUID id = UUID.randomUUID();
+                waitingPlayers.add(new Player(id, tournamentMaybe.get().getID(), "BYE", code, tournamentMaybe.get().getFormat(), ""));
+            }
+
+            Collections.shuffle(waitingPlayers);
+
+            for (int i = 0; i<waitingPlayers.size(); i+=2)
+            {
+                matchDao.insertMatch(tournamentMaybe.get().getID(), numGames, waitingPlayers.get(i), waitingPlayers.get(i+1));
+            }
+
+            return getMatchesByRoomCode(code);
+        }
+
+        return new ArrayList<>();
+    }
+
+    public List<Match> getMatchesByRoomCode(String code)
+    {
+        Optional<Tournament> tournamentMaybe = tournamentDao.selectTournamentByCode(code);
+        if(tournamentMaybe.isPresent())
+        {
+            return matchDao.selectMatchesInTournament(tournamentMaybe.get().getID());
+        }
+
+        return new ArrayList<>();
+
+    }
 
 }

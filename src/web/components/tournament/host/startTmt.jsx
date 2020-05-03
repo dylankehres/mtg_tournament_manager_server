@@ -19,7 +19,32 @@ class StartTmt extends Component {
       },
       url: this.props.serverAddress + "/host",
       type: "DELETE",
-      data: JSON.stringify(tmt.props.tmt.id),
+      data: JSON.stringify(tmt.props.match.params.tmtID),
+      success: (data) => {
+        console.log("Ajax success", data);
+      },
+      error: function (jqxhr, status) {
+        console.log("Ajax Error", status);
+      },
+    });
+  }
+
+  handleStartTmt() {
+    let tmt = this;
+    console.log("Start tournament", tmt);
+    debugger;
+
+    $.ajax({
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      url:
+        this.props.serverAddress +
+        "/host/pairings/" +
+        tmt.props.match.params.tmtID,
+      type: "GET",
+      // data: JSON.stringify(tmt.props.match.params.tmtID),
       success: (data) => {
         console.log("Ajax success", data);
       },
@@ -62,7 +87,11 @@ class StartTmt extends Component {
             roomCode={this.state.roomCode}
           />
           <Form>
-            <Button className="btn btn-primary m-2" href="/host/pairings">
+            <Button
+              className="btn btn-primary m-2"
+              //href="/host/pairings"
+              onClick={() => this.handleStartTmt()}
+            >
               Start Tournament
             </Button>
             <Button

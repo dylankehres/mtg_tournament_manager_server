@@ -31,6 +31,18 @@ public class Player {
         this.deckName = deckName;
     }
 
+//    public Player(@JsonProperty("id") UUID id,
+//                  @JsonProperty("tmtID") UUID tournamentID,
+//                  @JsonProperty("roomCode") String roomCode,
+//                  @JsonProperty("format") String format)
+//    {
+//        this.id = id;
+//        this.tournamentID = tournamentID;
+//        this.userName = "BYE";
+//        this.roomCode = roomCode;
+//        this.format = format;
+//        this.deckName = "";
+//    }
 
     public UUID getID()
     {

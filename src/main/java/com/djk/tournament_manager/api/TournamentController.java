@@ -1,5 +1,6 @@
 package com.djk.tournament_manager.api;
 
+import com.djk.tournament_manager.model.Match;
 import com.djk.tournament_manager.model.Player;
 import com.djk.tournament_manager.model.Tournament;
 import com.djk.tournament_manager.service.TournamentService;
@@ -34,7 +35,7 @@ public class TournamentController {
     }
 
     @PostMapping(path = "join")
-    public UUID addPlayer(@Valid @NonNull @RequestBody Player player)
+    public UUID addPlayer(@NonNull @RequestBody Player player)
     {
         return tournamentService.addPlayer(player);
     }
@@ -51,6 +52,12 @@ public class TournamentController {
                 .orElse(null);
     }
 
+    @GetMapping(path = "host/pairings/{id}")
+    public List<Match> getPairings(@PathVariable("id") UUID id)
+    {
+        return tournamentService.generatePairings(id);
+    }
+
     @GetMapping(path = "join/{id}")
     public Player getPlayerById(@PathVariable("id") UUID id)
     {
@@ -61,6 +68,12 @@ public class TournamentController {
     @GetMapping(path = "playerList/{id}")
     public List<Player> getPlayersInTournament(@PathVariable("id") String code){
         return tournamentService.getPlayersInTournament(code);
+    }
+
+    @GetMapping(path = "pairings/{code}")
+    public List<Match> getPairings(@PathVariable("code") String code)
+    {
+        return tournamentService.getMatchesByRoomCode(code);
     }
 
     @DeleteMapping(path = "host")

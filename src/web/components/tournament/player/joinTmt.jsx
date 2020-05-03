@@ -43,7 +43,7 @@ class JoinTmt extends Component {
 
   handleJoinTmt() {
     if (this.formIsValid) {
-      console.log("Joining tournament");
+      console.log("Joining tournament", this.state);
       $.ajax({
         headers: {
           Accept: "application/json",
