@@ -34,7 +34,6 @@ class StartTmt extends Component {
   handleStartTmt() {
     let tmt = this;
     console.log("Start tournament", tmt);
-    debugger;
 
     $.ajax({
       headers: {
@@ -65,7 +64,6 @@ class StartTmt extends Component {
       url: this.props.serverAddress + "/host/" + this.props.match.params.tmtID,
       type: "GET",
       success: (tmt) => {
-        debugger;
         if (tmt.roomCode === "") {
           alert("Something went wrong. Please try that again.");
         } else {
@@ -83,7 +81,6 @@ class StartTmt extends Component {
     if (this.state.roomCode === "") {
       return <h2>Loading...</h2>;
     } else if (this.state.pairings.length > 0) {
-      debugger;
       return (
         <Redirect to={`/host/pairings/${this.props.match.params.tmtID}`} />
       );

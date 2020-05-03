@@ -35,11 +35,6 @@ class Pairings extends Component {
   }
 
   render() {
-    // return (
-    // <div>
-    //   <h2>Here are the pairings.</h2>
-    // </div>
-    // );
     if (this.state.pairings.length > 0) {
       return (
         <div className="m-2" style={{ width: "450px" }}>
