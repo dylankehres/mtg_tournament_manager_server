@@ -133,4 +133,16 @@ public class TournamentService {
 
     }
 
+    public void deleteMatchByTournamentID(UUID tournamentID) {
+        List<Match> matchesToDelete = matchDao.selectMatchesInTournament(tournamentID);
+
+        Iterator itr = matchesToDelete.iterator();
+
+        while(itr.hasNext())
+        {
+            Match m = (Match)itr.next();
+            matchDao.deleteMatchById(m.getID());
+        }
+    }
+
 }

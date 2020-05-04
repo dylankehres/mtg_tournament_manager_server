@@ -55,8 +55,6 @@ class HostTmt extends Component {
   }
 
   handleOpenTmt() {
-    console.log("Open tournament");
-
     if (this.formIsValid()) {
       $.ajax({
         headers: {
@@ -70,12 +68,11 @@ class HostTmt extends Component {
           if (id === "") {
             alert("Room code is not unique. Please try a differnt code.");
           } else {
-            console.log("Opened tournament");
             this.setState({ id });
           }
         },
         error: function (jqxhr, status) {
-          console.log("Ajax Error", status);
+          console.log("Ajax Error in handleOpenTmt", status);
         },
       });
     }
@@ -123,7 +120,6 @@ class HostTmt extends Component {
             className="btn btn-primary m-2 "
             onClick={() => this.handleOpenTmt()}
             disabled={this.getOpenDisabled()}
-            // href="/host/waiting/"
           >
             Open Tournament
           </Button>

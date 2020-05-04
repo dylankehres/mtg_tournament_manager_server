@@ -3,7 +3,6 @@ import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 
 import Home from "./components/home";
 import Tournament from "./components/tournament/tournament";
-import Pairings from "./components/tournament/pairings";
 import JoinTmt from "./components/tournament/player/joinTmt";
 import PlayerWaiting from "./components/tournament/player/playerWaiting";
 import PlayerList from "./components/tournament/playerList";
@@ -40,7 +39,6 @@ class Root extends Component {
           <PropsRoute path="/join/:playerID" component={PlayerWaiting} />
           <PropsRoute exact path="/host" component={HostTmt} />
           <PropsRoute exact path="/host/:tmtID" component={StartTmt} />
-          <PropsRoute exact path="/host/pairings/:tmtID" component={Pairings} />
           <PropsRoute path="/playerlist" component={PlayerList} />
         </Switch>
       </Router>

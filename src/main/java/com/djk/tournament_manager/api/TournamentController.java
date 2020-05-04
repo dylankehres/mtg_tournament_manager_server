@@ -4,6 +4,7 @@ import com.djk.tournament_manager.model.Match;
 import com.djk.tournament_manager.model.Player;
 import com.djk.tournament_manager.model.Tournament;
 import com.djk.tournament_manager.service.TournamentService;
+import jdk.nashorn.internal.runtime.regexp.joni.constants.OPCode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.lang.NonNull;
 import org.springframework.web.bind.annotation.*;
@@ -67,7 +68,7 @@ public class TournamentController {
 
     @GetMapping(path = "playerList/{id}")
     public List<Player> getPlayersInTournament(@PathVariable("id") String code){
-        return tournamentService.getPlayersInTournament(code);
+         return tournamentService.getPlayersInTournament(code);
     }
 
     @GetMapping(path = "pairings/{code}")
@@ -76,9 +77,27 @@ public class TournamentController {
         return tournamentService.getMatchesByRoomCode(code);
     }
 
+    @GetMapping(path = "join/pairings/{id}")
+    public List<Match> waitForPairings(@PathVariable("id") UUID id) throws InterruptedException {
+        Optional<Player> playerMaybe = tournamentService.getPlayerById(id);
+        if(playerMaybe.isPresent()) {
+            String code = playerMaybe.get().getRoomCode();
+            List<Match> pairings = new ArrayList<>();
+            while(pairings.isEmpty()) {
+                pairings = tournamentService.getMatchesByRoomCode(code);
+                wait(500);
+            }
+
+            return pairings;
+        }
+
+        return new ArrayList<>();
+    }
+
     @DeleteMapping(path = "host")
     public void deleteTournamentById(@RequestBody UUID id)
     {
+        tournamentService.deleteMatchByTournamentID(id);
         tournamentService.deleteTournament(id);
     }
 

@@ -15,13 +15,11 @@ class TmtList extends Component {
       },
       url: this.props.serverAddress,
       type: "GET",
-      // data: JSON.stringify(this.state),
       success: (tmtList) => {
-        console.log("Ajax success", tmtList);
         this.setState({ tmtList });
       },
       error: function (jqxhr, status) {
-        console.log("Ajax Error", status);
+        console.log("Ajax Error in componentDidMount for tmtList.jsx", status);
       },
     });
   }

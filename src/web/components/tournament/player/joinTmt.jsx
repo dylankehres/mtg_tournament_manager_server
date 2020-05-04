@@ -56,12 +56,11 @@ class JoinTmt extends Component {
           if (id === "") {
             alert("Invalid room code");
           } else {
-            console.log("Joined tournament");
             this.setState({ id });
           }
         },
         error: function (jqxhr, status) {
-          console.log("Ajax Error", status);
+          console.log("Ajax Error in handleJoinTmt", status);
         },
       });
     }
@@ -143,7 +142,6 @@ class JoinTmt extends Component {
                       className="btn btn-primary m-2"
                       disabled={this.getJoinDisabled()}
                       onClick={() => this.handleJoinTmt()}
-                      // href="/join/waiting"
                     >
                       Join Tournament
                     </Button>
