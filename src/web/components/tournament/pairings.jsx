@@ -1,11 +1,11 @@
 import React from "react";
-import { Button, Table } from "react-bootstrap";
+import { Table } from "react-bootstrap";
 
 const Pairings = (props) => {
   if (props.pairings.length > 0) {
     return (
       <div className="m-2" style={{ width: "450px" }}>
-        <div className="m-2">
+        {/* <div>
           <h4>Pairings</h4>
           <Button
             className="btn btn-primary m-2 "
@@ -13,7 +13,7 @@ const Pairings = (props) => {
           >
             Refresh
           </Button>
-        </div>
+        </div> */}
         <Table striped bordered hover size="sm">
           <thead>
             <tr>

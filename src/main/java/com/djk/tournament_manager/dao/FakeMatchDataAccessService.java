@@ -12,8 +12,8 @@ public class FakeMatchDataAccessService implements MatchDao {
     private static List<Match> DB = new ArrayList<>();
 
     @Override
-    public UUID insertMatch(UUID id, UUID tournamentID, int numGames, Player player1, Player player2) {
-        DB.add(new Match(id, tournamentID, numGames, player1, player2));
+    public UUID insertMatch(UUID id, UUID tournamentID, int numGames, Player player1, Player player2, int tableNum) {
+        DB.add(new Match(id, tournamentID, numGames, player1, player2, tableNum));
         return id;
     }
 

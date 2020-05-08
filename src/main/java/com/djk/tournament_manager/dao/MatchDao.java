@@ -8,11 +8,11 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface MatchDao {
-    UUID insertMatch(UUID id, UUID tournamentID, int numGames, Player player1, Player player2);
+    UUID insertMatch(UUID id, UUID tournamentID, int numGames, Player player1, Player player2, int tableNum);
 
-    default UUID insertMatch(UUID tournamentID, int numGames, Player player1, Player player2) {
+    default UUID insertMatch(UUID tournamentID, int numGames, Player player1, Player player2, int tableNum) {
         UUID id = UUID.randomUUID();
-        return insertMatch(id, tournamentID, numGames, player1, player2);
+        return insertMatch(id, tournamentID, numGames, player1, player2, tableNum);
     }
 
     List<Match> selectAllMatches();

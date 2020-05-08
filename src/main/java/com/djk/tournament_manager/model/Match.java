@@ -15,12 +15,26 @@ public class Match {
     private int numGames;
     private int player1Wins;
     private int player2Wins;
+    private int tableNum;
+
+    public Match()
+    {
+        this.id = null;
+        this.tournamentID = null;
+        this.numGames = 0;
+        this.player1 = null;
+        this.player2 = null;
+        this.player1Wins = 0;
+        this.player2Wins = 0;
+        this.tableNum = 0;
+    }
 
     public Match(@JsonProperty("id") UUID id,
-                  @JsonProperty("tmtID") UUID tournamentID,
+                 @JsonProperty("tmtID") UUID tournamentID,
                  @JsonProperty("numGames") int numGames,
-                  @JsonProperty("player1") Player player1,
-                  @JsonProperty("player2") Player player2)
+                 @JsonProperty("player1") Player player1,
+                 @JsonProperty("player2") Player player2,
+                 @JsonProperty("tableNum") int tableNum)
     {
         this.id = id;
         this.tournamentID = tournamentID;
@@ -29,7 +43,7 @@ public class Match {
         this.player2 = player2;
         this.player1Wins = 0;
         this.player2Wins = 0;
-
+        this.tableNum = tableNum;
     }
 
 
@@ -63,7 +77,11 @@ public class Match {
         return this.numGames;
     }
 
+    public int getTableNum() { return this.tableNum; }
+
     public void setTournamentID(UUID tournamentID) {this.tournamentID = tournamentID; }
+
+    public void setTableNum(int tableNum) { this.tableNum = tableNum; }
 
     public boolean addPlayer1Win()
     {
@@ -96,6 +114,6 @@ public class Match {
 
     public boolean playerIsInMatch(UUID playerID)
     {
-        return (playerID == this.player1.getID() || playerID == this.player2.getID());
+        return (this.player1.getID().equals(playerID) || this.player2.getID().equals(playerID));
     }
 }

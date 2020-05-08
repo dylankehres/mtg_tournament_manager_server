@@ -111,7 +111,7 @@ public class TournamentService {
                 Collections.shuffle(waitingPlayers);
 
                 for (int i = 0; i < waitingPlayers.size(); i += 2) {
-                 matchDao.insertMatch(tournamentMaybe.get().getID(), numGames, waitingPlayers.get(i), waitingPlayers.get(i + 1));
+                 matchDao.insertMatch(tournamentMaybe.get().getID(), numGames, waitingPlayers.get(i), waitingPlayers.get(i + 1), i);
                 }
             }
 
@@ -133,7 +133,13 @@ public class TournamentService {
 
     }
 
-    public void deleteMatchByTournamentID(UUID tournamentID) {
+    public Optional<Match> getMatchByPlayerID(UUID playerID)
+    {
+        return matchDao.selectMatchByPlayerID(playerID);
+    }
+
+    public void deleteMatchByTournamentID(UUID tournamentID)
+    {
         List<Match> matchesToDelete = matchDao.selectMatchesInTournament(tournamentID);
 
         Iterator itr = matchesToDelete.iterator();

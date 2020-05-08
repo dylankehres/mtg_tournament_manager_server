@@ -78,20 +78,13 @@ public class TournamentController {
     }
 
     @GetMapping(path = "join/pairings/{id}")
-    public List<Match> waitForPairings(@PathVariable("id") UUID id) throws InterruptedException {
-        Optional<Player> playerMaybe = tournamentService.getPlayerById(id);
-        if(playerMaybe.isPresent()) {
-            String code = playerMaybe.get().getRoomCode();
-            List<Match> pairings = new ArrayList<>();
-            while(pairings.isEmpty()) {
-                pairings = tournamentService.getMatchesByRoomCode(code);
-                wait(500);
-            }
-
-            return pairings;
+    public Match getMatchForPlayer(@PathVariable("id") UUID id) {
+        Optional<Match> matchMaybe = tournamentService.getMatchByPlayerID(id);
+        if(matchMaybe.isPresent()) {
+            return matchMaybe.get();
         }
 
-        return new ArrayList<>();
+        return new Match();
     }
 
     @DeleteMapping(path = "host")
