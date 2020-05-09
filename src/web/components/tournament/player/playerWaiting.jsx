@@ -9,12 +9,12 @@ class PlayerWaiting extends Component {
   state = {
     pairings: [],
     match: {},
-    player: {},
+    player: {
+      roomCode: "",
+    },
   };
 
   handleLeaveTmt() {
-    console.log("Leave tournament");
-
     $.ajax({
       headers: {
         Accept: "application/json",
@@ -32,6 +32,7 @@ class PlayerWaiting extends Component {
 
   async getPlayerData() {
     let waiting = this;
+
     await $.ajax({
       headers: {
         Accept: "application/json",
@@ -55,7 +56,7 @@ class PlayerWaiting extends Component {
 
   getPairings() {
     let waiting = this;
-    console.log("Try getPairings()");
+
     if (waiting.state.player.roomCode !== "") {
       $.ajax({
         headers: {
@@ -67,9 +68,8 @@ class PlayerWaiting extends Component {
           "/pairings/" +
           waiting.state.player.roomCode,
         type: "GET",
-        success: (data) => {
-          waiting.setState({ pairings: data });
-          // console.log("Pairings: ", waiting.state.pairings);
+        success: (pairings) => {
+          waiting.setState({ pairings });
         },
         error: function (jqxhr, status) {
           console.log(
@@ -100,7 +100,6 @@ class PlayerWaiting extends Component {
             alert("Something went wrong. Please try that again.");
           } else {
             waiting.setState({ match });
-            console.log("Match", waiting.state.match);
           }
         },
         error: function (jqxhr, status) {
@@ -112,14 +111,11 @@ class PlayerWaiting extends Component {
 
   componentDidMount() {
     this.getPlayerData().then(() => this.getPairings());
-    // this.getPairings();
     this.getPlayerMatch();
   }
 
   render() {
-    if (this.state.player.roomCode === "") {
-      return <h2>Loading...</h2>;
-    } else if (this.state.pairings.length > 0) {
+    if (this.state.pairings.length > 0) {
       return (
         <React.Fragment>
           <PlayerMatch
@@ -132,7 +128,8 @@ class PlayerWaiting extends Component {
           />
         </React.Fragment>
       );
-    } else {
+    } else if (this.state.player.roomCode !== "") {
+      console.log("Room code: ", this.state.player.roomCode);
       return (
         <div className="m-2">
           <PlayerList
@@ -150,6 +147,8 @@ class PlayerWaiting extends Component {
           </Form>
         </div>
       );
+    } else {
+      return <h2>Loading...</h2>;
     }
   }
 }
