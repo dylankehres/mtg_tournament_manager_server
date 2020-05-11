@@ -12,7 +12,7 @@ public class FakeMatchDataAccessService implements MatchDao {
     private static List<Match> DB = new ArrayList<>();
 
     @Override
-    public UUID insertMatch(UUID id, UUID tournamentID, int numGames, Player player1, Player player2, int tableNum) {
+    public String insertMatch(String id, String tournamentID, int numGames, Player player1, Player player2, int tableNum) {
         DB.add(new Match(id, tournamentID, numGames, player1, player2, tableNum));
         return id;
     }
@@ -23,7 +23,7 @@ public class FakeMatchDataAccessService implements MatchDao {
     }
 
     @Override
-    public List<Match> selectMatchesInTournament(UUID tournamentID) {
+    public List<Match> selectMatchesInTournament(String tournamentID) {
         List<Match> matchesInTournament = new ArrayList<>();
         Iterator itr = DB.iterator();
 
@@ -40,21 +40,21 @@ public class FakeMatchDataAccessService implements MatchDao {
     }
 
     @Override
-    public Optional<Match> selectMatchById(UUID id) {
+    public Optional<Match> selectMatchById(String id) {
         return DB.stream()
                 .filter(match -> match.getID().equals(id))
                 .findFirst();
     }
 
     @Override
-    public Optional<Match> selectMatchByPlayerID(UUID playerId) {
+    public Optional<Match> selectMatchByPlayerID(String playerId) {
         return DB.stream()
                 .filter(match -> match.playerIsInMatch(playerId))
                 .findFirst();
     }
 
     @Override
-    public int deleteMatchById(UUID id) {
+    public int deleteMatchById(String id) {
         Optional<Match> playerMaybe = selectMatchById(id);
         if (playerMaybe.isPresent())
         {

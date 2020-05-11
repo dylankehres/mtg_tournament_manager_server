@@ -7,33 +7,41 @@ import java.util.*;
 
 public class Tournament {
 
-    private final UUID id;
+    private final String id;
 
     @NotBlank
-    private final String tmtName;
+    private final String name;
     private final String roomCode;
     private final String format;
 
-    public Tournament(@JsonProperty("id") UUID id,
-                      @JsonProperty("tmtName") String tmtName,
+    public Tournament()
+    {
+        this.id = "";
+        this.name = "";
+        this.roomCode = "";
+        this.format = "";
+    }
+
+    public Tournament(@JsonProperty("id") String id,
+                      @JsonProperty("name") String name,
                       @JsonProperty("roomCode") String roomCode,
                       @JsonProperty("format") String format)
     {
         this.id = id;
-        this.tmtName = tmtName;
+        this.name = name;
         this.roomCode = roomCode;
         this.format = format;
     }
 
 
-    public UUID getID()
+    public String getID()
     {
         return this.id;
     }
 
     public String getName()
     {
-        return this.tmtName;
+        return this.name;
     }
 
     public String getRoomCode() { return this.roomCode;}

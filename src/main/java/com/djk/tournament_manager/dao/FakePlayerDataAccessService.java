@@ -11,7 +11,7 @@ public class FakePlayerDataAccessService implements PlayerDao {
     private static List<Player> DB = new ArrayList<>();
 
     @Override
-    public UUID insertPlayer(UUID id, Player player) {
+    public String insertPlayer(String id, Player player) {
         DB.add(new Player(id, player.getTournamentID(), player.getName(), player.getRoomCode(), player.getFormat(), player.getDeckName()));
         return id;
     }
@@ -39,14 +39,14 @@ public class FakePlayerDataAccessService implements PlayerDao {
     }
 
     @Override
-    public Optional<Player> selectPlayerById(UUID id) {
+    public Optional<Player> selectPlayerById(String id) {
         return DB.stream()
                 .filter(player -> player.getID().equals(id))
                 .findFirst();
     }
 
     @Override
-    public int deletePlayerById(UUID id) {
+    public int deletePlayerById(String id) {
         Optional<Player> playerMaybe = selectPlayerById(id);
         if (playerMaybe.isPresent())
         {
@@ -57,7 +57,7 @@ public class FakePlayerDataAccessService implements PlayerDao {
     }
 
     @Override
-    public int updatePlayerById(UUID id, Player update) {
+    public int updatePlayerById(String id, Player update) {
         return selectPlayerById(id)
                 .map(p -> {
                     int indexOfPlayerToUpdate = DB.indexOf(p);

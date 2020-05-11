@@ -6,7 +6,7 @@ import { Redirect, withRouter } from "react-router-dom";
 class HostTmt extends Component {
   state = {
     id: "",
-    tmtName: "",
+    name: "",
     roomCode: "",
     format: "Select Format",
   };
@@ -23,7 +23,7 @@ class HostTmt extends Component {
   handleFormatSelect = this.handleFormatSelect.bind(this);
 
   handleNameChange(event) {
-    this.setState({ tmtName: event.target.value });
+    this.setState({ name: event.target.value });
   }
 
   handleRoomChange(event) {
@@ -63,6 +63,7 @@ class HostTmt extends Component {
         },
         url: this.props.serverAddress + "/host",
         type: "POST",
+        dataType: "text",
         data: JSON.stringify(this.state),
         success: (id) => {
           if (id === "") {
@@ -87,7 +88,7 @@ class HostTmt extends Component {
             <Form.Control
               type="text"
               placeholder="Enter name"
-              value={this.state.tmtName}
+              value={this.state.name}
               onChange={this.handleNameChange}
             ></Form.Control>
           </Form.Group>

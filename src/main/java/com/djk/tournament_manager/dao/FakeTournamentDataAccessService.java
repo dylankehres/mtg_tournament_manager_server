@@ -12,7 +12,7 @@ public class FakeTournamentDataAccessService implements TournamentDao {
     private static List<Tournament> DB = new ArrayList<>();
 
     @Override
-    public UUID insertTournament(UUID id, Tournament tournament)
+    public String insertTournament(String id, Tournament tournament)
     {
         if(DB.stream().anyMatch(t -> t.getRoomCode().equals(tournament.getRoomCode()))) {
             return null;
@@ -28,76 +28,53 @@ public class FakeTournamentDataAccessService implements TournamentDao {
     }
 
     @Override
-    public Optional<Tournament> selectTournamentById(UUID id) {
-        return DB.stream()
+    public Tournament selectTournamentById(String id) {
+        Optional<Tournament> tournamentMaybe = DB.stream()
                 .filter(tournament -> tournament.getID().equals(id))
                 .findFirst();
+
+        if(tournamentMaybe.isPresent()){
+            return  tournamentMaybe.get();
+        }
+
+        return null;
     }
 
     @Override
-    public Optional<Tournament> selectTournamentByCode(String code) {
-        return DB.stream()
+    public Tournament selectTournamentByCode(String code) {
+        Optional<Tournament> tournamentMaybe = DB.stream()
                 .filter(tournament -> tournament.getRoomCode().equals(code))
                 .findFirst();
+
+        if(tournamentMaybe.isPresent()){
+            return  tournamentMaybe.get();
+        }
+
+        return null;
     }
 
     @Override
-    public int deleteTournamentById(UUID id) {
-        Optional<Tournament> tournamentMaybe = selectTournamentById(id);
-        if (tournamentMaybe.isPresent())
+    public int deleteTournamentById(String id) {
+        Tournament tournament = selectTournamentById(id);
+        if (!tournament.equals(null))
         {
-            DB.remove(tournamentMaybe.get());
+            DB.remove(tournament);
             return 1;
         }
         return 0;
     }
 
     @Override
-    public int updateTournamentById(UUID id, Tournament update) {
-        return selectTournamentById(id)
-                .map(t -> {
-                    int indexOfTournamentToUpdate = DB.indexOf(t);
-                    if(indexOfTournamentToUpdate >= 0){
-                        DB.set(indexOfTournamentToUpdate, new Tournament(id, update.getName(), update.getRoomCode(), update.getFormat()));
-                        return 1;
-                    }
-                    return 0;
-                }).orElse(0);
+    public String updateTournamentById(String id, Tournament update) {
+        Tournament t = selectTournamentById(id);
+        if (!t.equals(null))
+        {
+            int indexOfTournamentToUpdate = DB.indexOf(t);
+            if(indexOfTournamentToUpdate >= 0){
+                DB.set(indexOfTournamentToUpdate, new Tournament(id, update.getName(), update.getRoomCode(), update.getFormat()));
+                return id;
+            }
+        }
+        return id;
     }
-
-//    @Override
-//    public UUID addPlayer(String code, Player player)
-//    {
-//        Optional<Tournament> tournamentMaybe = selectTournamentByCode(code);
-//        if (tournamentMaybe.isPresent())
-//        {
-//            Player newPlayer = new Player(UUID.randomUUID(), tournamentMaybe.get().getID(), player.getName(), player.getRoomCode(), player.getFormat(), player.getDeckName());
-//            tournamentMaybe.get().addPlayer(newPlayer);
-//            return newPlayer.getID();
-//        }
-//        return null;
-//    }
-
-//    @Override
-//    public Optional<Player> selectPlayerById(UUID id) {
-//        return DB.stream()
-//                .filter(tournament -> tournament.getPlayerList().contains(id))
-//                .findFirst();
-
-//        return DB.stream().forEach(Tournament::getPlayerList().stream()
-//                .filter(player -> player.getID().equals(id))
-//                .findFirst());
-//    }
-
-    @Override
-    public List<Player> selectPlayersInTournament(String code) {
-//        Optional<Tournament> tournamentMaybe = selectTournamentByCode(code);
-//        if (tournamentMaybe.isPresent())
-//        {
-//            return tournamentMaybe.get().getPlayerList();
-//        }
-        return new ArrayList<>();
-    }
-
-
 }

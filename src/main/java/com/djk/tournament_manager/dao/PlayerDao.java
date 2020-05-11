@@ -8,20 +8,20 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface PlayerDao {
-    UUID insertPlayer(UUID id, Player player);
+    String insertPlayer(String id, Player player);
 
-    default UUID insertPlayer(Player player) {
+    default String insertPlayer(Player player) {
         UUID id = UUID.randomUUID();
-        return insertPlayer(id, player);
+        return insertPlayer(id.toString(), player);
     }
 
     List<Player> selectAllPlayers();
 
     List<Player> selectPlayersByTournament(String code);
 
-    Optional<Player> selectPlayerById(UUID id);
+    Optional<Player> selectPlayerById(String id);
 
-    int deletePlayerById(UUID id);
+    int deletePlayerById(String id);
 
-    int updatePlayerById(UUID id, Player player);
+    int updatePlayerById(String id, Player player);
 }

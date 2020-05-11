@@ -51,11 +51,13 @@ class JoinTmt extends Component {
         },
         url: this.props.serverAddress + "/join",
         type: "POST",
+        dataType: "text",
         data: JSON.stringify(this.state),
         success: (id) => {
           if (id === "") {
             alert("Invalid room code");
           } else {
+            console.log("ID: ", id);
             this.setState({ id });
           }
         },

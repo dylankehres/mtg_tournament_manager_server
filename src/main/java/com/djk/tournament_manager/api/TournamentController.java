@@ -30,13 +30,13 @@ public class TournamentController {
     }
 
     @PostMapping(path ="host")
-    public UUID addTournament(@Valid @NonNull @RequestBody Tournament tournament)
+    public String addTournament(@Valid @NonNull @RequestBody Tournament tournament)
     {
         return tournamentService.addTournament(tournament);
     }
 
     @PostMapping(path = "join")
-    public UUID addPlayer(@NonNull @RequestBody Player player)
+    public String addPlayer(@NonNull @RequestBody Player player)
     {
         return tournamentService.addPlayer(player);
     }
@@ -47,20 +47,26 @@ public class TournamentController {
     }
 
     @GetMapping(path = "host/{id}")
-    public Tournament getTournamentById(@PathVariable("id") UUID id)
+    public Tournament getTournamentById(@PathVariable("id") String id)
     {
-        return tournamentService.getTournamentById(id)
-                .orElse(null);
+        Tournament tournament = tournamentService.getTournamentById(id);
+
+        if(!tournament.equals(null)){
+            return tournament;
+        }
+        else {
+            return null;
+        }
     }
 
     @GetMapping(path = "host/pairings/{id}")
-    public List<Match> getPairings(@PathVariable("id") UUID id)
+    public List<Match> generatePairings(@PathVariable("id") String id)
     {
         return tournamentService.generatePairings(id);
     }
 
     @GetMapping(path = "join/{id}")
-    public Player getPlayerById(@PathVariable("id") UUID id)
+    public Player getPlayerById(@PathVariable("id") String id)
     {
         return tournamentService.getPlayerById(id)
                 .orElse(null);
@@ -78,7 +84,7 @@ public class TournamentController {
     }
 
     @GetMapping(path = "join/pairings/{id}")
-    public Match getMatchForPlayer(@PathVariable("id") UUID id) {
+    public Match getMatchForPlayer(@PathVariable("id") String id) {
         Optional<Match> matchMaybe = tournamentService.getMatchByPlayerID(id);
         if(matchMaybe.isPresent()) {
             return matchMaybe.get();
@@ -88,20 +94,20 @@ public class TournamentController {
     }
 
     @DeleteMapping(path = "host")
-    public void deleteTournamentById(@RequestBody UUID id)
+    public void deleteTournamentById(@RequestBody String id)
     {
         tournamentService.deleteMatchByTournamentID(id);
         tournamentService.deleteTournament(id);
     }
 
     @DeleteMapping(path = "join")
-    public void deletePlayerById(@RequestBody UUID id)
+    public void deletePlayerById(@RequestBody String id)
     {
         tournamentService.deletePlayer(id);
     }
 
     @PutMapping(path = "{id}")
-    public void updateTournamentById(@PathVariable("id") UUID id, @Valid @NonNull @RequestBody Tournament tournamentToUpdate)
+    public void updateTournamentById(@PathVariable("id") String id, @Valid @NonNull @RequestBody Tournament tournamentToUpdate)
     {
         tournamentService.updateTournament(id, tournamentToUpdate);
     }

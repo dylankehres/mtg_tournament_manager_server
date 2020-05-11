@@ -13,6 +13,7 @@ import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import java.util.*;
+import java.util.concurrent.ExecutionException;
 
 @Service
 public class TournamentService {
@@ -32,14 +33,15 @@ public class TournamentService {
 //    }
 
     @Autowired
-    public TournamentService(@Qualifier("fakeTournamentDao") TournamentDao tournamentDao, @Qualifier("fakePlayerDao") PlayerDao playerDao, @Qualifier("fakeMatchDao") MatchDao matchDao)
+//    public TournamentService(@Qualifier("fakeTournamentDao") TournamentDao tournamentDao, @Qualifier("fakePlayerDao") PlayerDao playerDao, @Qualifier("fakeMatchDao") MatchDao matchDao)
+    public TournamentService(@Qualifier("firebaseTournamentDao") TournamentDao tournamentDao, @Qualifier("fakePlayerDao") PlayerDao playerDao, @Qualifier("fakeMatchDao") MatchDao matchDao)
     {
         this.tournamentDao = tournamentDao;
         this.playerDao = playerDao;
         this.matchDao = matchDao;
     }
 
-    public UUID addTournament(Tournament tournament)
+    public String addTournament(Tournament tournament)
     {
         return tournamentDao.insertTournament(tournament);
     }
@@ -49,36 +51,41 @@ public class TournamentService {
          return tournamentDao.selectAllTournaments();
     }
 
-    public Optional<Tournament> getTournamentById(UUID id)
+    public Tournament getTournamentById(String id)
     {
-        return tournamentDao.selectTournamentById(id);
+        try {
+            return tournamentDao.selectTournamentById(id);
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        return null;
     }
 
-    public int deleteTournament(UUID id) {
+    public int deleteTournament(String id) {
         return tournamentDao.deleteTournamentById(id);
     }
 
-    public int updateTournament(UUID id, Tournament tournament)
+    public String updateTournament(String id, Tournament tournament)
     {
         return tournamentDao.updateTournamentById(id, tournament);
     }
 
-//    public UUID addPlayer(Player player){
-//        return tournamentDao.addPlayer(player.getRoomCode(), player);
-//    }
-    public UUID addPlayer(Player player){
-        Optional<Tournament> tournamentMaybe = tournamentDao.selectTournamentByCode(player.getRoomCode());
+    public String addPlayer(Player player){
+        Tournament tournament = tournamentDao.selectTournamentByCode(player.getRoomCode());
 
-        if(tournamentMaybe.isPresent())
+        if(!tournament.equals(null))
         {
-            player.setTournamentID(tournamentMaybe.get().getID());
+            player.setTournamentID(tournament.getID());
             return playerDao.insertPlayer(player);
         }
 
         return null;
     }
 
-    public Optional<Player> getPlayerById(UUID id)
+    public Optional<Player> getPlayerById(String id)
     {
         return playerDao.selectPlayerById(id);
     }
@@ -87,16 +94,23 @@ public class TournamentService {
         return playerDao.selectPlayersByTournament(code);
     }
 
-    public int deletePlayer(UUID id) { return playerDao.deletePlayerById(id); }
+    public int deletePlayer(String id) { return playerDao.deletePlayerById(id); }
 
-    public List<Match> generatePairings(UUID tournamentID)
+    public List<Match> generatePairings(String tournamentID)
     {
         int numGames = 3;
-        Optional<Tournament> tournamentMaybe = tournamentDao.selectTournamentById(tournamentID);
+        Tournament tournament = null;
+        try {
+            tournament = tournamentDao.selectTournamentById(tournamentID);
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
 
-        if(tournamentMaybe.isPresent())
+        if(!tournament.equals(null))
         {
-            String code = tournamentMaybe.get().getRoomCode();
+            String code = tournament.getRoomCode();
 
             if (getMatchesByRoomCode(code).isEmpty())
             {
@@ -105,13 +119,13 @@ public class TournamentService {
                 if (waitingPlayers.size() % 2 == 1)
                 {
                     UUID id = UUID.randomUUID();
-                    waitingPlayers.add(new Player(id, tournamentMaybe.get().getID(), "BYE", code, tournamentMaybe.get().getFormat(), ""));
+                    waitingPlayers.add(new Player(id.toString(), tournament.getID(), "BYE", code, tournament.getFormat(), ""));
                 }
 
                 Collections.shuffle(waitingPlayers);
 
                 for (int i = 0; i < waitingPlayers.size(); i += 2) {
-                 matchDao.insertMatch(tournamentMaybe.get().getID(), numGames, waitingPlayers.get(i), waitingPlayers.get(i + 1), i);
+                 matchDao.insertMatch(tournament.getID(), numGames, waitingPlayers.get(i), waitingPlayers.get(i + 1), i);
                 }
             }
 
@@ -123,22 +137,22 @@ public class TournamentService {
 
     public List<Match> getMatchesByRoomCode(String code)
     {
-        Optional<Tournament> tournamentMaybe = tournamentDao.selectTournamentByCode(code);
-        if(tournamentMaybe.isPresent())
+        Tournament tournament = tournamentDao.selectTournamentByCode(code);
+        if(!tournament.equals(null))
         {
-            return matchDao.selectMatchesInTournament(tournamentMaybe.get().getID());
+            return matchDao.selectMatchesInTournament(tournament.getID());
         }
 
         return new ArrayList<>();
 
     }
 
-    public Optional<Match> getMatchByPlayerID(UUID playerID)
+    public Optional<Match> getMatchByPlayerID(String playerID)
     {
         return matchDao.selectMatchByPlayerID(playerID);
     }
 
-    public void deleteMatchByTournamentID(UUID tournamentID)
+    public void deleteMatchByTournamentID(String tournamentID)
     {
         List<Match> matchesToDelete = matchDao.selectMatchesInTournament(tournamentID);
 

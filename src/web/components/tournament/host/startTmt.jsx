@@ -20,7 +20,7 @@ class StartTmt extends Component {
       },
       url: this.props.serverAddress + "/host",
       type: "DELETE",
-      data: JSON.stringify(tmt.props.match.params.tmtID),
+      data: tmt.props.match.params.tmtID,
       success: (data) => {},
       error: function (jqxhr, status) {
         console.log("Ajax Error in handleCancelTmt", status);

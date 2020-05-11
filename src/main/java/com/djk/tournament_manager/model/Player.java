@@ -7,8 +7,8 @@ import java.util.UUID;
 
 public class Player {
 
-    private final UUID id;
-    private UUID tournamentID;
+    private final String id;
+    private String tournamentID;
 
     @NotBlank
     private String userName;
@@ -16,8 +16,18 @@ public class Player {
     private String format;
     private String deckName;
 
-    public Player(@JsonProperty("id") UUID id,
-                  @JsonProperty("tmtID") UUID tournamentID,
+    public Player()
+    {
+        this.id = "";
+        this.tournamentID = "";
+        this.userName = "";
+        this.roomCode = "";
+        this.format = "";
+        this.deckName = "";
+    }
+
+    public Player(@JsonProperty("id") String id,
+                  @JsonProperty("tmtID") String tournamentID,
                   @JsonProperty("userName") String userName,
                   @JsonProperty("roomCode") String roomCode,
                   @JsonProperty("format") String format,
@@ -31,8 +41,8 @@ public class Player {
         this.deckName = deckName;
     }
 
-//    public Player(@JsonProperty("id") UUID id,
-//                  @JsonProperty("tmtID") UUID tournamentID,
+//    public Player(@JsonProperty("id") String id,
+//                  @JsonProperty("tmtID") String tournamentID,
 //                  @JsonProperty("roomCode") String roomCode,
 //                  @JsonProperty("format") String format)
 //    {
@@ -44,12 +54,12 @@ public class Player {
 //        this.deckName = "";
 //    }
 
-    public UUID getID()
+    public String getID()
     {
         return this.id;
     }
 
-    public UUID getTournamentID() {return this.tournamentID; }
+    public String getTournamentID() {return this.tournamentID; }
 
     public String getName()
     {
@@ -68,5 +78,5 @@ public class Player {
         return this.deckName;
     }
 
-    public void setTournamentID(UUID tournamentID) {this.tournamentID = tournamentID; }
+    public void setTournamentID(String tournamentID) {this.tournamentID = tournamentID; }
 }

@@ -4,29 +4,25 @@ import com.djk.tournament_manager.model.Player;
 import com.djk.tournament_manager.model.Tournament;
 
 import java.util.*;
+import java.util.concurrent.ExecutionException;
 
 public interface TournamentDao {
 
-    UUID insertTournament(UUID id, Tournament tournament);
+    String insertTournament(String id, Tournament tournament);
 
-    default UUID insertTournament(Tournament tournament) {
+    default String insertTournament(Tournament tournament) {
         UUID id = UUID.randomUUID();
-        return insertTournament(id, tournament);
+        return insertTournament(id.toString(), new Tournament(id.toString(), tournament.getName(), tournament.getRoomCode(), tournament.getFormat()));
     }
 
     List<Tournament> selectAllTournaments();
 
-    Optional<Tournament> selectTournamentById(UUID id);
+    Tournament selectTournamentById(String id) throws ExecutionException, InterruptedException;
 
-    Optional<Tournament> selectTournamentByCode(String code);
+    Tournament selectTournamentByCode(String code);
 
-    int deleteTournamentById(UUID id);
+    int deleteTournamentById(String id);
 
-    int updateTournamentById(UUID id, Tournament tournament);
+    String updateTournamentById(String id, Tournament tournament);
 
-//    UUID addPlayer(String roomCode, Player player);
-
-//    Optional<Player> selectPlayerById(UUID id);
-
-    List<Player> selectPlayersInTournament(String code);
 }

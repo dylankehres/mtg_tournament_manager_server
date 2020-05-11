@@ -6,8 +6,8 @@ import javax.validation.constraints.NotBlank;
 import java.util.UUID;
 
 public class Match {
-    private final UUID id;
-    private UUID tournamentID;
+    private final String id;
+    private String tournamentID;
 
     @NotBlank
     private Player player1;
@@ -29,8 +29,8 @@ public class Match {
         this.tableNum = 0;
     }
 
-    public Match(@JsonProperty("id") UUID id,
-                 @JsonProperty("tmtID") UUID tournamentID,
+    public Match(@JsonProperty("id") String id,
+                 @JsonProperty("tmtID") String tournamentID,
                  @JsonProperty("numGames") int numGames,
                  @JsonProperty("player1") Player player1,
                  @JsonProperty("player2") Player player2,
@@ -47,12 +47,12 @@ public class Match {
     }
 
 
-    public UUID getID()
+    public String getID()
     {
         return this.id;
     }
 
-    public UUID getTournamentID() {return this.tournamentID; }
+    public String getTournamentID() {return this.tournamentID; }
 
     public Player getPlayer1() {
         return this.player1;
@@ -79,7 +79,7 @@ public class Match {
 
     public int getTableNum() { return this.tableNum; }
 
-    public void setTournamentID(UUID tournamentID) {this.tournamentID = tournamentID; }
+    public void setTournamentID(String tournamentID) {this.tournamentID = tournamentID; }
 
     public void setTableNum(int tableNum) { this.tableNum = tableNum; }
 
@@ -112,7 +112,7 @@ public class Match {
         // TODO
     }
 
-    public boolean playerIsInMatch(UUID playerID)
+    public boolean playerIsInMatch(String playerID)
     {
         return (this.player1.getID().equals(playerID) || this.player2.getID().equals(playerID));
     }
