@@ -22,7 +22,7 @@ class PlayerWaiting extends Component {
       },
       url: this.props.serverAddress + "/join",
       type: "DELETE",
-      data: JSON.stringify(this.props.match.params.playerID),
+      data: this.props.match.params.playerID,
       success: () => {},
       error: function (jqxhr, status) {
         console.log("Ajax Error", status);

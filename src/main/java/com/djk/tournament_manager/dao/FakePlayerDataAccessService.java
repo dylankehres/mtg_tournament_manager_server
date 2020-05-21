@@ -39,33 +39,46 @@ public class FakePlayerDataAccessService implements PlayerDao {
     }
 
     @Override
-    public Optional<Player> selectPlayerById(String id) {
-        return DB.stream()
+    public Player selectPlayerById(String id) {
+        Optional<Player> playerMaybe = DB.stream()
                 .filter(player -> player.getID().equals(id))
                 .findFirst();
-    }
 
-    @Override
-    public int deletePlayerById(String id) {
-        Optional<Player> playerMaybe = selectPlayerById(id);
-        if (playerMaybe.isPresent())
-        {
-            DB.remove(playerMaybe.get());
-            return 1;
+        if(playerMaybe.isPresent()) {
+            return playerMaybe.get();
         }
-        return 0;
+
+        return null;
     }
 
     @Override
-    public int updatePlayerById(String id, Player update) {
-        return selectPlayerById(id)
-                .map(p -> {
-                    int indexOfPlayerToUpdate = DB.indexOf(p);
-                    if(indexOfPlayerToUpdate >= 0){
-                        DB.set(indexOfPlayerToUpdate, new Player(id, update.getTournamentID(), update.getName(), update.getRoomCode(), update.getFormat(), update.getDeckName()));
-                        return 1;
-                    }
-                    return 0;
-                }).orElse(0);
+    public void deletePlayerById(String id) {
+        Player player = selectPlayerById(id);
+        if (player != null)
+        {
+            DB.remove(player);
+        }
+    }
+
+    @Override
+    public void updatePlayerById(String id, Player update) {
+        Player player = selectPlayerById(id);
+
+        if(player != null) {
+            int indexOfPlayerToUpdate = DB.indexOf(player);
+            if(indexOfPlayerToUpdate >= 0){
+                DB.set(indexOfPlayerToUpdate, new Player(id, update.getTournamentID(), update.getName(), update.getRoomCode(), update.getFormat(), update.getDeckName()));
+            }
+        }
+
+//        return selectPlayerById(id)
+//                .map(p -> {
+//                    int indexOfPlayerToUpdate = DB.indexOf(p);
+//                    if(indexOfPlayerToUpdate >= 0){
+//                        DB.set(indexOfPlayerToUpdate, new Player(id, update.getTournamentID(), update.getName(), update.getRoomCode(), update.getFormat(), update.getDeckName()));
+//                        return 1;
+//                    }
+//                    return 0;
+//                }).orElse(0);
     }
 }

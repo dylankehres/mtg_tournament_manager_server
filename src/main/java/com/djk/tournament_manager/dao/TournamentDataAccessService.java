@@ -1,6 +1,5 @@
 package com.djk.tournament_manager.dao;
 
-import com.djk.tournament_manager.model.Player;
 import com.djk.tournament_manager.model.Tournament;
 import com.google.api.core.ApiFuture;
 import com.google.cloud.firestore.*;
@@ -41,20 +40,15 @@ public class TournamentDataAccessService implements TournamentDao {
     }
 
     @Override
-    public Tournament selectTournamentById(String id) {
+    public Tournament selectTournamentById(String id) throws  InterruptedException, ExecutionException{
         Firestore dbFirestore = FirestoreClient.getFirestore();
         DocumentReference documentReference = dbFirestore.collection(collection).document(id.toString());
         ApiFuture<DocumentSnapshot> future = documentReference.get();
 
-        DocumentSnapshot document = null;
-        try {
-            document = future.get();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (ExecutionException e) {
-            e.printStackTrace();
-        }
         Tournament tournament = null;
+        DocumentSnapshot document = null;
+        document = future.get();
+
 
         if(document.exists()){
             tournament = document.toObject(Tournament.class);
@@ -65,36 +59,28 @@ public class TournamentDataAccessService implements TournamentDao {
     }
 
     @Override
-    public Tournament selectTournamentByCode(String code) {
+    public Tournament selectTournamentByCode(String code) throws ExecutionException, InterruptedException {
         Firestore dbFirestore = FirestoreClient.getFirestore();
 
         ApiFuture<QuerySnapshot> querySnapshot = dbFirestore.collection(collection).whereEqualTo("roomCode", code).get();
 
-        try {
-            List<QueryDocumentSnapshot> docList = querySnapshot.get().getDocuments();
-            if(!docList.isEmpty()){
-                return docList.get(0).toObject(Tournament.class);
-            }
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (ExecutionException e) {
-            e.printStackTrace();
+        List<QueryDocumentSnapshot> docList = querySnapshot.get().getDocuments();
+        if(!docList.isEmpty()){
+            return docList.get(0).toObject(Tournament.class);
         }
 
         return null;
     }
 
     @Override
-    public int deleteTournamentById(String id) {
+    public void deleteTournamentById(String id) {
         Firestore dbFirestore = FirestoreClient.getFirestore();
         ApiFuture<WriteResult> collectionApiFuture = dbFirestore.collection(collection).document(id).delete();
-        return 0;
     }
 
     @Override
-    public String updateTournamentById(String id, Tournament tournament) {
+    public void updateTournamentById(String id, Tournament tournament) {
         Firestore dbFirestore = FirestoreClient.getFirestore();
         ApiFuture<WriteResult> collectionApiFuture = dbFirestore.collection(collection).document(id.toString()).set(tournament);
-        return id;
     }
 }

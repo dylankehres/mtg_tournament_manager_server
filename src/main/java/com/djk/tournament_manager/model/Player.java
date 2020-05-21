@@ -11,7 +11,7 @@ public class Player {
     private String tournamentID;
 
     @NotBlank
-    private String userName;
+    private String name;
     private String roomCode;
     private String format;
     private String deckName;
@@ -20,7 +20,7 @@ public class Player {
     {
         this.id = "";
         this.tournamentID = "";
-        this.userName = "";
+        this.name = "";
         this.roomCode = "";
         this.format = "";
         this.deckName = "";
@@ -28,14 +28,14 @@ public class Player {
 
     public Player(@JsonProperty("id") String id,
                   @JsonProperty("tmtID") String tournamentID,
-                  @JsonProperty("userName") String userName,
+                  @JsonProperty("name") String name,
                   @JsonProperty("roomCode") String roomCode,
                   @JsonProperty("format") String format,
                   @JsonProperty("deckName") String deckName)
     {
         this.id = id;
         this.tournamentID = tournamentID;
-        this.userName = userName;
+        this.name = name;
         this.roomCode = roomCode;
         this.format = format;
         this.deckName = deckName;
@@ -63,7 +63,7 @@ public class Player {
 
     public String getName()
     {
-        return this.userName;
+        return this.name;
     }
 
     public String getRoomCode() { return this.roomCode; }

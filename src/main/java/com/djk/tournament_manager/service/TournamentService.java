@@ -34,7 +34,7 @@ public class TournamentService {
 
     @Autowired
 //    public TournamentService(@Qualifier("fakeTournamentDao") TournamentDao tournamentDao, @Qualifier("fakePlayerDao") PlayerDao playerDao, @Qualifier("fakeMatchDao") MatchDao matchDao)
-    public TournamentService(@Qualifier("firebaseTournamentDao") TournamentDao tournamentDao, @Qualifier("fakePlayerDao") PlayerDao playerDao, @Qualifier("fakeMatchDao") MatchDao matchDao)
+    public TournamentService(@Qualifier("firebaseTournamentDao") TournamentDao tournamentDao, @Qualifier("firebasePlayerDao") PlayerDao playerDao, @Qualifier("fakeMatchDao") MatchDao matchDao)
     {
         this.tournamentDao = tournamentDao;
         this.playerDao = playerDao;
@@ -64,16 +64,16 @@ public class TournamentService {
         return null;
     }
 
-    public int deleteTournament(String id) {
-        return tournamentDao.deleteTournamentById(id);
+    public void deleteTournament(String id) {
+        tournamentDao.deleteTournamentById(id);
     }
 
-    public String updateTournament(String id, Tournament tournament)
+    public void updateTournament(String id, Tournament tournament)
     {
-        return tournamentDao.updateTournamentById(id, tournament);
+        tournamentDao.updateTournamentById(id, tournament);
     }
 
-    public String addPlayer(Player player){
+    public String addPlayer(Player player) throws ExecutionException, InterruptedException {
         Tournament tournament = tournamentDao.selectTournamentByCode(player.getRoomCode());
 
         if(!tournament.equals(null))
@@ -85,8 +85,7 @@ public class TournamentService {
         return null;
     }
 
-    public Optional<Player> getPlayerById(String id)
-    {
+    public Player getPlayerById(String id) throws ExecutionException, InterruptedException {
         return playerDao.selectPlayerById(id);
     }
 
@@ -94,10 +93,9 @@ public class TournamentService {
         return playerDao.selectPlayersByTournament(code);
     }
 
-    public int deletePlayer(String id) { return playerDao.deletePlayerById(id); }
+    public void deletePlayer(String id) { playerDao.deletePlayerById(id); }
 
-    public List<Match> generatePairings(String tournamentID)
-    {
+    public List<Match> generatePairings(String tournamentID) throws ExecutionException, InterruptedException {
         int numGames = 3;
         Tournament tournament = null;
         try {
@@ -125,7 +123,7 @@ public class TournamentService {
                 Collections.shuffle(waitingPlayers);
 
                 for (int i = 0; i < waitingPlayers.size(); i += 2) {
-                 matchDao.insertMatch(tournament.getID(), numGames, waitingPlayers.get(i), waitingPlayers.get(i + 1), i);
+                 matchDao.insertMatch(tournament.getID(), numGames, waitingPlayers.get(i), waitingPlayers.get(i + 1), i+1 );
                 }
             }
 
@@ -135,8 +133,7 @@ public class TournamentService {
         return new ArrayList<>();
     }
 
-    public List<Match> getMatchesByRoomCode(String code)
-    {
+    public List<Match> getMatchesByRoomCode(String code) throws ExecutionException, InterruptedException {
         Tournament tournament = tournamentDao.selectTournamentByCode(code);
         if(!tournament.equals(null))
         {

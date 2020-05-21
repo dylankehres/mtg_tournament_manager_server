@@ -54,27 +54,23 @@ public class FakeTournamentDataAccessService implements TournamentDao {
     }
 
     @Override
-    public int deleteTournamentById(String id) {
+    public void deleteTournamentById(String id) {
         Tournament tournament = selectTournamentById(id);
         if (!tournament.equals(null))
         {
             DB.remove(tournament);
-            return 1;
         }
-        return 0;
     }
 
     @Override
-    public String updateTournamentById(String id, Tournament update) {
+    public void updateTournamentById(String id, Tournament update) {
         Tournament t = selectTournamentById(id);
         if (!t.equals(null))
         {
             int indexOfTournamentToUpdate = DB.indexOf(t);
             if(indexOfTournamentToUpdate >= 0){
                 DB.set(indexOfTournamentToUpdate, new Tournament(id, update.getName(), update.getRoomCode(), update.getFormat()));
-                return id;
             }
         }
-        return id;
     }
 }

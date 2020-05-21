@@ -19,10 +19,10 @@ public interface TournamentDao {
 
     Tournament selectTournamentById(String id) throws ExecutionException, InterruptedException;
 
-    Tournament selectTournamentByCode(String code);
+    Tournament selectTournamentByCode(String code) throws ExecutionException, InterruptedException;
 
-    int deleteTournamentById(String id);
+    void deleteTournamentById(String id);
 
-    String updateTournamentById(String id, Tournament tournament);
+    void updateTournamentById(String id, Tournament tournament);
 
 }

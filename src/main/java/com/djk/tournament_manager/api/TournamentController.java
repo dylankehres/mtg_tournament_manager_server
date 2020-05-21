@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.*;
+import java.util.concurrent.ExecutionException;
 
 import static sun.management.snmp.jvminstr.JvmThreadInstanceEntryImpl.ThreadStateMap.Byte1.other;
 
@@ -36,8 +37,7 @@ public class TournamentController {
     }
 
     @PostMapping(path = "join")
-    public String addPlayer(@NonNull @RequestBody Player player)
-    {
+    public String addPlayer(@NonNull @RequestBody Player player) throws ExecutionException, InterruptedException {
         return tournamentService.addPlayer(player);
     }
 
@@ -60,16 +60,13 @@ public class TournamentController {
     }
 
     @GetMapping(path = "host/pairings/{id}")
-    public List<Match> generatePairings(@PathVariable("id") String id)
-    {
+    public List<Match> generatePairings(@PathVariable("id") String id) throws ExecutionException, InterruptedException {
         return tournamentService.generatePairings(id);
     }
 
     @GetMapping(path = "join/{id}")
-    public Player getPlayerById(@PathVariable("id") String id)
-    {
-        return tournamentService.getPlayerById(id)
-                .orElse(null);
+    public Player getPlayerById(@PathVariable("id") String id) throws ExecutionException, InterruptedException {
+        return tournamentService.getPlayerById(id);
     }
 
     @GetMapping(path = "playerList/{id}")
@@ -78,8 +75,7 @@ public class TournamentController {
     }
 
     @GetMapping(path = "pairings/{code}")
-    public List<Match> getPairings(@PathVariable("code") String code)
-    {
+    public List<Match> getPairings(@PathVariable("code") String code) throws ExecutionException, InterruptedException {
         return tournamentService.getMatchesByRoomCode(code);
     }
 
