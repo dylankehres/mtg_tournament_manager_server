@@ -50,11 +50,12 @@ class StartTmt extends Component {
     });
   }
 
-  getPairings() {
+  async getPairings() {
     let tmt = this;
 
+    await this.getTournamentData();
+
     if (tmt.state.roomCode !== "") {
-      debugger;
       $.ajax({
         headers: {
           Accept: "application/json",
@@ -72,8 +73,9 @@ class StartTmt extends Component {
     }
   }
 
-  async getTournamentData(getPairings) {
-    $.ajax({
+  // getTournamentData(getPairings) {
+  getTournamentData() {
+    return $.ajax({
       headers: {
         Accept: "application/json",
         "Content-Type": "application/json",
@@ -85,7 +87,7 @@ class StartTmt extends Component {
           alert("Something went wrong. Please try that again.");
         } else {
           this.setState({ roomCode: tmt.roomCode });
-          getPairings();
+          // getPairings();
         }
       },
       error: function (jqxhr, status) {
@@ -95,7 +97,8 @@ class StartTmt extends Component {
   }
 
   componentDidMount() {
-    this.getTournamentData(() => this.getPairings());
+    // this.getTournamentData(() => this.getPairings());
+    this.getPairings();
   }
 
   render() {

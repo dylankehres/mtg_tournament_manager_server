@@ -30,10 +30,11 @@ class PlayerWaiting extends Component {
     });
   }
 
-  async getPlayerData(getPairings) {
+  // async getPlayerData(getPairings) {
+  getPlayerData() {
     let waiting = this;
 
-    await $.ajax({
+    return $.ajax({
       headers: {
         Accept: "application/json",
         "Content-Type": "application/json",
@@ -46,7 +47,7 @@ class PlayerWaiting extends Component {
           alert("Something went wrong. Please try that again.");
         } else {
           waiting.setState({ currPlayer });
-          getPairings();
+          // getPairings();
         }
       },
       error: function (jqxhr, status) {
@@ -55,8 +56,10 @@ class PlayerWaiting extends Component {
     });
   }
 
-  getPairings() {
+  async getPairings() {
     let waiting = this;
+
+    await this.getPlayerData();
 
     if (waiting.state.currPlayer.roomCode !== "") {
       $.ajax({
@@ -112,7 +115,8 @@ class PlayerWaiting extends Component {
   }
 
   componentDidMount() {
-    this.getPlayerData(() => this.getPairings());
+    // this.getPlayerData(() => this.getPairings());
+    this.getPairings();
     this.getPlayerMatch();
   }
 

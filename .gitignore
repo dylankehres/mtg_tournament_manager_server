@@ -25,3 +25,6 @@ package-lock.json
 package.json
 
 .idea/
+djk-mtg-tournament-manager-firebase-adminsdk-t4pip-bf5f773d1d.json
+*.class
+*.kotlin_module
