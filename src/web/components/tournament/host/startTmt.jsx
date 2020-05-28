@@ -41,8 +41,8 @@ class StartTmt extends Component {
         "/host/pairings/" +
         tmt.props.match.params.tmtID,
       type: "GET",
-      success: (data) => {
-        tmt.setState({ pairings: data });
+      success: (pairings) => {
+        tmt.setState({ pairings });
       },
       error: function (jqxhr, status) {
         console.log("Ajax Error in handleStartTmt", status);
@@ -53,23 +53,26 @@ class StartTmt extends Component {
   getPairings() {
     let tmt = this;
 
-    $.ajax({
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-      },
-      url: this.props.serverAddress + "/pairings/" + tmt.state.roomCode,
-      type: "GET",
-      success: (data) => {
-        tmt.setState({ pairings: data });
-      },
-      error: function (jqxhr, status) {
-        console.log("Ajax Error in getPairings for startTmt.jsx", tmt);
-      },
-    });
+    if (tmt.state.roomCode !== "") {
+      debugger;
+      $.ajax({
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+        url: tmt.props.serverAddress + "/pairings/" + tmt.state.roomCode,
+        type: "GET",
+        success: (pairings) => {
+          tmt.setState({ pairings });
+        },
+        error: function (jqxhr, status) {
+          console.log("Ajax Error in getPairings for startTmt.jsx", tmt);
+        },
+      });
+    }
   }
 
-  componentDidMount() {
+  async getTournamentData(getPairings) {
     $.ajax({
       headers: {
         Accept: "application/json",
@@ -82,13 +85,17 @@ class StartTmt extends Component {
           alert("Something went wrong. Please try that again.");
         } else {
           this.setState({ roomCode: tmt.roomCode });
-          this.getPairings();
+          getPairings();
         }
       },
       error: function (jqxhr, status) {
         console.log("Ajax Error", status);
       },
     });
+  }
+
+  componentDidMount() {
+    this.getTournamentData(() => this.getPairings());
   }
 
   render() {

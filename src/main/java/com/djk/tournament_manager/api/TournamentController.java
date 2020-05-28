@@ -37,7 +37,7 @@ public class TournamentController {
     }
 
     @PostMapping(path = "join")
-    public String addPlayer(@NonNull @RequestBody Player player) throws ExecutionException, InterruptedException {
+    public String addPlayer(@NonNull @RequestBody Player player) {
         return tournamentService.addPlayer(player);
     }
 
@@ -60,12 +60,12 @@ public class TournamentController {
     }
 
     @GetMapping(path = "host/pairings/{id}")
-    public List<Match> generatePairings(@PathVariable("id") String id) throws ExecutionException, InterruptedException {
+    public List<HashMap<String,Object>> generatePairings(@PathVariable("id") String id) {
         return tournamentService.generatePairings(id);
     }
 
     @GetMapping(path = "join/{id}")
-    public Player getPlayerById(@PathVariable("id") String id) throws ExecutionException, InterruptedException {
+    public Player getPlayerById(@PathVariable("id") String id) {
         return tournamentService.getPlayerById(id);
     }
 
@@ -75,18 +75,13 @@ public class TournamentController {
     }
 
     @GetMapping(path = "pairings/{code}")
-    public List<Match> getPairings(@PathVariable("code") String code) throws ExecutionException, InterruptedException {
+    public List<HashMap<String,Object>> getPairings(@PathVariable("code") String code) {
         return tournamentService.getMatchesByRoomCode(code);
     }
 
     @GetMapping(path = "join/pairings/{id}")
-    public Match getMatchForPlayer(@PathVariable("id") String id) {
-        Optional<Match> matchMaybe = tournamentService.getMatchByPlayerID(id);
-        if(matchMaybe.isPresent()) {
-            return matchMaybe.get();
-        }
-
-        return new Match();
+    public HashMap<String,Object> getMatchForPlayer(@PathVariable("id") String id) {
+        return tournamentService.getMatchByPlayerID(id);
     }
 
     @DeleteMapping(path = "host")

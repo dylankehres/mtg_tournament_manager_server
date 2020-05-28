@@ -20,7 +20,7 @@ public interface PlayerDao {
 
     List<Player> selectPlayersByTournament(String code);
 
-    Player selectPlayerById(String id) throws ExecutionException, InterruptedException;
+    Player selectPlayerById(String id);
 
     void deletePlayerById(String id);
 

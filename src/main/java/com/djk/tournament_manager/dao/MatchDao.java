@@ -8,21 +8,21 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface MatchDao {
-    String insertMatch(String id, String tournamentID, int numGames, Player player1, Player player2, int tableNum);
+    String insertMatch(String id, String tournamentID, int numGames, String player1, String player2, int tableNum);
 
-    default String insertMatch(String tournamentID, int numGames, Player player1, Player player2, int tableNum) {
+    default String insertMatch(String tournamentID, int numGames, String player1ID, String player2ID, int tableNum) {
         UUID id = UUID.randomUUID();
-        return insertMatch(id.toString(), tournamentID, numGames, player1, player2, tableNum);
+        return insertMatch(id.toString(), tournamentID, numGames, player1ID, player2ID, tableNum);
     }
 
     List<Match> selectAllMatches();
 
     List<Match> selectMatchesInTournament(String tournamentID);
 
-    Optional<Match> selectMatchById(String id);
+    Match selectMatchById(String id);
 
-    Optional<Match> selectMatchByPlayerID(String playerId);
+    Match selectMatchByPlayerID(String playerId);
 
-    int deleteMatchById(String id);
+    void deleteMatchById(String id);
 
 }

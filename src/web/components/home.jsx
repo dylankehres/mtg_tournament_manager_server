@@ -1,6 +1,5 @@
 import React from "react";
 import { Form, Button } from "react-bootstrap";
-import { withRouter } from "react-router-dom";
 
 const Home = () => {
   return (
@@ -15,4 +14,4 @@ const Home = () => {
   );
 };
 
-export default withRouter(Home);
+export default Home;

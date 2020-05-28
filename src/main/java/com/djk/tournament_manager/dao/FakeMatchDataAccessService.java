@@ -8,21 +8,22 @@ import org.springframework.stereotype.Repository;
 import java.util.*;
 
 @Repository("fakeMatchDao")
-public class FakeMatchDataAccessService implements MatchDao {
+public class FakeMatchDataAccessService {
+//public class FakeMatchDataAccessService implements MatchDao {
     private static List<Match> DB = new ArrayList<>();
 
-    @Override
-    public String insertMatch(String id, String tournamentID, int numGames, Player player1, Player player2, int tableNum) {
-        DB.add(new Match(id, tournamentID, numGames, player1, player2, tableNum));
+//    @Override
+    public String insertMatch(String id, String tournamentID, int numGames, String player1ID, String player2ID, int tableNum) {
+        DB.add(new Match(id, tournamentID, numGames, player1ID, player2ID, tableNum));
         return id;
     }
 
-    @Override
+//    @Override
     public List<Match> selectAllMatches() {
         return DB;
     }
 
-    @Override
+//    @Override
     public List<Match> selectMatchesInTournament(String tournamentID) {
         List<Match> matchesInTournament = new ArrayList<>();
         Iterator itr = DB.iterator();
@@ -39,21 +40,21 @@ public class FakeMatchDataAccessService implements MatchDao {
         return matchesInTournament;
     }
 
-    @Override
+//    @Override
     public Optional<Match> selectMatchById(String id) {
         return DB.stream()
                 .filter(match -> match.getID().equals(id))
                 .findFirst();
     }
 
-    @Override
+//    @Override
     public Optional<Match> selectMatchByPlayerID(String playerId) {
         return DB.stream()
                 .filter(match -> match.playerIsInMatch(playerId))
                 .findFirst();
     }
 
-    @Override
+//    @Override
     public int deleteMatchById(String id) {
         Optional<Match> playerMaybe = selectMatchById(id);
         if (playerMaybe.isPresent())

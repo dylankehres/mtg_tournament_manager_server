@@ -11,7 +11,9 @@ public class Match {
 
     @NotBlank
     private Player player1;
+    private String player1ID;
     private Player player2;
+    private String player2ID;
     private int numGames;
     private int player1Wins;
     private int player2Wins;
@@ -23,7 +25,9 @@ public class Match {
         this.tournamentID = null;
         this.numGames = 0;
         this.player1 = null;
+        this.player1ID = "";
         this.player2 = null;
+        this.player2ID = "";
         this.player1Wins = 0;
         this.player2Wins = 0;
         this.tableNum = 0;
@@ -32,15 +36,17 @@ public class Match {
     public Match(@JsonProperty("id") String id,
                  @JsonProperty("tmtID") String tournamentID,
                  @JsonProperty("numGames") int numGames,
-                 @JsonProperty("player1") Player player1,
-                 @JsonProperty("player2") Player player2,
+                 @JsonProperty("player1ID") String player1ID,
+                 @JsonProperty("player2ID") String player2ID,
                  @JsonProperty("tableNum") int tableNum)
     {
         this.id = id;
         this.tournamentID = tournamentID;
         this.numGames = numGames;
-        this.player1 = player1;
-        this.player2 = player2;
+//        this.player1 = player1;
+        this.player1ID = player1ID;
+//        this.player2 = player2;
+        this.player2ID = player2ID;
         this.player1Wins = 0;
         this.player2Wins = 0;
         this.tableNum = tableNum;
@@ -54,13 +60,11 @@ public class Match {
 
     public String getTournamentID() {return this.tournamentID; }
 
-    public Player getPlayer1() {
-        return this.player1;
-    }
+    public String getPlayer1ID() { return this.player1ID; }
 
-    public Player getPlayer2()
+    public String getPlayer2ID()
     {
-        return this.player2;
+        return this.player2ID;
     }
 
     public int getPlayer1Wins() {
@@ -114,6 +118,6 @@ public class Match {
 
     public boolean playerIsInMatch(String playerID)
     {
-        return (this.player1.getID().equals(playerID) || this.player2.getID().equals(playerID));
+        return (this.player1ID.equals(playerID) || this.player2ID.equals(playerID));
     }
 }

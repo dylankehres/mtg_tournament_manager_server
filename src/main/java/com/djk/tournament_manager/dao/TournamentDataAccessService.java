@@ -40,14 +40,20 @@ public class TournamentDataAccessService implements TournamentDao {
     }
 
     @Override
-    public Tournament selectTournamentById(String id) throws  InterruptedException, ExecutionException{
+    public Tournament selectTournamentById(String id) {
         Firestore dbFirestore = FirestoreClient.getFirestore();
         DocumentReference documentReference = dbFirestore.collection(collection).document(id.toString());
         ApiFuture<DocumentSnapshot> future = documentReference.get();
 
         Tournament tournament = null;
         DocumentSnapshot document = null;
-        document = future.get();
+        try {
+            document = future.get();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        }
 
 
         if(document.exists()){
@@ -59,12 +65,19 @@ public class TournamentDataAccessService implements TournamentDao {
     }
 
     @Override
-    public Tournament selectTournamentByCode(String code) throws ExecutionException, InterruptedException {
+    public Tournament selectTournamentByCode(String code) {
         Firestore dbFirestore = FirestoreClient.getFirestore();
 
         ApiFuture<QuerySnapshot> querySnapshot = dbFirestore.collection(collection).whereEqualTo("roomCode", code).get();
 
-        List<QueryDocumentSnapshot> docList = querySnapshot.get().getDocuments();
+        List<QueryDocumentSnapshot> docList = null;
+        try {
+            docList = querySnapshot.get().getDocuments();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        }
         if(!docList.isEmpty()){
             return docList.get(0).toObject(Tournament.class);
         }

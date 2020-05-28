@@ -34,7 +34,7 @@ public class TournamentService {
 
     @Autowired
 //    public TournamentService(@Qualifier("fakeTournamentDao") TournamentDao tournamentDao, @Qualifier("fakePlayerDao") PlayerDao playerDao, @Qualifier("fakeMatchDao") MatchDao matchDao)
-    public TournamentService(@Qualifier("firebaseTournamentDao") TournamentDao tournamentDao, @Qualifier("firebasePlayerDao") PlayerDao playerDao, @Qualifier("fakeMatchDao") MatchDao matchDao)
+    public TournamentService(@Qualifier("firebaseTournamentDao") TournamentDao tournamentDao, @Qualifier("firebasePlayerDao") PlayerDao playerDao, @Qualifier("firebaseMatchDao") MatchDao matchDao)
     {
         this.tournamentDao = tournamentDao;
         this.playerDao = playerDao;
@@ -53,15 +53,7 @@ public class TournamentService {
 
     public Tournament getTournamentById(String id)
     {
-        try {
-            return tournamentDao.selectTournamentById(id);
-        } catch (ExecutionException e) {
-            e.printStackTrace();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-
-        return null;
+        return tournamentDao.selectTournamentById(id);
     }
 
     public void deleteTournament(String id) {
@@ -73,7 +65,7 @@ public class TournamentService {
         tournamentDao.updateTournamentById(id, tournament);
     }
 
-    public String addPlayer(Player player) throws ExecutionException, InterruptedException {
+    public String addPlayer(Player player) {
         Tournament tournament = tournamentDao.selectTournamentByCode(player.getRoomCode());
 
         if(!tournament.equals(null))
@@ -85,7 +77,7 @@ public class TournamentService {
         return null;
     }
 
-    public Player getPlayerById(String id) throws ExecutionException, InterruptedException {
+    public Player getPlayerById(String id) {
         return playerDao.selectPlayerById(id);
     }
 
@@ -95,16 +87,11 @@ public class TournamentService {
 
     public void deletePlayer(String id) { playerDao.deletePlayerById(id); }
 
-    public List<Match> generatePairings(String tournamentID) throws ExecutionException, InterruptedException {
+    public List<HashMap<String,Object>> generatePairings(String tournamentID)  {
         int numGames = 3;
         Tournament tournament = null;
-        try {
-            tournament = tournamentDao.selectTournamentById(tournamentID);
-        } catch (ExecutionException e) {
-            e.printStackTrace();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+        tournament = tournamentDao.selectTournamentById(tournamentID);
+
 
         if(!tournament.equals(null))
         {
@@ -117,13 +104,15 @@ public class TournamentService {
                 if (waitingPlayers.size() % 2 == 1)
                 {
                     UUID id = UUID.randomUUID();
-                    waitingPlayers.add(new Player(id.toString(), tournament.getID(), "BYE", code, tournament.getFormat(), ""));
+                    Player bye = new Player(id.toString(), tournament.getID(), "BYE", code, tournament.getFormat(), "");
+                    playerDao.insertPlayer(id.toString(), bye);
+                    waitingPlayers.add(bye);
                 }
 
                 Collections.shuffle(waitingPlayers);
 
                 for (int i = 0; i < waitingPlayers.size(); i += 2) {
-                 matchDao.insertMatch(tournament.getID(), numGames, waitingPlayers.get(i), waitingPlayers.get(i + 1), i+1 );
+                 matchDao.insertMatch(tournament.getID(), numGames, waitingPlayers.get(i).getID(), waitingPlayers.get(i + 1).getID(), i+1 );
                 }
             }
 
@@ -133,20 +122,49 @@ public class TournamentService {
         return new ArrayList<>();
     }
 
-    public List<Match> getMatchesByRoomCode(String code) throws ExecutionException, InterruptedException {
+    public List<HashMap<String,Object>> getMatchesByRoomCode(String code) {
         Tournament tournament = tournamentDao.selectTournamentByCode(code);
-        if(!tournament.equals(null))
+        List<HashMap<String,Object>> matchDataList = new ArrayList<>();
+
+        if(tournament != null)
         {
-            return matchDao.selectMatchesInTournament(tournament.getID());
+            List<Match> matches = matchDao.selectMatchesInTournament(tournament.getID());
+
+            for(Match match : matches) {
+                Player p1 = playerDao.selectPlayerById(match.getPlayer1ID());
+                Player p2 = playerDao.selectPlayerById(match.getPlayer2ID());
+                HashMap<String,Object> matchData = new HashMap<>();
+
+                matchData.put("player1", p1);
+                matchData.put("player2", p2);
+                matchData.put("match", match);
+                matchDataList.add(matchData);
+            }
         }
 
-        return new ArrayList<>();
-
+        return matchDataList;
     }
 
-    public Optional<Match> getMatchByPlayerID(String playerID)
+    public HashMap<String, Object> getMatchByPlayerID(String playerID)
     {
-        return matchDao.selectMatchByPlayerID(playerID);
+        HashMap<String, Object> matchAndPlayers = new HashMap<>();
+        Match match = matchDao.selectMatchByPlayerID(playerID);
+        Player p1 = new Player();
+        Player p2 = new Player();
+
+        if(match != null) {
+            p1 = playerDao.selectPlayerById(match.getPlayer1ID());
+            p2 = playerDao.selectPlayerById(match.getPlayer2ID());
+        }
+        else {
+            match = new Match();
+        }
+
+        matchAndPlayers.put("match", match);
+        matchAndPlayers.put("player1", p1);
+        matchAndPlayers.put("player2", p2);
+
+        return matchAndPlayers;
     }
 
     public void deleteMatchByTournamentID(String tournamentID)

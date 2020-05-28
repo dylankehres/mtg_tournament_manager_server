@@ -63,14 +63,20 @@ public class PlayerDataAccessService implements PlayerDao{
     }
 
     @Override
-    public Player selectPlayerById(String id) throws ExecutionException, InterruptedException {
+    public Player selectPlayerById(String id) {
         Firestore dbFirestore = FirestoreClient.getFirestore();
         DocumentReference documentReference = dbFirestore.collection(collection).document(id.toString());
         ApiFuture<DocumentSnapshot> future = documentReference.get();
 
         Player player = null;
         DocumentSnapshot document = null;
-        document = future.get();
+        try {
+            document = future.get();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        }
 
 
         if(document.exists()){

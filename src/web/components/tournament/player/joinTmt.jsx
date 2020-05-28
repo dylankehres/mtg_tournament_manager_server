@@ -1,13 +1,13 @@
 import React, { Component } from "react";
 import { Form, Dropdown, Button, Table } from "react-bootstrap";
-import { Redirect, withRouter } from "react-router-dom";
+import { Redirect } from "react-router-dom";
 import $ from "jquery";
 import TmtList from "../tmtList";
 
 class JoinTmt extends Component {
   state = {
     id: "",
-    userName: "",
+    name: "",
     roomCode: "",
     format: "Select Format",
     deckName: "",
@@ -26,7 +26,7 @@ class JoinTmt extends Component {
   handleDeckChange = this.handleDeckChange.bind(this);
 
   handleNameChange(event) {
-    this.setState({ userName: event.target.value });
+    this.setState({ name: event.target.value });
   }
 
   handleRoomChange(event) {
@@ -78,7 +78,7 @@ class JoinTmt extends Component {
 
   formIsValid() {
     if (
-      this.state.userName !== "" &&
+      this.state.name !== "" &&
       this.state.roomCode !== "" &&
       this.state.format !== "Select Format" &&
       this.state.deckName !== ""
@@ -103,7 +103,7 @@ class JoinTmt extends Component {
                       <Form.Control
                         type="text"
                         placeholder="Player name"
-                        value={this.state.userName}
+                        value={this.state.name}
                         onChange={this.handleNameChange}
                       ></Form.Control>
                       <Form.Label>Room Code</Form.Label>
@@ -163,4 +163,4 @@ class JoinTmt extends Component {
   }
 }
 
-export default withRouter(JoinTmt);
+export default JoinTmt;

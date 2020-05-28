@@ -8,8 +8,8 @@ import PlayerMatch from "./playerMatch";
 class PlayerWaiting extends Component {
   state = {
     pairings: [],
-    match: {},
-    player: {
+    matchData: {},
+    currPlayer: {
       roomCode: "",
     },
   };
@@ -30,7 +30,7 @@ class PlayerWaiting extends Component {
     });
   }
 
-  async getPlayerData() {
+  async getPlayerData(getPairings) {
     let waiting = this;
 
     await $.ajax({
@@ -41,15 +41,16 @@ class PlayerWaiting extends Component {
       url:
         this.props.serverAddress + "/join/" + this.props.match.params.playerID,
       type: "GET",
-      success: (player) => {
-        if (player.roomCode === "") {
+      success: (currPlayer) => {
+        if (currPlayer.roomCode === "") {
           alert("Something went wrong. Please try that again.");
         } else {
-          waiting.setState({ player });
+          waiting.setState({ currPlayer });
+          getPairings();
         }
       },
       error: function (jqxhr, status) {
-        console.log("Ajax Error in getPlayerMatch", status);
+        console.log("Ajax Error in getPlayerData", status);
       },
     });
   }
@@ -57,7 +58,7 @@ class PlayerWaiting extends Component {
   getPairings() {
     let waiting = this;
 
-    if (waiting.state.player.roomCode !== "") {
+    if (waiting.state.currPlayer.roomCode !== "") {
       $.ajax({
         headers: {
           Accept: "application/json",
@@ -66,7 +67,7 @@ class PlayerWaiting extends Component {
         url:
           this.props.serverAddress +
           "/pairings/" +
-          waiting.state.player.roomCode,
+          waiting.state.currPlayer.roomCode,
         type: "GET",
         success: (pairings) => {
           waiting.setState({ pairings });
@@ -81,11 +82,11 @@ class PlayerWaiting extends Component {
     }
   }
 
-  getPlayerMatch() {
+  async getPlayerMatch() {
     let waiting = this;
     console.log("Try getPlayerMatch()");
     if (this.props.match.params.playerID !== "") {
-      $.ajax({
+      await $.ajax({
         headers: {
           Accept: "application/json",
           "Content-Type": "application/json",
@@ -95,11 +96,12 @@ class PlayerWaiting extends Component {
           "/join/pairings/" +
           this.props.match.params.playerID,
         type: "GET",
-        success: (match) => {
-          if (match === "") {
+        success: (matchData) => {
+          if (matchData === "") {
             alert("Something went wrong. Please try that again.");
           } else {
-            waiting.setState({ match });
+            waiting.setState({ matchData });
+            console.log("matchData: ", matchData);
           }
         },
         error: function (jqxhr, status) {
@@ -110,7 +112,7 @@ class PlayerWaiting extends Component {
   }
 
   componentDidMount() {
-    this.getPlayerData().then(() => this.getPairings());
+    this.getPlayerData(() => this.getPairings());
     this.getPlayerMatch();
   }
 
@@ -119,8 +121,11 @@ class PlayerWaiting extends Component {
       return (
         <React.Fragment>
           <PlayerMatch
-            currPlayer={this.state.player}
-            match={this.state.match}
+            currPlayer={this.state.currPlayer}
+            matchData={this.state.matchData}
+            player1={this.state.player1}
+            player2={this.state.player2}
+            serverAddress={this.props.serverAddress}
           />
           <Pairings
             pairings={this.state.pairings}
@@ -128,13 +133,13 @@ class PlayerWaiting extends Component {
           />
         </React.Fragment>
       );
-    } else if (this.state.player.roomCode !== "") {
-      console.log("Room code: ", this.state.player.roomCode);
+    } else if (this.state.currPlayer.roomCode !== "") {
+      console.log("Room code: ", this.state.currPlayer.roomCode);
       return (
         <div className="m-2">
           <PlayerList
             serverAddress={this.props.serverAddress}
-            roomCode={this.state.player.roomCode}
+            roomCode={this.state.currPlayer.roomCode}
           />
           <Form>
             <Button

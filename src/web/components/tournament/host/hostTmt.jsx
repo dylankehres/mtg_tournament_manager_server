@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import $ from "jquery";
 import { Form, Dropdown, Button } from "react-bootstrap";
-import { Redirect, withRouter } from "react-router-dom";
+import { Redirect } from "react-router-dom";
 
 class HostTmt extends Component {
   state = {
@@ -132,4 +132,4 @@ class HostTmt extends Component {
   }
 }
 
-export default withRouter(HostTmt);
+export default HostTmt;

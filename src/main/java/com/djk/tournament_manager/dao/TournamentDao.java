@@ -17,9 +17,9 @@ public interface TournamentDao {
 
     List<Tournament> selectAllTournaments();
 
-    Tournament selectTournamentById(String id) throws ExecutionException, InterruptedException;
+    Tournament selectTournamentById(String id);
 
-    Tournament selectTournamentByCode(String code) throws ExecutionException, InterruptedException;
+    Tournament selectTournamentByCode(String code);
 
     void deleteTournamentById(String id);
 
