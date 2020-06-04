@@ -133,7 +133,7 @@ class PlayerWaiting extends Component {
           />
           <Pairings
             pairings={this.state.pairings}
-            onGetPairings={this.getPairings()}
+            onGetPairings={this.getPairings}
           />
         </React.Fragment>
       );
@@ -149,7 +149,7 @@ class PlayerWaiting extends Component {
             <Button
               className="btn btn-danger m-2"
               href="/join"
-              onClick={() => this.handleLeaveTmt()}
+              onClick={() => this.handleLeaveTmt}
             >
               Leave Tournament
             </Button>

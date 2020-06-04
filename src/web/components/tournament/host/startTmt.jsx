@@ -73,7 +73,6 @@ class StartTmt extends Component {
     }
   }
 
-  // getTournamentData(getPairings) {
   getTournamentData() {
     return $.ajax({
       headers: {
@@ -97,7 +96,6 @@ class StartTmt extends Component {
   }
 
   componentDidMount() {
-    // this.getTournamentData(() => this.getPairings());
     this.getPairings();
   }
 
@@ -109,12 +107,13 @@ class StartTmt extends Component {
         <div className="m-2">
           <Pairings
             pairings={this.state.pairings}
-            onGetPairings={this.getPairings()}
+            onGetPairings={this.getPairings}
+            key={"pairings_" + this.state.roomCode}
           />
           <Form>
             <Button
               className="btn btn-danger m-2"
-              onClick={() => this.handleCancelTmt()}
+              onClick={() => this.handleCancelTmt}
               href="/host"
             >
               Cancel Tournament
@@ -128,17 +127,18 @@ class StartTmt extends Component {
           <PlayerList
             serverAddress={this.props.serverAddress}
             roomCode={this.state.roomCode}
+            key={"playerList_" + this.state.roomCode}
           />
           <Form>
             <Button
               className="btn btn-primary m-2"
-              onClick={() => this.handleStartTmt()}
+              onClick={() => this.handleStartTmt}
             >
               Start Tournament
             </Button>
             <Button
               className="btn btn-danger m-2"
-              onClick={() => this.handleCancelTmt()}
+              onClick={() => this.handleCancelTmt}
               href="/host"
             >
               Cancel Tournament

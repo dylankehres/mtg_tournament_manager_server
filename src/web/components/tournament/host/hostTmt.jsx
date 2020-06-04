@@ -119,8 +119,8 @@ class HostTmt extends Component {
           </Dropdown>
           <Button
             className="btn btn-primary m-2 "
-            onClick={() => this.handleOpenTmt()}
-            disabled={this.getOpenDisabled()}
+            onClick={() => this.handleOpenTmt}
+            disabled={this.getOpenDisabled}
           >
             Open Tournament
           </Button>

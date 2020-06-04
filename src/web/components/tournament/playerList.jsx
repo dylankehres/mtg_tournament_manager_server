@@ -49,7 +49,7 @@ class PlayerList extends Component {
                 <th>#</th>
                 <th>Player Name</th>
                 <th>Deck Name</th>
-                <th align="right" onClick={() => this.getPlayerList()}>
+                <th align="right" onClick={() => this.getPlayerList}>
                   R
                 </th>
               </tr>
