@@ -135,6 +135,12 @@ class PlayerWaiting extends Component {
             pairings={this.state.pairings}
             onGetPairings={this.getPairings}
           />
+          <Button
+            className="btn btn-success m-2"
+            href={`/round/${this.state.currPlayer.id}`}
+          >
+            Ready
+          </Button>
         </React.Fragment>
       );
     } else if (this.state.currPlayer.roomCode !== "") {

@@ -8,6 +8,7 @@ import PlayerWaiting from "./components/tournament/player/playerWaiting";
 import PlayerList from "./components/tournament/playerList";
 import HostTmt from "./components/tournament/host/hostTmt";
 import StartTmt from "./components/tournament/host/startTmt";
+import Round from "./components/tournament/player/round";
 
 class Root extends Component {
   state = { serverAddress: "http://localhost:8080/api/v1/tournament" };
@@ -40,6 +41,7 @@ class Root extends Component {
           <PropsRoute exact path="/host" component={HostTmt} />
           <PropsRoute exact path="/host/:tmtID" component={StartTmt} />
           <PropsRoute path="/playerlist" component={PlayerList} />
+          <PropsRoute exact path="/round/:playerID" component={Round} />
         </Switch>
       </Router>
     );
