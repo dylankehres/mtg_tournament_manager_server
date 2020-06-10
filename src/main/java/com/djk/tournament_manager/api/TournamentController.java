@@ -1,5 +1,6 @@
 package com.djk.tournament_manager.api;
 
+import com.djk.tournament_manager.dto.MatchDataDTO;
 import com.djk.tournament_manager.model.Match;
 import com.djk.tournament_manager.model.Player;
 import com.djk.tournament_manager.model.Tournament;
@@ -60,7 +61,7 @@ public class TournamentController {
     }
 
     @GetMapping(path = "host/pairings/{id}")
-    public List<HashMap<String,Object>> generatePairings(@PathVariable("id") String id) {
+    public List<MatchDataDTO> generatePairings(@PathVariable("id") String id) {
         return tournamentService.generatePairings(id);
     }
 
@@ -75,12 +76,12 @@ public class TournamentController {
     }
 
     @GetMapping(path = "pairings/{code}")
-    public List<HashMap<String,Object>> getPairings(@PathVariable("code") String code) {
+    public List<MatchDataDTO> getPairings(@PathVariable("code") String code) {
         return tournamentService.getMatchesByRoomCode(code);
     }
 
     @GetMapping(path = "join/pairings/{id}")
-    public HashMap<String,Object> getMatchForPlayer(@PathVariable("id") String id) {
+    public MatchDataDTO getMatchForPlayer(@PathVariable("id") String id) {
         return tournamentService.getMatchByPlayerID(id);
     }
 

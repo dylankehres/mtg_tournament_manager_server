@@ -3,6 +3,7 @@ package com.djk.tournament_manager.service;
 import com.djk.tournament_manager.dao.MatchDao;
 import com.djk.tournament_manager.dao.PlayerDao;
 import com.djk.tournament_manager.dao.TournamentDao;
+import com.djk.tournament_manager.dto.MatchDataDTO;
 import com.djk.tournament_manager.model.Match;
 import com.djk.tournament_manager.model.Player;
 import com.djk.tournament_manager.model.Tournament;
@@ -87,7 +88,7 @@ public class TournamentService {
 
     public void deletePlayer(String id) { playerDao.deletePlayerById(id); }
 
-    public List<HashMap<String,Object>> generatePairings(String tournamentID)  {
+    public List<MatchDataDTO> generatePairings(String tournamentID)  {
         int numGames = 3;
         Tournament tournament = null;
         tournament = tournamentDao.selectTournamentById(tournamentID);
@@ -122,9 +123,9 @@ public class TournamentService {
         return new ArrayList<>();
     }
 
-    public List<HashMap<String,Object>> getMatchesByRoomCode(String code) {
+    public List<MatchDataDTO> getMatchesByRoomCode(String code) {
         Tournament tournament = tournamentDao.selectTournamentByCode(code);
-        List<HashMap<String,Object>> matchDataList = new ArrayList<>();
+        List<MatchDataDTO> matchDataList = new ArrayList<>();
 
         if(tournament != null)
         {
@@ -133,24 +134,20 @@ public class TournamentService {
             for(Match match : matches) {
                 Player p1 = playerDao.selectPlayerById(match.getPlayer1ID());
                 Player p2 = playerDao.selectPlayerById(match.getPlayer2ID());
-                HashMap<String,Object> matchData = new HashMap<>();
 
-                matchData.put("player1", p1);
-                matchData.put("player2", p2);
-                matchData.put("match", match);
-                matchDataList.add(matchData);
+                matchDataList.add(new MatchDataDTO(p1, p2, match));
             }
         }
 
         return matchDataList;
     }
 
-    public HashMap<String, Object> getMatchByPlayerID(String playerID)
+    public MatchDataDTO getMatchByPlayerID(String playerID)
     {
-        HashMap<String, Object> matchAndPlayers = new HashMap<>();
         Match match = matchDao.selectMatchByPlayerID(playerID);
         Player p1 = new Player();
         Player p2 = new Player();
+        MatchDataDTO matchData = new MatchDataDTO();
 
         if(match != null) {
             p1 = playerDao.selectPlayerById(match.getPlayer1ID());
@@ -160,11 +157,8 @@ public class TournamentService {
             match = new Match();
         }
 
-        matchAndPlayers.put("match", match);
-        matchAndPlayers.put("player1", p1);
-        matchAndPlayers.put("player2", p2);
-
-        return matchAndPlayers;
+        matchData = new MatchDataDTO(p1, p2, match);
+        return matchData;
     }
 
     public void deleteMatchByTournamentID(String tournamentID)
