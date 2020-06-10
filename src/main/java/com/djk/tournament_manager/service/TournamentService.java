@@ -174,4 +174,10 @@ public class TournamentService {
         }
     }
 
+    public Match incrementPlayerWin(String playerID) {
+        Match match = matchDao.selectMatchByPlayerID(playerID);
+        match.addPlayerWin(playerID);
+
+        return match;
+    }
 }

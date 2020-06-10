@@ -10,9 +10,7 @@ public class Match {
     private String tournamentID;
 
     @NotBlank
-    private Player player1;
     private String player1ID;
-    private Player player2;
     private String player2ID;
     private int numGames;
     private int player1Wins;
@@ -24,9 +22,7 @@ public class Match {
         this.id = null;
         this.tournamentID = null;
         this.numGames = 0;
-        this.player1 = null;
         this.player1ID = "";
-        this.player2 = null;
         this.player2ID = "";
         this.player1Wins = 0;
         this.player2Wins = 0;
@@ -43,9 +39,7 @@ public class Match {
         this.id = id;
         this.tournamentID = tournamentID;
         this.numGames = numGames;
-//        this.player1 = player1;
         this.player1ID = player1ID;
-//        this.player2 = player2;
         this.player2ID = player2ID;
         this.player1Wins = 0;
         this.player2Wins = 0;
@@ -87,21 +81,16 @@ public class Match {
 
     public void setTableNum(int tableNum) { this.tableNum = tableNum; }
 
-    public boolean addPlayer1Win()
-    {
-        this.player1Wins++;
-
-        if(this.player1Wins + this.player2Wins == numGames)
-        {
-            return true;
+    public boolean addPlayerWin(String playerID) {
+        if(playerID.equals(this.getPlayer1ID())) {
+            this.player1Wins++;
         }
-
-        return false;
-    }
-
-    public boolean addPlayer2Win()
-    {
-        this.player2Wins++;
+        else if (playerID.equals(this.getPlayer2ID())){
+            this.player2Wins++;
+        }
+        else {
+            System.out.println("ERROR: Unable to increment player win  (player ID: " + playerID + ")");
+        }
 
         if(this.player1Wins + this.player2Wins == numGames)
         {

@@ -17,8 +17,37 @@ class Round extends Component {
     ],
   };
 
-  playerRoundWin() {
-    console.log("Player Round Win");
+  playerGameWin() {
+    console.log("Player Game Win");
+    const round = this;
+
+    $.ajax({
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      url:
+        this.props.serverAddress +
+        "/join/round/gameResults/" +
+        this.state.roundData.opponent.playerID,
+      type: "POST",
+      success: (roundData) => {
+        if (roundData === "") {
+          alert("Something went wrong. Please try that again.");
+        } else {
+          round.setState({ roundData });
+          console.log("roundData: ", roundData);
+        }
+      },
+      error: function (jqxhr, status) {
+        console.log("Ajax Error in getPlayerMatch", status);
+      },
+    });
+  }
+
+  opponentGameWin() {
+    console.log("Opponent Game Win");
+
     const round = this;
 
     $.ajax({
@@ -45,38 +74,11 @@ class Round extends Component {
     });
   }
 
-  opponentRoundWin() {
-    console.log("Opponent Round Win");
-
-    const round = this;
-
-    $.ajax({
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-      },
-      url:
-        this.props.serverAddress +
-        "/join/round/gameResults/" +
-        this.state.roundData.opponent.playerID,
-      type: "GET",
-      success: (roundData) => {
-        if (roundData === "") {
-          alert("Something went wrong. Please try that again.");
-        } else {
-          round.setState({ roundData });
-          console.log("roundData: ", roundData);
-        }
-      },
-      error: function (jqxhr, status) {
-        console.log("Ajax Error in getPlayerMatch", status);
-      },
-    });
+  gameDraw() {
+    console.log("Game Draw");
   }
 
   componentDidMount() {
-    console.log("Player Round Win");
-
     // const round = this;
     //
     // $.ajax({
@@ -156,7 +158,7 @@ class Round extends Component {
                         <Button
                           className="btn btn-success"
                           style={{ width: "136px" }}
-                          onClick={this.playerRoundWin}
+                          onClick={this.playerGameWin}
                         >
                           I Won
                         </Button>
@@ -167,9 +169,20 @@ class Round extends Component {
                         <Button
                           className="btn btn-danger"
                           style={{ width: "136px" }}
-                          onClick={this.opponentRoundWin}
+                          onClick={this.opponentGameWin}
                         >
                           Opponent Won
+                        </Button>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <Button
+                          className="btn btn-primary"
+                          style={{ width: "136px" }}
+                          onClick={this.gameDraw}
+                        >
+                          Draw
                         </Button>
                       </td>
                     </tr>

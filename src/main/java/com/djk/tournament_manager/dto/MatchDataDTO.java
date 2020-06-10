@@ -2,11 +2,13 @@ package com.djk.tournament_manager.dto;
 
 import com.djk.tournament_manager.model.Match;
 import com.djk.tournament_manager.model.Player;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class MatchDataDTO {
-    public Player player1;
-    public Player player2;
-    public Match match;
+    @JsonProperty("player1") public Player player1;
+    @JsonProperty("player2") public Player player2;
+    @JsonProperty("match") public Match match;
+
 
     public MatchDataDTO() {
         this.player1 = new Player();

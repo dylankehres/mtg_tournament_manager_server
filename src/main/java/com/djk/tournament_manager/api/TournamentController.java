@@ -42,6 +42,11 @@ public class TournamentController {
         return tournamentService.addPlayer(player);
     }
 
+    @PostMapping(path = "/join/round/gameResults/{playerID}")
+    public Match receiveGameResults(@PathVariable("playerID") String playerID) {
+        return tournamentService.incrementPlayerWin(playerID);
+    }
+
     @GetMapping
     public List<Tournament> getAllTournaments() {
         return tournamentService.getAllTournaments();
