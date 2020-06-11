@@ -1,10 +1,8 @@
 package com.djk.tournament_manager.dao;
 
 import com.djk.tournament_manager.model.Match;
-import com.djk.tournament_manager.model.Player;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 public interface MatchDao {
@@ -24,5 +22,7 @@ public interface MatchDao {
     Match selectMatchByPlayerID(String playerId);
 
     void deleteMatchById(String id);
+
+    void updateMatchById(String id, Match match);
 
 }

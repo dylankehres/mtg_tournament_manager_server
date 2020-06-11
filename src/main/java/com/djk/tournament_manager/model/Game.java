@@ -4,7 +4,8 @@ import com.djk.tournament_manager.dao.MatchDao;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.springframework.beans.factory.annotation.Qualifier;
 
-public class Round {
+public class Game {
+    @JsonProperty("id") private String id;
     @JsonProperty("matchID") private String matchID;
     @JsonProperty("player1Vote") private boolean player1Voted;
     @JsonProperty("player2Vote") private boolean player2Voted;
@@ -18,7 +19,8 @@ public class Round {
         WIN, LOSS, DRAW
     }
 
-    public Round() {
+    public Game() {
+        this.id = "";
         this.matchID = "";
         this.player1Win = 0;
         this.player2Win = 0;
@@ -27,7 +29,8 @@ public class Round {
         this.player2Voted = false;
     }
 
-    public Round(String matchID) {
+    public Game(String id, String matchID) {
+        this.id = id;
         this.matchID = matchID;
         this.player1Win = 0;
         this.player2Win = 0;
@@ -35,6 +38,10 @@ public class Round {
         this.player1Voted = false;
         this.player2Voted = false;
 
+    }
+
+    public String getID() {
+        return this.id;
     }
 
     public String getMatchID() {
@@ -45,10 +52,8 @@ public class Round {
         return this.draw;
     }
 
-    public void votePlayerWin(String votingPlayerID, String winningPlayerID) {
+    public Match votePlayerWin(Match match, String votingPlayerID, String winningPlayerID) {
         boolean playerCanVote = false;
-        Match match = new Match();
-        match = matchDao.selectMatchByPlayerID(votingPlayerID);
 
         if (match.getPlayer1ID().equals(votingPlayerID)) {
             if(this.player1Voted) {
@@ -69,7 +74,7 @@ public class Round {
             }
         }
         else {
-            System.out.println("ERROR: Unable to tally player votes");
+            System.err.println("ERROR: Unable to tally player votes");
         }
 
         if(playerCanVote) {
@@ -78,8 +83,22 @@ public class Round {
             } else if (match.getPlayer2ID().equals(winningPlayerID)) {
                 this.player2Win++;
             } else {
-                System.out.println("ERROR: Unable to increment player wins");
+                System.err.println("ERROR: Unable to increment player wins");
             }
         }
+
+        if (player1Voted && player2Voted) {
+            if(player1Win == 2 || player2Win == 2) {
+                String winningPlayer = player1Win == 2 ? match.getPlayer1ID() : match.getPlayer2ID();
+                match.addPlayerWin(winningPlayer);
+                return match;
+            }
+            else {
+                // There is a disagreement that needs settled
+                return new Match();
+            }
+        }
+
+        return new Match();
     }
 }

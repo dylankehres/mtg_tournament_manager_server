@@ -1,7 +1,6 @@
 package com.djk.tournament_manager.dao;
 
 import com.djk.tournament_manager.model.Match;
-import com.djk.tournament_manager.model.Player;
 import com.google.api.core.ApiFuture;
 import com.google.cloud.firestore.*;
 import com.google.firebase.cloud.FirestoreClient;
@@ -9,7 +8,6 @@ import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 
 @Repository("firebaseMatchDao")
@@ -119,5 +117,11 @@ public class MatchDataAccessService implements MatchDao {
     public void deleteMatchById(String id) {
         Firestore dbFirestore = FirestoreClient.getFirestore();
         ApiFuture<WriteResult> collectionApiFuture = dbFirestore.collection(collection).document(id).delete();
+    }
+
+    @Override
+    public void updateMatchById(String id, Match match) {
+        Firestore dbFirestore = FirestoreClient.getFirestore();
+        ApiFuture<WriteResult> collectionApiFuture = dbFirestore.collection(collection).document(id.toString()).set(match);
     }
 }

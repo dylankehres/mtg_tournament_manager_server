@@ -42,9 +42,9 @@ public class TournamentController {
         return tournamentService.addPlayer(player);
     }
 
-    @PostMapping(path = "/join/round/gameResults/{playerID}")
-    public Match receiveGameResults(@PathVariable("playerID") String playerID) {
-        return tournamentService.incrementPlayerWin(playerID);
+    @PostMapping(path = "/match/gameResults/{playerID}")
+    public Match receiveGameResults(@PathVariable("playerID") String votingPlayerID, String winningPlayerID) {
+        return tournamentService.reportGameResults(votingPlayerID, winningPlayerID);
     }
 
     @GetMapping
@@ -85,7 +85,7 @@ public class TournamentController {
         return tournamentService.getMatchesByRoomCode(code);
     }
 
-    @GetMapping(path = "join/pairings/{id}")
+    @GetMapping(path = "match/{id}")
     public MatchDataDTO getMatchForPlayer(@PathVariable("id") String id) {
         return tournamentService.getMatchByPlayerID(id);
     }

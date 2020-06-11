@@ -1,14 +1,17 @@
 package com.djk.tournament_manager.service;
 
+import com.djk.tournament_manager.dao.GameDao;
 import com.djk.tournament_manager.dao.MatchDao;
 import com.djk.tournament_manager.dao.PlayerDao;
 import com.djk.tournament_manager.dao.TournamentDao;
 import com.djk.tournament_manager.dto.MatchDataDTO;
+import com.djk.tournament_manager.model.Game;
 import com.djk.tournament_manager.model.Match;
 import com.djk.tournament_manager.model.Player;
 import com.djk.tournament_manager.model.Tournament;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Repository;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
@@ -22,6 +25,7 @@ public class TournamentService {
     private final TournamentDao tournamentDao;
     private final PlayerDao playerDao;
     private final MatchDao matchDao;
+    private final GameDao gameDao;
 
 //    public WebMvcConfigurer corsConfigurer() {
 //        return new WebMvcConfigurer() {
@@ -35,11 +39,12 @@ public class TournamentService {
 
     @Autowired
 //    public TournamentService(@Qualifier("fakeTournamentDao") TournamentDao tournamentDao, @Qualifier("fakePlayerDao") PlayerDao playerDao, @Qualifier("fakeMatchDao") MatchDao matchDao)
-    public TournamentService(@Qualifier("firebaseTournamentDao") TournamentDao tournamentDao, @Qualifier("firebasePlayerDao") PlayerDao playerDao, @Qualifier("firebaseMatchDao") MatchDao matchDao)
+    public TournamentService(@Qualifier("firebaseTournamentDao") TournamentDao tournamentDao, @Qualifier("firebasePlayerDao") PlayerDao playerDao, @Qualifier("firebaseMatchDao") MatchDao matchDao, @Qualifier("firebaseGameDao") GameDao gameDao)
     {
         this.tournamentDao = tournamentDao;
         this.playerDao = playerDao;
         this.matchDao = matchDao;
+        this.gameDao = gameDao;
     }
 
     public String addTournament(Tournament tournament)
@@ -177,6 +182,17 @@ public class TournamentService {
     public Match incrementPlayerWin(String playerID) {
         Match match = matchDao.selectMatchByPlayerID(playerID);
         match.addPlayerWin(playerID);
+
+        return match;
+    }
+
+    public Match reportGameResults(String votingPlayerID, String winningPlayerID) {
+        Match match = matchDao.selectMatchByPlayerID(votingPlayerID);
+        Game game = gameDao.selectGameById("");
+        game.votePlayerWin(match, votingPlayerID, winningPlayerID);
+
+        gameDao.updateGameById(game.getID(), game);
+        matchDao.updateMatchById(match.getID(), match);
 
         return match;
     }

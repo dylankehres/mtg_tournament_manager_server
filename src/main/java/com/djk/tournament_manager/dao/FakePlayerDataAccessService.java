@@ -7,21 +7,22 @@ import org.springframework.stereotype.Repository;
 import java.util.*;
 
 @Repository("fakePlayerDao")
-public class FakePlayerDataAccessService implements PlayerDao {
+public class FakePlayerDataAccessService {
+//public class FakePlayerDataAccessService implements PlayerDao {
     private static List<Player> DB = new ArrayList<>();
 
-    @Override
+//    @Override
     public String insertPlayer(String id, Player player) {
         DB.add(new Player(id, player.getTournamentID(), player.getName(), player.getRoomCode(), player.getFormat(), player.getDeckName()));
         return id;
     }
 
-    @Override
+//    @Override
     public List<Player> selectAllPlayers() {
         return DB;
     }
 
-    @Override
+//    @Override
     public List<Player> selectPlayersByTournament(String code) {
         List<Player> playersInTournament = new ArrayList<>();
         Iterator itr = DB.iterator();
@@ -38,7 +39,7 @@ public class FakePlayerDataAccessService implements PlayerDao {
         return playersInTournament;
     }
 
-    @Override
+//    @Override
     public Player selectPlayerById(String id) {
         Optional<Player> playerMaybe = DB.stream()
                 .filter(player -> player.getID().equals(id))
@@ -51,7 +52,7 @@ public class FakePlayerDataAccessService implements PlayerDao {
         return null;
     }
 
-    @Override
+//    @Override
     public void deletePlayerById(String id) {
         Player player = selectPlayerById(id);
         if (player != null)
@@ -60,7 +61,7 @@ public class FakePlayerDataAccessService implements PlayerDao {
         }
     }
 
-    @Override
+//    @Override
     public void updatePlayerById(String id, Player update) {
         Player player = selectPlayerById(id);
 

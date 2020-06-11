@@ -96,7 +96,7 @@ class PlayerWaiting extends Component {
         },
         url:
           this.props.serverAddress +
-          "/join/pairings/" +
+          "/match/" +
           this.props.match.params.playerID,
         dataType: "json",
         type: "GET",

@@ -6,7 +6,9 @@ import $ from "jquery";
 class Round extends Component {
   state = {
     roundNum: 1,
-    roundData: {},
+    playerID: "",
+    opponentID: "",
+    matchData: {},
     results: [
       { gameNum: "1", winner: "" },
       { gameNum: "2", winner: "" },
@@ -19,35 +21,19 @@ class Round extends Component {
 
   playerGameWin() {
     console.log("Player Game Win");
-    const round = this;
 
-    $.ajax({
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-      },
-      url:
-        this.props.serverAddress +
-        "/join/round/gameResults/" +
-        this.state.roundData.opponent.playerID,
-      type: "POST",
-      success: (roundData) => {
-        if (roundData === "") {
-          alert("Something went wrong. Please try that again.");
-        } else {
-          round.setState({ roundData });
-          console.log("roundData: ", roundData);
-        }
-      },
-      error: function (jqxhr, status) {
-        console.log("Ajax Error in getPlayerMatch", status);
-      },
-    });
+    this.reportResults(this.state.playerID);
   }
 
   opponentGameWin() {
     console.log("Opponent Game Win");
 
+    this.reportResults(this.state.opponentID);
+  }
+
+  reportResults(winnerID) {
+    console.log("Report results");
+
     const round = this;
 
     $.ajax({
@@ -56,16 +42,15 @@ class Round extends Component {
         "Content-Type": "application/json",
       },
       url:
-        this.props.serverAddress +
-        "/join/round/gameResults/" +
-        this.state.roundData.opponent.playerID,
-      type: "GET",
-      success: (roundData) => {
-        if (roundData === "") {
+        this.props.serverAddress + "/match/gameResults/" + this.state.playerID,
+      type: "POST",
+      data: { winnerID: winnerID },
+      success: (matchData) => {
+        if (matchData === "") {
           alert("Something went wrong. Please try that again.");
         } else {
-          round.setState({ roundData });
-          console.log("roundData: ", roundData);
+          round.setState({ matchData });
+          console.log("matchData: ", matchData);
         }
       },
       error: function (jqxhr, status) {
@@ -79,30 +64,42 @@ class Round extends Component {
   }
 
   componentDidMount() {
-    // const round = this;
-    //
-    // $.ajax({
-    //     headers: {
-    //       Accept: "application/json",
-    //       "Content-Type": "application/json",
-    //     },
-    //     url:
-    //       this.props.serverAddress +
-    //       "/join/round/" +
-    //       this.props.match.params.playerID,
-    //     type: "GET",
-    //     success: (roundData) => {
-    //       if (roundData === "") {
-    //         alert("Something went wrong. Please try that again.");
-    //       } else {
-    //         round.setState({ roundData });
-    //         console.log("roundData: ", roundData);
-    //       }
-    //     },
-    //     error: function (jqxhr, status) {
-    //       console.log("Ajax Error in getPlayerMatch", status);
-    //     },
-    //   });
+    const round = this;
+
+    $.ajax({
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      url:
+        round.props.serverAddress +
+        "/match/" +
+        round.props.match.params.playerID,
+      type: "GET",
+      success: (matchData) => {
+        if (matchData === "") {
+          alert("Something went wrong. Please try that again.");
+        } else {
+          round.setState({ matchData });
+
+          if (round.props.match.params.playerID === matchData.player1.id) {
+            round.setState({
+              playerID: matchData.player1.id,
+              opponentID: matchData.player2.id,
+            });
+          } else {
+            round.setState({
+              playerID: matchData.player2.id,
+              opponentID: matchData.player1.id,
+            });
+          }
+          console.log("matchData: ", matchData);
+        }
+      },
+      error: function (jqxhr, status) {
+        console.log("Ajax Error in getPlayerMatch", status);
+      },
+    });
   }
 
   render() {
