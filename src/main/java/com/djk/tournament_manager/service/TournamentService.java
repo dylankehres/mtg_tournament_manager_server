@@ -5,6 +5,7 @@ import com.djk.tournament_manager.dao.MatchDao;
 import com.djk.tournament_manager.dao.PlayerDao;
 import com.djk.tournament_manager.dao.TournamentDao;
 import com.djk.tournament_manager.dto.MatchDataDTO;
+import com.djk.tournament_manager.dto.ResultDataDTO;
 import com.djk.tournament_manager.model.Game;
 import com.djk.tournament_manager.model.Match;
 import com.djk.tournament_manager.model.Player;
@@ -71,13 +72,13 @@ public class TournamentService {
         tournamentDao.updateTournamentById(id, tournament);
     }
 
-    public String addPlayer(Player player) {
+    public Player addPlayer(Player player) {
         Tournament tournament = tournamentDao.selectTournamentByCode(player.getRoomCode());
 
         if(!tournament.equals(null))
         {
             player.setTournamentID(tournament.getID());
-            return playerDao.insertPlayer(player);
+            return playerDao.insertPlayer(player.getTournamentID(), player.getName(), player.getRoomCode(), player.getFormat(), player.getDeckName());
         }
 
         return null;
@@ -102,6 +103,8 @@ public class TournamentService {
         if(!tournament.equals(null))
         {
             String code = tournament.getRoomCode();
+            Match newMatch = new Match();
+            Game newGame = new Game();
 
             if (getMatchesByRoomCode(code).isEmpty())
             {
@@ -109,16 +112,17 @@ public class TournamentService {
 
                 if (waitingPlayers.size() % 2 == 1)
                 {
-                    UUID id = UUID.randomUUID();
-                    Player bye = new Player(id.toString(), tournament.getID(), "BYE", code, tournament.getFormat(), "");
-                    playerDao.insertPlayer(id.toString(), bye);
+                    Player bye = playerDao.insertPlayer(tournament.getID(), "BYE", code, tournament.getFormat(), "");
                     waitingPlayers.add(bye);
                 }
 
                 Collections.shuffle(waitingPlayers);
 
                 for (int i = 0; i < waitingPlayers.size(); i += 2) {
-                 matchDao.insertMatch(tournament.getID(), numGames, waitingPlayers.get(i).getID(), waitingPlayers.get(i + 1).getID(), i+1 );
+                    newMatch = matchDao.insertMatch(tournament.getID(), numGames, waitingPlayers.get(i).getID(), waitingPlayers.get(i + 1).getID(), i+1);
+                    newGame = gameDao.insertGame(newMatch.getID());
+                    newMatch.addNewActiveGameKey(newGame.getID());
+                    matchDao.updateMatch(newMatch);
                 }
             }
 
@@ -186,14 +190,25 @@ public class TournamentService {
         return match;
     }
 
-    public Match reportGameResults(String votingPlayerID, String winningPlayerID) {
+    public ResultDataDTO reportGameResults(String votingPlayerID, String winningPlayerID) {
         Match match = matchDao.selectMatchByPlayerID(votingPlayerID);
-        Game game = gameDao.selectGameById("");
-        game.votePlayerWin(match, votingPlayerID, winningPlayerID);
+        Game game = gameDao.selectGameById(match.getActiveGameKey());
+        ResultDataDTO results = game.votePlayerWin(match, votingPlayerID, winningPlayerID);
 
-        gameDao.updateGameById(game.getID(), game);
-        matchDao.updateMatchById(match.getID(), match);
+        gameDao.updateGame(game);
 
-        return match;
+        if(results.resultStatus == ResultDataDTO.getResultStatusFinal())
+        {
+            // Results are in start a new game
+            Game newGame = gameDao.insertGame(results.match.getID());
+            results.match.addNewActiveGameKey(newGame.getID());
+            matchDao.updateMatch(results.match);
+
+            // ResultDTO only has player keys, lets get the whole player
+            results.winningPlayer = playerDao.selectPlayerById(results.winningPlayer.getID());
+            results.losingPlayer = playerDao.selectPlayerById(results.losingPlayer.getID());
+        }
+
+        return results;
     }
 }

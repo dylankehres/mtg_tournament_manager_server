@@ -7,9 +7,9 @@ import java.util.List;
 import java.util.UUID;
 
 public interface GameDao {
-    String insertGame(String id, String matchID);
+    Game insertGame(String id, String matchID);
 
-    default String insertGame(String matchID) {
+    default Game insertGame(String matchID) {
         UUID id = UUID.randomUUID();
         return insertGame(id.toString(), matchID);
     }
@@ -22,6 +22,6 @@ public interface GameDao {
 
     void deleteGameById(String id);
 
-    void updateGameById(String id, Game game);
+    void updateGame(Game game);
 
 }

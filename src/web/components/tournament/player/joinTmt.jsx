@@ -142,8 +142,8 @@ class JoinTmt extends Component {
                     </Dropdown>
                     <Button
                       className="btn btn-primary m-2"
-                      disabled={this.getJoinDisabled}
-                      onClick={() => this.handleJoinTmt}
+                      disabled={this.getJoinDisabled()}
+                      onClick={() => this.handleJoinTmt()}
                     >
                       Join Tournament
                     </Button>

@@ -1,23 +1,25 @@
 package com.djk.tournament_manager.dao;
 
 import com.djk.tournament_manager.model.Game;
-import com.djk.tournament_manager.model.Match;
 import com.google.api.core.ApiFuture;
 import com.google.cloud.firestore.*;
 import com.google.firebase.cloud.FirestoreClient;
+import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
+@Repository("firebaseGameDao")
 public class GameDataAccessService implements GameDao{
     static final String collection = "game";
 
     @Override
-    public String insertGame(String id, String matchID) {
+    public Game insertGame(String id, String matchID) {
         Firestore dbFirestore = FirestoreClient.getFirestore();
-        ApiFuture<WriteResult> collectionApiFuture = dbFirestore.collection(collection).document(id.toString()).set(new Game(id, matchID));
-        return id;
+        Game newGame = new Game(id, matchID);
+        ApiFuture<WriteResult> collectionApiFuture = dbFirestore.collection(collection).document(id.toString()).set(newGame);
+        return newGame;
     }
 
     @Override
@@ -93,8 +95,8 @@ public class GameDataAccessService implements GameDao{
     }
 
     @Override
-    public void updateGameById(String id, Game game) {
+    public void updateGame(Game game) {
         Firestore dbFirestore = FirestoreClient.getFirestore();
-        ApiFuture<WriteResult> collectionApiFuture = dbFirestore.collection(collection).document(id.toString()).set(game);
+        ApiFuture<WriteResult> collectionApiFuture = dbFirestore.collection(collection).document(game.getID()).set(game);
     }
 }

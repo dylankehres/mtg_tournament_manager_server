@@ -10,9 +10,9 @@ class Round extends Component {
     opponentID: "",
     matchData: {},
     results: [
-      { gameNum: "1", winner: "" },
-      { gameNum: "2", winner: "" },
-      { gameNum: "3", winner: "" },
+      // { gameNum: "1", winner: "" },
+      // { gameNum: "2", winner: "" },
+      // { gameNum: "3", winner: "" },
       //   { gameNum: "1", winner: "Dylan" },
       //   { gameNum: "2", winner: "Matt" },
       //   { gameNum: "3", winner: "Dylan" },
@@ -42,15 +42,25 @@ class Round extends Component {
         "Content-Type": "application/json",
       },
       url:
-        this.props.serverAddress + "/match/gameResults/" + this.state.playerID,
+        this.props.serverAddress +
+        "/match/gameResults/" +
+        this.state.playerID +
+        "/" +
+        winnerID,
       type: "POST",
-      data: { winnerID: winnerID },
-      success: (matchData) => {
-        if (matchData === "") {
+      success: (gameResults) => {
+        if (gameResults === "") {
           alert("Something went wrong. Please try that again.");
         } else {
-          round.setState({ matchData });
-          console.log("matchData: ", matchData);
+          if (gameResults.resultStatus === 1) {
+            // Waiting on other votes
+          } else if (gameResults.resultStatus === 2) {
+            // These are final results
+            round.setState({ results: [...this.state.results, gameResults] });
+            console.log("gameResults: ", gameResults);
+          } else {
+            // Disputed results
+          }
         }
       },
       error: function (jqxhr, status) {
@@ -135,10 +145,10 @@ class Round extends Component {
                     </tr>
                   </thead>
                   <tbody>
-                    {this.state.results.map((game) => (
-                      <tr key={game.gameNum}>
-                        <td>{game.gameNum}</td>
-                        <td>{game.winner}</td>
+                    {this.state.results.map((game, index) => (
+                      <tr key={game.gameID}>
+                        <td>{index + 1}</td>
+                        <td>{game.winningPlayer.name}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -155,7 +165,7 @@ class Round extends Component {
                         <Button
                           className="btn btn-success"
                           style={{ width: "136px" }}
-                          onClick={this.playerGameWin}
+                          onClick={() => this.playerGameWin()}
                         >
                           I Won
                         </Button>
@@ -166,7 +176,7 @@ class Round extends Component {
                         <Button
                           className="btn btn-danger"
                           style={{ width: "136px" }}
-                          onClick={this.opponentGameWin}
+                          onClick={() => this.opponentGameWin()}
                         >
                           Opponent Won
                         </Button>
@@ -177,7 +187,7 @@ class Round extends Component {
                         <Button
                           className="btn btn-primary"
                           style={{ width: "136px" }}
-                          onClick={this.gameDraw}
+                          onClick={() => this.gameDraw()}
                         >
                           Draw
                         </Button>

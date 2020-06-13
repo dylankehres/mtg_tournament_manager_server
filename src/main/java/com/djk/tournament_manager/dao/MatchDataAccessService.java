@@ -15,10 +15,11 @@ public class MatchDataAccessService implements MatchDao {
     static final String collection = "match";
 
     @Override
-    public String insertMatch(String id, String tournamentID, int numGames, String player1ID, String player2ID, int tableNum) {
+    public Match insertMatch(String id, String tournamentID, int numGames, String player1ID, String player2ID, int tableNum) {
         Firestore dbFirestore = FirestoreClient.getFirestore();
-        ApiFuture<WriteResult> collectionApiFuture = dbFirestore.collection(collection).document(id.toString()).set(new Match(id, tournamentID, numGames, player1ID, player2ID, tableNum));
-        return id;
+        Match newMatch = new Match(id, tournamentID, numGames, player1ID, player2ID, tableNum);
+        ApiFuture<WriteResult> collectionApiFuture = dbFirestore.collection(collection).document(id.toString()).set(newMatch);
+        return newMatch;
     }
 
     @Override
@@ -120,8 +121,8 @@ public class MatchDataAccessService implements MatchDao {
     }
 
     @Override
-    public void updateMatchById(String id, Match match) {
+    public void updateMatch(Match match) {
         Firestore dbFirestore = FirestoreClient.getFirestore();
-        ApiFuture<WriteResult> collectionApiFuture = dbFirestore.collection(collection).document(id.toString()).set(match);
+        ApiFuture<WriteResult> collectionApiFuture = dbFirestore.collection(collection).document(match.getID()).set(match);
     }
 }

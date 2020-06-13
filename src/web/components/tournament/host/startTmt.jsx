@@ -113,7 +113,7 @@ class StartTmt extends Component {
           <Form>
             <Button
               className="btn btn-danger m-2"
-              onClick={() => this.handleCancelTmt}
+              onClick={() => this.handleCancelTmt()}
               href="/host"
             >
               Cancel Tournament
@@ -132,13 +132,13 @@ class StartTmt extends Component {
           <Form>
             <Button
               className="btn btn-primary m-2"
-              onClick={() => this.handleStartTmt}
+              onClick={() => this.handleStartTmt()}
             >
               Start Tournament
             </Button>
             <Button
               className="btn btn-danger m-2"
-              onClick={() => this.handleCancelTmt}
+              onClick={() => this.handleCancelTmt()}
               href="/host"
             >
               Cancel Tournament

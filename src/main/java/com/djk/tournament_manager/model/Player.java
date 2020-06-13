@@ -1,6 +1,8 @@
 package com.djk.tournament_manager.model;
 
+import com.djk.tournament_manager.dao.PlayerDao;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import org.springframework.beans.factory.annotation.Qualifier;
 
 import javax.validation.constraints.NotBlank;
 import java.util.UUID;
@@ -16,9 +18,30 @@ public class Player {
     private String format;
     private String deckName;
 
+//    @Qualifier("firebasePlayerDao") PlayerDao playerDao;
+
     public Player()
     {
         this.id = "";
+        this.tournamentID = "";
+        this.name = "";
+        this.roomCode = "";
+        this.format = "";
+        this.deckName = "";
+    }
+
+    public Player(String id)
+    {
+//        Player storedPlayer = playerDao.selectPlayerById(id);
+
+//        this.id = storedPlayer.getID();
+//        this.tournamentID = storedPlayer.getTournamentID();
+//        this.name = storedPlayer.getName();
+//        this.roomCode = storedPlayer.getRoomCode();
+//        this.format = storedPlayer.getFormat();
+//        this.deckName = storedPlayer.getDeckName();
+
+        this.id = id;
         this.tournamentID = "";
         this.name = "";
         this.roomCode = "";

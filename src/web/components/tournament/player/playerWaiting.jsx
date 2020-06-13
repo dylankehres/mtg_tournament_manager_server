@@ -156,7 +156,7 @@ class PlayerWaiting extends Component {
             <Button
               className="btn btn-danger m-2"
               href="/join"
-              onClick={() => this.handleLeaveTmt}
+              onClick={() => this.handleLeaveTmt()}
             >
               Leave Tournament
             </Button>

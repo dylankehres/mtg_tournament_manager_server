@@ -15,10 +15,12 @@ public class PlayerDataAccessService implements PlayerDao{
     static final String collection = "player";
 
     @Override
-    public String insertPlayer(String id, Player player) {
+    public Player insertPlayer(String id, String tournamentID, String name, String roomCode, String format, String deckName) {
         Firestore dbFirestore = FirestoreClient.getFirestore();
-        ApiFuture<WriteResult> collectionApiFuture = dbFirestore.collection(collection).document(id.toString()).set(player);
-        return id;
+        Player newPlayer = new Player(id, tournamentID, name, roomCode, format, deckName);
+        ApiFuture<WriteResult> collectionApiFuture = dbFirestore.collection(collection).document(id.toString()).set(newPlayer);
+
+        return newPlayer;
     }
 
     @Override

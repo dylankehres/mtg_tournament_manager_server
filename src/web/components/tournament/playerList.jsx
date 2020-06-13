@@ -11,8 +11,8 @@ class PlayerList extends Component {
     this.getPlayerList();
   }
 
-  getPlayerList() {
-    $.ajax({
+  async getPlayerList() {
+    await $.ajax({
       headers: {
         Accept: "application/json",
         "Content-Type": "application/json",
@@ -34,24 +34,12 @@ class PlayerList extends Component {
     if (this.state.playerList.length > 0) {
       return (
         <div className="m-2" style={{ width: "300px" }}>
-          {/* <div className="m-2">
-            <h4>Waiting for event to start</h4>
-            <Button
-              className="btn btn-primary m-2 "
-              onClick={() => this.getPlayerList()}
-            >
-              Refresh
-            </Button>
-          </div> */}
           <Table striped bordered hover size="sm">
             <thead>
               <tr>
                 <th>#</th>
                 <th>Player Name</th>
                 <th>Deck Name</th>
-                <th align="right" onClick={() => this.getPlayerList}>
-                  R
-                </th>
               </tr>
             </thead>
             <tbody>
@@ -60,7 +48,6 @@ class PlayerList extends Component {
                   <td>{index + 1}</td>
                   <td>{player.name}</td>
                   <td>{player.deckName}</td>
-                  <td></td>
                 </tr>
               ))}
             </tbody>
