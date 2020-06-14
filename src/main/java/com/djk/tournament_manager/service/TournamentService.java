@@ -5,20 +5,15 @@ import com.djk.tournament_manager.dao.MatchDao;
 import com.djk.tournament_manager.dao.PlayerDao;
 import com.djk.tournament_manager.dao.TournamentDao;
 import com.djk.tournament_manager.dto.MatchDataDTO;
-import com.djk.tournament_manager.dto.ResultDataDTO;
 import com.djk.tournament_manager.model.Game;
 import com.djk.tournament_manager.model.Match;
 import com.djk.tournament_manager.model.Player;
 import com.djk.tournament_manager.model.Tournament;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Repository;
 import org.springframework.stereotype.Service;
-import org.springframework.web.servlet.config.annotation.CorsRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import java.util.*;
-import java.util.concurrent.ExecutionException;
 
 @Service
 public class TournamentService {
@@ -156,17 +151,20 @@ public class TournamentService {
         Match match = matchDao.selectMatchByPlayerID(playerID);
         Player p1 = new Player();
         Player p2 = new Player();
+        Game game = new Game();
+        List<Game> gameList = new ArrayList<>();
         MatchDataDTO matchData = new MatchDataDTO();
 
         if(match != null) {
             p1 = playerDao.selectPlayerById(match.getPlayer1ID());
             p2 = playerDao.selectPlayerById(match.getPlayer2ID());
+            gameList = gameDao.selectGamesInMatch(match.getID());
         }
         else {
             match = new Match();
         }
 
-        matchData = new MatchDataDTO(p1, p2, match);
+        matchData = new MatchDataDTO(p1, p2, match, gameList);
         return matchData;
     }
 
@@ -190,25 +188,32 @@ public class TournamentService {
         return match;
     }
 
-    public ResultDataDTO reportGameResults(String votingPlayerID, String winningPlayerID) {
+    public MatchDataDTO reportGameResults(String votingPlayerID, String winningPlayerID) {
+        // Query for the corresponding match and game
         Match match = matchDao.selectMatchByPlayerID(votingPlayerID);
-        Game game = gameDao.selectGameById(match.getActiveGameKey());
-        ResultDataDTO results = game.votePlayerWin(match, votingPlayerID, winningPlayerID);
+        Game game = gameDao.selectGameById(match.activeGameID());
 
-        gameDao.updateGame(game);
+        // Report results
+        int resultStatus = game.votePlayerWin(match, votingPlayerID, winningPlayerID);
 
-        if(results.resultStatus == ResultDataDTO.getResultStatusFinal())
+        if(resultStatus == Game.getResultStatusFinal())
         {
             // Results are in start a new game
-            Game newGame = gameDao.insertGame(results.match.getID());
-            results.match.addNewActiveGameKey(newGame.getID());
-            matchDao.updateMatch(results.match);
-
-            // ResultDTO only has player keys, lets get the whole player
-            results.winningPlayer = playerDao.selectPlayerById(results.winningPlayer.getID());
-            results.losingPlayer = playerDao.selectPlayerById(results.losingPlayer.getID());
+            game.setIsActive(false);
+            Game newGame = gameDao.insertGame(match.getID());
+            newGame.setIsActive(true);
+            match.addNewActiveGameKey(newGame.getID());
         }
 
-        return results;
+        matchDao.updateMatch(match);
+        gameDao.updateGame(game);
+
+        // Prepare MatchDatDTO
+        List<Game> gameList = gameDao.selectGamesInMatch(match.getID());
+        Player p1 = playerDao.selectPlayerById(match.getPlayer1ID());
+        Player p2 = playerDao.selectPlayerById(match.getPlayer2ID());
+        MatchDataDTO matchData = new MatchDataDTO(p1, p2, match, gameList);
+
+        return matchData;
     }
 }

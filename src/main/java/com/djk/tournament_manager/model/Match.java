@@ -17,7 +17,7 @@ public class Match {
     private int player2Wins;
     private int tableNum;
     private List<String> gameKeys;
-    private  String activeGameKey;
+    private  String activeGameID;
 
     public Match()
     {
@@ -29,7 +29,7 @@ public class Match {
         this.player2Wins = 0;
         this.tableNum = 0;
         this.gameKeys = new ArrayList<>();
-        this.activeGameKey = "";
+        this.activeGameID = "";
     }
 
     public Match(@JsonProperty("id") String id,
@@ -46,6 +46,7 @@ public class Match {
         this.player1Wins = 0;
         this.player2Wins = 0;
         this.tableNum = tableNum;
+        this.activeGameID = "";
         this.gameKeys = new ArrayList<>(numGames);
     }
 
@@ -64,7 +65,7 @@ public class Match {
 
     public List<String> getGameKeys() { return this.gameKeys; }
 
-    public String getActiveGameKey() { return this.activeGameKey; }
+    public String activeGameID() { return this.activeGameID; }
 
     public int getTableNum() { return this.tableNum; }
 
@@ -72,9 +73,9 @@ public class Match {
 
     public void setGameKeys(List<String> gameKeys){ this.gameKeys = gameKeys; }
 
-    public void setActiveGameKey(String gameKey){ this.activeGameKey = gameKey; }
+    public void setActiveGameKey(String gameKey){ this.activeGameID = gameKey; }
 
-    public void addNewActiveGameKey(String gameKey) {
+    public void addNewActiveGameKey(String gameID) {
 //        String [] newGameKeys = new String[this.gameKeys.length + 1];
 //
 //        for(int x = 0; x<this.gameKeys.length; x++) {
@@ -82,8 +83,8 @@ public class Match {
 //        }
 //
 //        newGameKeys[this.gameKeys.length + 1] = gameKey;
-        this.gameKeys.add(gameKey);
-        this.activeGameKey = gameKey;
+        this.gameKeys.add(gameID);
+        this.activeGameID = gameID;
 //        this.gameKeys = newGameKeys;
     }
 

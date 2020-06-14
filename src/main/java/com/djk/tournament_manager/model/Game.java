@@ -1,8 +1,6 @@
 package com.djk.tournament_manager.model;
 
-import com.djk.tournament_manager.dto.ResultDataDTO;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import org.springframework.beans.factory.annotation.Qualifier;
 
 public class Game {
     @JsonProperty("id") private String id;
@@ -12,11 +10,12 @@ public class Game {
     @JsonProperty("player1Wins") private int player1Wins;
     @JsonProperty("player2Wins") private int player2Wins;
     @JsonProperty("draw") private int draw;
-    @JsonProperty("active") private boolean active;
+    @JsonProperty("isActive") private boolean isActive;
+    @JsonProperty("resultStatus") private int resultStatus;
 
-    enum GameResultVotes {
-        WIN, LOSS, DRAW
-    }
+    enum ResultStatus {
+        ResultsPending, ResultsFinal, ResultsDisputed
+    };
 
     public Game() {
         this.id = "";
@@ -26,7 +25,8 @@ public class Game {
         this.draw = 0;
         this.player1Voted = false;
         this.player2Voted = false;
-        this.active = false;
+        this.isActive = false;
+        this.resultStatus = ResultStatus.ResultsPending.ordinal();
     }
 
     public Game(String id, String matchID) {
@@ -37,7 +37,8 @@ public class Game {
         this.draw = 0;
         this.player1Voted = false;
         this.player2Voted = false;
-        this.active = false;
+        this.isActive = false;
+        this.resultStatus = ResultStatus.ResultsPending.ordinal();
     }
 
     public String getID() {
@@ -58,9 +59,13 @@ public class Game {
 
     public int getDraw() { return this.draw; }
 
-    public boolean isActive() { return this.active; }
+    public int getResultStatus() { return this.resultStatus; }
 
-    public ResultDataDTO votePlayerWin(Match match, String votingPlayerID, String winningPlayerID) {
+    public boolean getIsActive() { return this.isActive; }
+
+    public void setIsActive(boolean isActive) { this.isActive = isActive; }
+
+    public int votePlayerWin(Match match, String votingPlayerID, String winningPlayerID) {
         boolean playerCanVote = false;
 
         // Check if this player has already voted for a winner
@@ -104,16 +109,23 @@ public class Game {
                 String losingPlayer = winningPlayer.equals(match.getPlayer1ID()) ? match.getPlayer2ID() : match.getPlayer1ID();
 
                 match.addPlayerWin(winningPlayer);
-
-                return new ResultDataDTO(new Player(winningPlayer), new Player(losingPlayer), this.id, match, ResultDataDTO.getResultStatusFinal());
+                this.resultStatus = Game.getResultStatusFinal();
             }
             else {
                 // There is a disagreement that needs settled
-                return new ResultDataDTO(new Player(), new Player(), this.id, match, ResultDataDTO.getResultStatusDisputed());
+                this.resultStatus =  Game.getResultStatusDisputed();
             }
         }
 
         // Still waiting on results return the old match
-        return new ResultDataDTO(new Player(), new Player(), this.id, match, ResultDataDTO.getResultStatusPending());
+        this.resultStatus =  Game.getResultStatusPending();
+
+        return this.resultStatus;
     }
+
+    public static int getResultStatusPending() { return ResultStatus.ResultsPending.ordinal(); }
+
+    public static int getResultStatusFinal() { return ResultStatus.ResultsFinal.ordinal(); }
+
+    public static int getResultStatusDisputed() { return ResultStatus.ResultsDisputed.ordinal(); }
 }

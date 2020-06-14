@@ -9,14 +9,14 @@ class Round extends Component {
     playerID: "",
     opponentID: "",
     matchData: {},
-    results: [
-      // { gameNum: "1", winner: "" },
-      // { gameNum: "2", winner: "" },
-      // { gameNum: "3", winner: "" },
-      //   { gameNum: "1", winner: "Dylan" },
-      //   { gameNum: "2", winner: "Matt" },
-      //   { gameNum: "3", winner: "Dylan" },
-    ],
+    // results: [
+    // { gameNum: "1", winner: "" },
+    // { gameNum: "2", winner: "" },
+    // { gameNum: "3", winner: "" },
+    //   { gameNum: "1", winner: "Dylan" },
+    //   { gameNum: "2", winner: "Matt" },
+    //   { gameNum: "3", winner: "Dylan" },
+    // ],
   };
 
   playerGameWin() {
@@ -34,6 +34,14 @@ class Round extends Component {
   reportResults(winnerID) {
     console.log("Report results");
 
+    let currentGameID = "-1";
+
+    matchData.gameList.forEach((game) => {
+      if (game.active) {
+        currentGameKey = game.id;
+      }
+    });
+
     const round = this;
 
     $.ajax({
@@ -48,18 +56,22 @@ class Round extends Component {
         "/" +
         winnerID,
       type: "POST",
-      success: (gameResults) => {
-        if (gameResults === "") {
+      success: (matchData) => {
+        if (matchData === "") {
           alert("Something went wrong. Please try that again.");
         } else {
-          if (gameResults.resultStatus === 1) {
-            // Waiting on other votes
-          } else if (gameResults.resultStatus === 2) {
-            // These are final results
-            round.setState({ results: [...this.state.results, gameResults] });
-            console.log("gameResults: ", gameResults);
+          if (currentGameKey === matchData.match.activeGameID) {
+            if (matchData.resultStatus === 1) {
+              // Waiting on other votes
+            } else {
+              // Disputed results
+            }
           } else {
-            // Disputed results
+            if (matchData.resultStatus === 2) {
+              // These are final results
+              round.setState({ matchData });
+              console.log("matchData: ", matchData);
+            }
           }
         }
       },

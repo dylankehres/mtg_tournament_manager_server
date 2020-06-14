@@ -1,21 +1,15 @@
 package com.djk.tournament_manager.api;
 
 import com.djk.tournament_manager.dto.MatchDataDTO;
-import com.djk.tournament_manager.dto.ResultDataDTO;
-import com.djk.tournament_manager.model.Match;
 import com.djk.tournament_manager.model.Player;
 import com.djk.tournament_manager.model.Tournament;
 import com.djk.tournament_manager.service.TournamentService;
-import jdk.nashorn.internal.runtime.regexp.joni.constants.OPCode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.lang.NonNull;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.*;
-import java.util.concurrent.ExecutionException;
-
-import static sun.management.snmp.jvminstr.JvmThreadInstanceEntryImpl.ThreadStateMap.Byte1.other;
 
 
 @RequestMapping("api/v1/tournament")
@@ -44,7 +38,7 @@ public class TournamentController {
     }
 
     @PostMapping(path = "/match/gameResults/{playerID}/{winnerID}")
-    public ResultDataDTO receiveGameResults(@PathVariable("playerID") String votingPlayerID, @PathVariable("winnerID") String winningPlayerID) {
+    public MatchDataDTO receiveGameResults(@PathVariable("playerID") String votingPlayerID, @PathVariable("winnerID") String winningPlayerID) {
         return tournamentService.reportGameResults(votingPlayerID, winningPlayerID);
     }
 
