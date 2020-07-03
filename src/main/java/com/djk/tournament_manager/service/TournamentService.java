@@ -134,12 +134,16 @@ public class TournamentService {
         if(tournament != null)
         {
             List<Match> matches = matchDao.selectMatchesInTournament(tournament.getID());
+            Player p1 = new Player();
+            Player p2 = new Player();
+            List<Game> gameList = new ArrayList<>();
 
             for(Match match : matches) {
-                Player p1 = playerDao.selectPlayerById(match.getPlayer1ID());
-                Player p2 = playerDao.selectPlayerById(match.getPlayer2ID());
+                p1 = playerDao.selectPlayerById(match.getPlayer1ID());
+                p2 = playerDao.selectPlayerById(match.getPlayer2ID());
+                gameList = gameDao.selectGamesInMatch(match.getID());
 
-                matchDataList.add(new MatchDataDTO(p1, p2, match));
+                matchDataList.add(new MatchDataDTO(p1, p2, match, gameList));
             }
         }
 
@@ -191,7 +195,7 @@ public class TournamentService {
     public MatchDataDTO reportGameResults(String votingPlayerID, String winningPlayerID) {
         // Query for the corresponding match and game
         Match match = matchDao.selectMatchByPlayerID(votingPlayerID);
-        Game game = gameDao.selectGameById(match.activeGameID());
+        Game game = gameDao.selectGameById(match.getActiveGameID());
 
         // Report results
         int resultStatus = game.votePlayerWin(match, votingPlayerID, winningPlayerID);
@@ -215,5 +219,20 @@ public class TournamentService {
         MatchDataDTO matchData = new MatchDataDTO(p1, p2, match, gameList);
 
         return matchData;
+    }
+
+    public Match setPlayerReady(String playerID) {
+        Match match = matchDao.selectMatchByPlayerID(playerID);
+        match.playerReady(playerID);
+
+        if(match.getActive()) {
+            Game game = gameDao.selectGameById(match.getActiveGameID());
+            game.setIsActive(true);
+            gameDao.updateGame(game);
+        }
+
+        matchDao.updateMatch(match);
+
+        return match;
     }
 }

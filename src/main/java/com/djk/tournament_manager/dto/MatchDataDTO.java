@@ -22,13 +22,6 @@ public class MatchDataDTO {
         this.gameList = new ArrayList<>();
     }
 
-    public MatchDataDTO(Player player1, Player player2, Match match) {
-        this.player1 = player1;
-        this.player2 = player2;
-        this.match = match;
-        this.gameList = new ArrayList<>();
-    }
-
     public MatchDataDTO(Player player1, Player player2, Match match, List<Game> gameList) {
         this.player1 = player1;
         this.player2 = player2;

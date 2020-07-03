@@ -115,6 +115,31 @@ class PlayerWaiting extends Component {
     }
   }
 
+  readyUp() {
+    let waiting = this;
+    debugger;
+
+    $.ajax({
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      url:
+        this.props.serverAddress +
+        "/match/ready/" +
+        waiting.state.currPlayer.id,
+      type: "POST",
+      success: (game) => {
+        debugger;
+        console.log("ReadyUp success: ", game);
+      },
+      error: function (jqxhr, status) {
+        debugger;
+        console.log("Ajax Error in readyUp for playerWaiting.jsx", status);
+      },
+    });
+  }
+
   componentDidMount() {
     // this.getPlayerData(() => this.getPairings());
     this.getPairings();
@@ -139,6 +164,7 @@ class PlayerWaiting extends Component {
           <Button
             className="btn btn-success m-2"
             href={`/round/${this.state.currPlayer.id}`}
+            onClick={() => this.readyUp()}
           >
             Ready
           </Button>

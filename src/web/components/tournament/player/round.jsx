@@ -8,7 +8,14 @@ class Round extends Component {
     roundNum: 1,
     playerID: "",
     opponentID: "",
-    matchData: {},
+    currGameResultStatus: -1,
+    matchData: {
+      player1: null,
+      player2: null,
+      match: null,
+      gameList: [],
+    },
+    winnersList: [],
     // results: [
     // { gameNum: "1", winner: "" },
     // { gameNum: "2", winner: "" },
@@ -33,14 +40,15 @@ class Round extends Component {
 
   reportResults(winnerID) {
     console.log("Report results");
+    console.log("Game List: ", this.state.matchData.gameList);
 
     let currentGameID = "-1";
+    let currentGame = null;
+    currentGame = this.state.matchData.gameList.find((game) => game.isActive);
 
-    matchData.gameList.forEach((game) => {
-      if (game.active) {
-        currentGameKey = game.id;
-      }
-    });
+    if (currentGame !== null) {
+      currentGameID = currentGame.id;
+    }
 
     const round = this;
 
@@ -60,17 +68,25 @@ class Round extends Component {
         if (matchData === "") {
           alert("Something went wrong. Please try that again.");
         } else {
-          if (currentGameKey === matchData.match.activeGameID) {
+          console.log("matchData: ", matchData);
+          const activeGame = matchData.gameList.find(
+            (game) => game.id === currentGameID
+          );
+          if (currentGameID === matchData.match.activeGameID) {
             if (matchData.resultStatus === 1) {
               // Waiting on other votes
+              console.log("Awaiting final results");
+              round.setState({ currGameResultStatus: matchData.resultStatus });
             } else {
               // Disputed results
+              console.log("Results are being disputed");
+              round.setState({ currGameResultStatus: matchData.resultStatus });
             }
           } else {
             if (matchData.resultStatus === 2) {
               // These are final results
+              console.log("Results are final");
               round.setState({ matchData });
-              console.log("matchData: ", matchData);
             }
           }
         }
@@ -85,10 +101,10 @@ class Round extends Component {
     console.log("Game Draw");
   }
 
-  componentDidMount() {
+  async getMatchData() {
     const round = this;
 
-    $.ajax({
+    await $.ajax({
       headers: {
         Accept: "application/json",
         "Content-Type": "application/json",
@@ -115,6 +131,7 @@ class Round extends Component {
               opponentID: matchData.player1.id,
             });
           }
+          round.buildWinnersList();
           console.log("matchData: ", matchData);
         }
       },
@@ -122,6 +139,30 @@ class Round extends Component {
         console.log("Ajax Error in getPlayerMatch", status);
       },
     });
+  }
+
+  buildWinnersList() {
+    let winners = [];
+    console.log("State: ", this.state);
+    this.state.matchData.gameList.forEach((game) => {
+      if (game !== null) {
+        if (game.winningPlayerID === "-1") {
+          winners.push("TBD");
+        } else if (game.winningPlayerID === this.state.matchData.player1.id) {
+          winners.push(this.state.matchData.player1.name);
+        } else if (game.winningPlayerID === this.state.matchData.player2.id) {
+          winners.push(this.state.matchData.player2.name);
+        } else {
+          winners.push("Error!");
+        }
+      }
+    });
+    console.log("Winners list", winners);
+    this.setState({ winnersList: winners });
+  }
+
+  componentDidMount() {
+    this.getMatchData();
   }
 
   render() {
@@ -157,10 +198,19 @@ class Round extends Component {
                     </tr>
                   </thead>
                   <tbody>
-                    {this.state.results.map((game, index) => (
-                      <tr key={game.gameID}>
+                    {this.state.winnersList.forEach((winner, index) => (
+                      <tr key={index}>
                         <td>{index + 1}</td>
-                        <td>{game.winningPlayer.name}</td>
+                        <td>
+                          {
+                            winner
+                            // game.player1Wins > game.player2Wins
+                            //   ? "Player 1 Name"
+                            //   : "Player 2 Name"
+                            // ? this.state.matchData.match.player1.name
+                            // : this.state.matchData.match.player2.name
+                          }
+                        </td>
                       </tr>
                     ))}
                   </tbody>

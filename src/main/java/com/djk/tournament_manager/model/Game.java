@@ -9,9 +9,12 @@ public class Game {
     @JsonProperty("player2Voted") private boolean player2Voted;
     @JsonProperty("player1Wins") private int player1Wins;
     @JsonProperty("player2Wins") private int player2Wins;
+    @JsonProperty("player1Ready") private boolean player1Ready;
+    @JsonProperty("player2Ready") private boolean player2Ready;
     @JsonProperty("draw") private int draw;
     @JsonProperty("isActive") private boolean isActive;
     @JsonProperty("resultStatus") private int resultStatus;
+    @JsonProperty("winningPlayerID") private String winningPlayerID;
 
     enum ResultStatus {
         ResultsPending, ResultsFinal, ResultsDisputed
@@ -22,11 +25,14 @@ public class Game {
         this.matchID = "";
         this.player1Wins = 0;
         this.player2Wins = 0;
+        this.player1Ready = false;
+        this.player2Ready = false;
         this.draw = 0;
         this.player1Voted = false;
         this.player2Voted = false;
         this.isActive = false;
         this.resultStatus = ResultStatus.ResultsPending.ordinal();
+        this.winningPlayerID = "-1";
     }
 
     public Game(String id, String matchID) {
@@ -34,11 +40,14 @@ public class Game {
         this.matchID = matchID;
         this.player1Wins = 0;
         this.player2Wins = 0;
+        this.player1Ready = false;
+        this.player2Ready = false;
         this.draw = 0;
         this.player1Voted = false;
         this.player2Voted = false;
         this.isActive = false;
         this.resultStatus = ResultStatus.ResultsPending.ordinal();
+        this.winningPlayerID = "-1";
     }
 
     public String getID() {
@@ -109,6 +118,7 @@ public class Game {
                 String losingPlayer = winningPlayer.equals(match.getPlayer1ID()) ? match.getPlayer2ID() : match.getPlayer1ID();
 
                 match.addPlayerWin(winningPlayer);
+                this.winningPlayerID = winningPlayer;
                 this.resultStatus = Game.getResultStatusFinal();
             }
             else {

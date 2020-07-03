@@ -8,16 +8,18 @@ import java.util.List;
 import java.util.UUID;
 
 public class Match {
-    @NotBlank
-    private final String id;
-    private final String tournamentID;
-    private final String player1ID;
-    private final String player2ID;
-    private int player1Wins;
-    private int player2Wins;
-    private int tableNum;
-    private List<String> gameKeys;
-    private  String activeGameID;
+    @JsonProperty("id")  private final String id;
+    @JsonProperty("tmtID") private final String tournamentID;
+    @JsonProperty("player1ID") private final String player1ID;
+    @JsonProperty("player2ID") private final String player2ID;
+    @JsonProperty("player1Wins") private int player1Wins;
+    @JsonProperty("player2Wins") private int player2Wins;
+    @JsonProperty("player1Ready") private boolean player1Ready;
+    @JsonProperty("player2Ready") private boolean player2Ready;
+    @JsonProperty("tableNum") private int tableNum;
+    @JsonProperty("active") private boolean active;
+    @JsonProperty("gameKeys") private List<String> gameKeys;
+    @JsonProperty("activeGameID") private  String activeGameID;
 
     public Match()
     {
@@ -27,17 +29,15 @@ public class Match {
         this.player2ID = "";
         this.player1Wins = 0;
         this.player2Wins = 0;
+        this.player1Ready = false;
+        this.player2Ready = false;
         this.tableNum = 0;
+        this.active = false;
         this.gameKeys = new ArrayList<>();
         this.activeGameID = "";
     }
 
-    public Match(@JsonProperty("id") String id,
-                 @JsonProperty("tmtID") String tournamentID,
-                 @JsonProperty("numGames") int numGames,
-                 @JsonProperty("player1ID") String player1ID,
-                 @JsonProperty("player2ID") String player2ID,
-                 @JsonProperty("tableNum") int tableNum)
+    public Match(String id, String tournamentID, int numGames, String player1ID, String player2ID, int tableNum)
     {
         this.id = id;
         this.tournamentID = tournamentID;
@@ -45,7 +45,10 @@ public class Match {
         this.player2ID = player2ID;
         this.player1Wins = 0;
         this.player2Wins = 0;
+        this.player1Ready = false;
+        this.player2Ready = false;
         this.tableNum = tableNum;
+        this.active = false;
         this.activeGameID = "";
         this.gameKeys = new ArrayList<>(numGames);
     }
@@ -63,29 +66,29 @@ public class Match {
 
     public int getPlayer2Wins() { return this.player2Wins; }
 
+    public boolean getPlayer1Ready() { return this.player1Ready; }
+
+    public boolean getPlayer2Ready() { return this.player2Ready; }
+
     public List<String> getGameKeys() { return this.gameKeys; }
 
-    public String activeGameID() { return this.activeGameID; }
+    public String getActiveGameID() { return this.activeGameID; }
 
     public int getTableNum() { return this.tableNum; }
 
     public void setTableNum(int tableNum) { this.tableNum = tableNum; }
+
+    public boolean getActive() { return this.active; }
+
+    public void setActive(boolean active) { this.active = active; }
 
     public void setGameKeys(List<String> gameKeys){ this.gameKeys = gameKeys; }
 
     public void setActiveGameKey(String gameKey){ this.activeGameID = gameKey; }
 
     public void addNewActiveGameKey(String gameID) {
-//        String [] newGameKeys = new String[this.gameKeys.length + 1];
-//
-//        for(int x = 0; x<this.gameKeys.length; x++) {
-//            newGameKeys[x] = this.gameKeys[x];
-//        }
-//
-//        newGameKeys[this.gameKeys.length + 1] = gameKey;
         this.gameKeys.add(gameID);
         this.activeGameID = gameID;
-//        this.gameKeys = newGameKeys;
     }
 
     public boolean addPlayerWin(String playerID) {
@@ -105,6 +108,20 @@ public class Match {
     public void didDraw()
     {
         // TODO
+    }
+
+    public void playerReady(String playerID) {
+        if (playerID.equals(getPlayer1ID())) {
+            player1Ready = true;
+        } else if (playerID.equals(getPlayer2ID())) {
+            player2Ready = true;
+        } else {
+            System.err.println("Invalid player ready for game " + playerID);
+        }
+
+        if(player1Ready && player2Ready) {
+            active = true;
+        }
     }
 
     public boolean playerIsInMatch(String playerID)

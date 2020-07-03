@@ -1,6 +1,8 @@
 package com.djk.tournament_manager.api;
 
 import com.djk.tournament_manager.dto.MatchDataDTO;
+import com.djk.tournament_manager.model.Game;
+import com.djk.tournament_manager.model.Match;
 import com.djk.tournament_manager.model.Player;
 import com.djk.tournament_manager.model.Tournament;
 import com.djk.tournament_manager.service.TournamentService;
@@ -40,6 +42,11 @@ public class TournamentController {
     @PostMapping(path = "/match/gameResults/{playerID}/{winnerID}")
     public MatchDataDTO receiveGameResults(@PathVariable("playerID") String votingPlayerID, @PathVariable("winnerID") String winningPlayerID) {
         return tournamentService.reportGameResults(votingPlayerID, winningPlayerID);
+    }
+
+    @PostMapping(path =  "/match/ready/{playerID}")
+    public Match readyUp (@PathVariable("playerID") String playerID) {
+        return tournamentService.setPlayerReady(playerID);
     }
 
     @GetMapping
