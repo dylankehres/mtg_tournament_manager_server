@@ -44,7 +44,10 @@ class Round extends Component {
 
     let currentGameID = "-1";
     let currentGame = null;
-    currentGame = this.state.matchData.gameList.find((game) => game.isActive);
+    currentGame = this.state.matchData.gameList.find(
+      (game) => game.isActive,
+      null
+    );
 
     if (currentGame !== null) {
       currentGameID = currentGame.id;
@@ -198,11 +201,12 @@ class Round extends Component {
                     </tr>
                   </thead>
                   <tbody>
-                    {this.state.winnersList.forEach((winner, index) => (
+                    {this.state.winnersList.map((winner, index) => (
                       <tr key={index}>
                         <td>{index + 1}</td>
                         <td>
                           {
+                            // "player name here"
                             winner
                             // game.player1Wins > game.player2Wins
                             //   ? "Player 1 Name"

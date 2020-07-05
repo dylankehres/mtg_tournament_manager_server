@@ -117,7 +117,6 @@ class PlayerWaiting extends Component {
 
   readyUp() {
     let waiting = this;
-    debugger;
 
     $.ajax({
       headers: {
@@ -130,11 +129,9 @@ class PlayerWaiting extends Component {
         waiting.state.currPlayer.id,
       type: "POST",
       success: (game) => {
-        debugger;
         console.log("ReadyUp success: ", game);
       },
       error: function (jqxhr, status) {
-        debugger;
         console.log("Ajax Error in readyUp for playerWaiting.jsx", status);
       },
     });

@@ -66,6 +66,8 @@ public class Game {
 
     public int getPlayer2Wins() { return this.player2Wins; }
 
+    public String getWinningPlayerID() { return this.winningPlayerID; }
+
     public int getDraw() { return this.draw; }
 
     public int getResultStatus() { return this.resultStatus; }
@@ -112,7 +114,7 @@ public class Game {
         }
 
         // Are all the votes in? Return the results
-        if (player1Voted && player2Voted) {
+        if (player1Voted && player2Voted && playerCanVote) {
             if(player1Wins == 2 || player2Wins == 2) {
                 String winningPlayer = player1Wins == 2 ? match.getPlayer1ID() : match.getPlayer2ID();
                 String losingPlayer = winningPlayer.equals(match.getPlayer1ID()) ? match.getPlayer2ID() : match.getPlayer1ID();
@@ -126,9 +128,10 @@ public class Game {
                 this.resultStatus =  Game.getResultStatusDisputed();
             }
         }
-
-        // Still waiting on results return the old match
-        this.resultStatus =  Game.getResultStatusPending();
+        else {
+            // Still waiting on results return the old match
+            this.resultStatus =  Game.getResultStatusPending();
+        }
 
         return this.resultStatus;
     }
