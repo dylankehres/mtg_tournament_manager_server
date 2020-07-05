@@ -62,6 +62,29 @@ public class TournamentService {
         tournamentDao.deleteTournamentById(id);
     }
 
+    public void deleteTournamentData(String tmtID) {
+        // Query for all objects that are children of this tournament
+        Tournament tournament = tournamentDao.selectTournamentById(tmtID);
+        List<Match> matches = matchDao.selectMatchesInTournament(tmtID);
+        List<Game> games = gameDao.selectGamesInTournament(tmtID);
+        List<Player> players = playerDao.selectPlayersByTournamentID(tmtID);
+
+        // Delete all tournament data
+        for(Player player : players) {
+            playerDao.deletePlayerById(player.getID());
+        }
+
+        for(Game game : games) {
+            gameDao.deleteGameById(game.getID());
+        }
+
+        for(Match match : matches) {
+            matchDao.deleteMatchById(match.getID());
+        }
+
+        tournamentDao.deleteTournamentById(tmtID);
+    }
+
     public void updateTournament(String id, Tournament tournament)
     {
         tournamentDao.updateTournamentById(id, tournament);
@@ -115,7 +138,7 @@ public class TournamentService {
 
                 for (int i = 0; i < waitingPlayers.size(); i += 2) {
                     newMatch = matchDao.insertMatch(tournament.getID(), numGames, waitingPlayers.get(i).getID(), waitingPlayers.get(i + 1).getID(), i+1);
-                    newGame = gameDao.insertGame(newMatch.getID());
+                    newGame = gameDao.insertGame(newMatch.getID(), newMatch.getTournamentID());
                     newMatch.addNewActiveGameKey(newGame.getID());
                     matchDao.updateMatch(newMatch);
                 }
@@ -204,7 +227,7 @@ public class TournamentService {
         {
             // Results are in start a new game
             game.setIsActive(false);
-            Game newGame = gameDao.insertGame(match.getID());
+            Game newGame = gameDao.insertGame(match.getID(), match.getTournamentID());
             newGame.setIsActive(true);
             match.addNewActiveGameKey(newGame.getID());
         }

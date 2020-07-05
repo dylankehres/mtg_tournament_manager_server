@@ -19,7 +19,10 @@ public class Match {
     @JsonProperty("tableNum") private int tableNum;
     @JsonProperty("active") private boolean active;
     @JsonProperty("gameKeys") private List<String> gameKeys;
-    @JsonProperty("activeGameID") private  String activeGameID;
+    @JsonProperty("activeGameID") private String activeGameID;
+    @JsonProperty("startTime") private long startTime;
+    @JsonProperty("endTime") private long endTime;
+    @JsonProperty("timeLimit") private long timeLimit;
 
     public Match()
     {
@@ -35,6 +38,9 @@ public class Match {
         this.active = false;
         this.gameKeys = new ArrayList<>();
         this.activeGameID = "";
+        this.startTime = 0;
+        this.endTime = 0;
+        this.timeLimit = 0;
     }
 
     public Match(String id, String tournamentID, int numGames, String player1ID, String player2ID, int tableNum)
@@ -51,6 +57,9 @@ public class Match {
         this.active = false;
         this.activeGameID = "";
         this.gameKeys = new ArrayList<>(numGames);
+        this.startTime = 0;
+        this.endTime = 0;
+        this.timeLimit = 3000000;
     }
 
 
@@ -76,9 +85,15 @@ public class Match {
 
     public int getTableNum() { return this.tableNum; }
 
-    public void setTableNum(int tableNum) { this.tableNum = tableNum; }
-
     public boolean getActive() { return this.active; }
+
+    public long getStartTime() { return this.startTime; }
+
+    public long getEndTime() { return this.endTime; }
+
+    public long getTimeLimit() { return this.timeLimit; }
+
+    public void setTableNum(int tableNum) { this.tableNum = tableNum; }
 
     public void setActive(boolean active) { this.active = active; }
 
@@ -121,6 +136,8 @@ public class Match {
 
         if(player1Ready && player2Ready) {
             active = true;
+            startTime = System.currentTimeMillis();
+            endTime = startTime + timeLimit;
         }
     }
 

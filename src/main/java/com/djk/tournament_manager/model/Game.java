@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public class Game {
     @JsonProperty("id") private String id;
     @JsonProperty("matchID") private String matchID;
+    @JsonProperty("tournamentID") private String tournamentID;
     @JsonProperty("player1Voted") private boolean player1Voted;
     @JsonProperty("player2Voted") private boolean player2Voted;
     @JsonProperty("player1Wins") private int player1Wins;
@@ -23,6 +24,7 @@ public class Game {
     public Game() {
         this.id = "";
         this.matchID = "";
+        this.tournamentID = "";
         this.player1Wins = 0;
         this.player2Wins = 0;
         this.player1Ready = false;
@@ -35,9 +37,10 @@ public class Game {
         this.winningPlayerID = "-1";
     }
 
-    public Game(String id, String matchID) {
+    public Game(String id, String matchID, String tournamentID) {
         this.id = id;
         this.matchID = matchID;
+        this.tournamentID = tournamentID;
         this.player1Wins = 0;
         this.player2Wins = 0;
         this.player1Ready = false;
@@ -57,6 +60,8 @@ public class Game {
     public String getMatchID() {
         return this.matchID;
     }
+
+    public String getTournamentID() { return this.tournamentID; }
 
     public boolean getPlayer1Voted() { return this.player1Voted; }
 

@@ -64,6 +64,27 @@ public class PlayerDataAccessService implements PlayerDao{
         return playersInTournament;
     }
 
+    public List<Player> selectPlayersByTournamentID (String tmtID) {
+        Firestore dbFirestore = FirestoreClient.getFirestore();
+        ApiFuture<QuerySnapshot> querySnapshot = dbFirestore.collection(collection).whereEqualTo("tournamentID", tmtID).get();
+        List<Player> playersInTournament = new ArrayList();
+
+        try {
+            List<QueryDocumentSnapshot> docList = querySnapshot.get().getDocuments();
+            if(!docList.isEmpty()){
+                for(int i = 0; i<docList.size(); i++) {
+                    playersInTournament.add(docList.get(i).toObject(Player.class));
+                }
+            }
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        }
+
+        return playersInTournament;
+    }
+
     @Override
     public Player selectPlayerById(String id) {
         Firestore dbFirestore = FirestoreClient.getFirestore();

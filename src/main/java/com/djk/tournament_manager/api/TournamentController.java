@@ -95,8 +95,7 @@ public class TournamentController {
     @DeleteMapping(path = "host")
     public void deleteTournamentById(@RequestBody String id)
     {
-        tournamentService.deleteMatchByTournamentID(id);
-        tournamentService.deleteTournament(id);
+        tournamentService.deleteTournamentData(id);
     }
 
     @DeleteMapping(path = "join")

@@ -21,6 +21,8 @@ public interface PlayerDao {
 
     List<Player> selectPlayersByTournament(String code);
 
+    List<Player> selectPlayersByTournamentID (String tmtID);
+
     Player selectPlayerById(String id);
 
     void deletePlayerById(String id);
