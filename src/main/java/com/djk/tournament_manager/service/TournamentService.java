@@ -138,8 +138,8 @@ public class TournamentService {
 
                 for (int i = 0; i < waitingPlayers.size(); i += 2) {
                     newMatch = matchDao.insertMatch(tournament.getID(), numGames, waitingPlayers.get(i).getID(), waitingPlayers.get(i + 1).getID(), i+1);
-                    newGame = gameDao.insertGame(newMatch.getID(), newMatch.getTournamentID());
-                    newMatch.addNewActiveGameKey(newGame.getID());
+//                    newGame = gameDao.insertGame(newMatch.getID(), newMatch.getTournamentID());
+//                    newMatch.addNewActiveGameKey(newGame.getID());
                     matchDao.updateMatch(newMatch);
                 }
             }
@@ -249,9 +249,11 @@ public class TournamentService {
         match.playerReady(playerID);
 
         if(match.getActive()) {
-            Game game = gameDao.selectGameById(match.getActiveGameID());
-            game.setIsActive(true);
-            gameDao.updateGame(game);
+//            Game game = gameDao.selectGameById(match.getActiveGameID());
+            Game newGame = gameDao.insertGame(match.getID(), match.getTournamentID());
+            match.addNewActiveGameKey(newGame.getID());
+            newGame.setIsActive(true);
+            gameDao.updateGame(newGame);
         }
 
         matchDao.updateMatch(match);

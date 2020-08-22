@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import { Button, Table } from "react-bootstrap";
 import Timer from "react-compound-timer";
 import $ from "jquery";
+import LoadingDiv from "../../loadingDiv";
 
 class Round extends Component {
   state = {
@@ -12,10 +13,27 @@ class Round extends Component {
     matchData: {
       player1: null,
       player2: null,
-      match: null,
+      match: {
+        id: null,
+        tournamentID: null,
+        player1ID: "",
+        player2ID: "",
+        player1Wins: 0,
+        player2Wins: 0,
+        player1Ready: false,
+        player2Ready: false,
+        tableNum: 0,
+        active: false,
+        gameKeys: [],
+        activeGameID: "",
+        startTime: 0,
+        endTime: 0,
+        timeLimit: 0,
+      },
       gameList: [],
     },
     winnersList: [],
+    timeRemaining: -1,
     // results: [
     // { gameNum: "1", winner: "" },
     // { gameNum: "2", winner: "" },
@@ -44,10 +62,7 @@ class Round extends Component {
 
     let currentGameID = "-1";
     let currentGame = null;
-    currentGame = this.state.matchData.gameList.find(
-      (game) => game.isActive,
-      null
-    );
+    currentGame = this.state.matchData.gameList.find((game) => game.isActive);
 
     if (currentGame !== null) {
       currentGameID = currentGame.id;
@@ -104,10 +119,10 @@ class Round extends Component {
     console.log("Game Draw");
   }
 
-  async getMatchData() {
+  getMatchData() {
     const round = this;
 
-    await $.ajax({
+    return $.ajax({
       headers: {
         Accept: "application/json",
         "Content-Type": "application/json",
@@ -150,7 +165,7 @@ class Round extends Component {
     this.state.matchData.gameList.forEach((game) => {
       if (game !== null) {
         if (game.winningPlayerID === "-1") {
-          winners.push("TBD");
+          winners.push("");
         } else if (game.winningPlayerID === this.state.matchData.player1.id) {
           winners.push(this.state.matchData.player1.name);
         } else if (game.winningPlayerID === this.state.matchData.player2.id) {
@@ -160,15 +175,29 @@ class Round extends Component {
         }
       }
     });
+
+    if (winners.length === 0) {
+      winners.push("");
+    }
     console.log("Winners list", winners);
     this.setState({ winnersList: winners });
   }
 
   componentDidMount() {
-    this.getMatchData();
+    this.getMatchData().then(() => {
+      const now = Date.now();
+      const timeRemaining = this.state.matchData.match.endTime - now;
+      this.setState({ timeRemaining });
+      console.log("Current time: ", now);
+      console.log("End time: ", this.state.matchData.match.endTime);
+      console.log("Remaining time: ", this.state.timeRemaining);
+    });
   }
 
   render() {
+    if (this.state.timeRemaining === -1) {
+      return <LoadingDiv />;
+    }
     return (
       <div className="m-2">
         <table>
@@ -179,7 +208,25 @@ class Round extends Component {
               </th>
               <th></th>
               <th>
-                <Timer initialTime={3000000} direction="backward">
+                <Timer
+                  initialTime={
+                    this.state.timeRemaining
+                    // Date.now() - this.state.matchData.match.endTime <= 0
+                    //   ? 0
+                    //   : Date.now() - this.state.matchData.match.endTime
+                    // -1 * (this.state.matchData.match.endTime - Date.now()) <= 0
+                    //   ? 0
+                    //   : -1 * (this.state.matchData.match.endTime - Date.now())
+                    // Date.now() - this.state.matchData.match.endTime <= 0
+                    //   ? 0
+                    //   : Date.now() - this.state.matchData.match.endTime
+                    // this.state.matchData.match.endTime - Date.now()
+                    // 3000000
+                    // 2888115
+                  }
+                  timeToUpdate={10}
+                  direction="backward"
+                >
                   {() => (
                     <React.Fragment>
                       <Timer.Minutes /> {"minutes "}

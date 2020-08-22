@@ -11,7 +11,7 @@ public interface GameDao {
 
     default Game insertGame(String matchID, String tournamentID) {
         UUID id = UUID.randomUUID();
-        return insertGame(id.toString(), matchID);
+        return insertGame(id.toString(), matchID, tournamentID);
     }
 
     List<Game> selectAllGames();
