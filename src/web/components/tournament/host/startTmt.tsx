@@ -3,8 +3,23 @@ import { Button, Form } from "react-bootstrap";
 import PlayerList from "../playerList";
 import $ from "jquery";
 import Pairings from "../pairings";
+import { MatchData } from "../../dtos/matchData";
 
-class StartTmt extends Component {
+type StartTmtProps = {
+  serverAddress: string;
+  match: {
+    params: {
+      tmtID: string;
+    };
+  };
+};
+
+type StartTmtState = {
+  roomCode: string;
+  pairings: MatchData[];
+};
+
+class StartTmt extends Component<StartTmtProps, StartTmtState> {
   state = {
     roomCode: "",
     pairings: [],
@@ -41,7 +56,7 @@ class StartTmt extends Component {
         "/host/pairings/" +
         tmt.props.match.params.tmtID,
       type: "GET",
-      success: (pairings) => {
+      success: (pairings: MatchData[]) => {
         tmt.setState({ pairings });
       },
       error: function (jqxhr, status) {
@@ -63,7 +78,7 @@ class StartTmt extends Component {
         },
         url: tmt.props.serverAddress + "/pairings/" + tmt.state.roomCode,
         type: "GET",
-        success: (pairings) => {
+        success: (pairings: MatchData[]) => {
           tmt.setState({ pairings });
         },
         error: function (jqxhr, status) {

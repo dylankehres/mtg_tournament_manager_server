@@ -3,7 +3,18 @@ import $ from "jquery";
 import { Form, Dropdown, Button } from "react-bootstrap";
 import { Redirect } from "react-router-dom";
 
-class HostTmt extends Component {
+type HostTmtProps = {
+  serverAddress: string;
+};
+
+type HostTmtState = {
+  id: string;
+  name: string;
+  roomCode: string;
+  format: string;
+};
+
+class HostTmt extends Component<HostTmtProps, HostTmtState> {
   state = {
     id: "",
     name: "",
@@ -13,28 +24,32 @@ class HostTmt extends Component {
 
   formats = [
     { name: "Standard", id: 1 },
-    { name: "Modern", id: 2 },
-    { name: "Legacy", id: 3 },
-    { name: "Commander", id: 4 },
+    { name: "Pioneer", id: 2 },
+    { name: "Modern", id: 3 },
+    { name: "Legacy", id: 4 },
+    { name: "Commander", id: 5 },
   ];
 
-  handleNameChange = this.handleNameChange.bind(this);
-  handleRoomChange = this.handleRoomChange.bind(this);
-  handleFormatSelect = this.handleFormatSelect.bind(this);
+  constructor(props: HostTmtProps) {
+    super(props);
+    this.handleNameChange = this.handleNameChange.bind(this);
+    this.handleRoomChange = this.handleRoomChange.bind(this);
+    this.handleFormatSelect = this.handleFormatSelect.bind(this);
+  }
 
-  handleNameChange(event) {
+  handleNameChange(event: any): void {
     this.setState({ name: event.target.value });
   }
 
-  handleRoomChange(event) {
+  handleRoomChange(event: any): void {
     this.setState({ roomCode: event.target.value });
   }
 
-  handleFormatSelect(eventKey) {
+  handleFormatSelect(eventKey: any): void {
     this.setState({ format: eventKey });
   }
 
-  getOpenDisabled() {
+  getOpenDisabled(): boolean {
     if (this.formIsValid()) {
       return false;
     } else {
@@ -42,7 +57,7 @@ class HostTmt extends Component {
     }
   }
 
-  formIsValid() {
+  formIsValid(): boolean {
     if (
       this.state.name !== "" &&
       this.state.roomCode !== "" &&
@@ -54,7 +69,7 @@ class HostTmt extends Component {
     }
   }
 
-  handleOpenTmt() {
+  handleOpenTmt(): void {
     if (this.formIsValid()) {
       $.ajax({
         headers: {
@@ -109,7 +124,7 @@ class HostTmt extends Component {
               {this.formats.map((format) => (
                 <Dropdown.Item
                   key={format.id}
-                  value={format.name}
+                  // value={format.name}
                   eventKey={format.name}
                 >
                   {format.name}

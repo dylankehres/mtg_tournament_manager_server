@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React from "react";
 
 const LoadingLiv = () => {
   return <h2>Loading...</h2>;

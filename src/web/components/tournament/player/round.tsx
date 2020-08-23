@@ -3,35 +3,35 @@ import { Button, Table } from "react-bootstrap";
 import Timer from "react-compound-timer";
 import $ from "jquery";
 import LoadingDiv from "../../loadingDiv";
+import "../../dtos/match";
+import { MatchData } from "../../dtos/matchData";
 
-class Round extends Component {
+type RoundProps = {
+  serverAddress: string;
+  match: {
+    params: {
+      playerID: string;
+    };
+  };
+};
+
+type RoundState = {
+  roundNum: number;
+  playerID: string;
+  opponentID: string;
+  currGameResultStatus: number;
+  matchData: MatchData;
+  winnersList: string[];
+  timeRemaining: number;
+};
+
+class Round extends Component<RoundProps, RoundState> {
   state = {
     roundNum: 1,
     playerID: "",
     opponentID: "",
     currGameResultStatus: -1,
-    matchData: {
-      player1: null,
-      player2: null,
-      match: {
-        id: null,
-        tournamentID: null,
-        player1ID: "",
-        player2ID: "",
-        player1Wins: 0,
-        player2Wins: 0,
-        player1Ready: false,
-        player2Ready: false,
-        tableNum: 0,
-        active: false,
-        gameKeys: [],
-        activeGameID: "",
-        startTime: 0,
-        endTime: 0,
-        timeLimit: 0,
-      },
-      gameList: [],
-    },
+    matchData: new MatchData(),
     winnersList: [],
     timeRemaining: -1,
     // results: [
@@ -56,7 +56,7 @@ class Round extends Component {
     this.reportResults(this.state.opponentID);
   }
 
-  reportResults(winnerID) {
+  reportResults(winnerID: string) {
     console.log("Report results");
     console.log("Game List: ", this.state.matchData.gameList);
 
@@ -64,7 +64,7 @@ class Round extends Component {
     let currentGame = null;
     currentGame = this.state.matchData.gameList.find((game) => game.isActive);
 
-    if (currentGame !== null) {
+    if (currentGame !== undefined) {
       currentGameID = currentGame.id;
     }
 
@@ -87,9 +87,9 @@ class Round extends Component {
           alert("Something went wrong. Please try that again.");
         } else {
           console.log("matchData: ", matchData);
-          const activeGame = matchData.gameList.find(
-            (game) => game.id === currentGameID
-          );
+          // const activeGame = matchData.gameList.find(
+          //   (game: Game) => game.id === currentGameID
+          // );
           if (currentGameID === matchData.match.activeGameID) {
             if (matchData.resultStatus === 1) {
               // Waiting on other votes
@@ -162,6 +162,7 @@ class Round extends Component {
   buildWinnersList() {
     let winners = [];
     console.log("State: ", this.state);
+    this.state.matchData.gameList.reverse();
     this.state.matchData.gameList.forEach((game) => {
       if (game !== null) {
         if (game.winningPlayerID === "-1") {

@@ -1,7 +1,13 @@
 import React from "react";
 import { Table } from "react-bootstrap";
+import { MatchData } from "../dtos/matchData";
 
-const Pairings = (props) => {
+type PairingsProps = {
+  pairings: MatchData[];
+  onGetPairings: Function;
+};
+
+const Pairings = (props: PairingsProps) => {
   if (props.pairings.length > 0) {
     return (
       <div className="m-2" style={{ width: "450px" }}>

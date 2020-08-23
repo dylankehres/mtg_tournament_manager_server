@@ -1,8 +1,17 @@
 import React, { Component } from "react";
-import Table from "react-bootstrap/table";
+import Table from "react-bootstrap/Table";
 import $ from "jquery";
+import { Tournament } from "../dtos/tournament";
 
-class TmtList extends Component {
+type TmtListProps = {
+  serverAddress: string;
+};
+
+type TmtListState = {
+  tmtList: Tournament[];
+};
+
+class TmtList extends Component<TmtListProps, TmtListState> {
   state = {
     tmtList: [],
   };
@@ -37,7 +46,7 @@ class TmtList extends Component {
               </tr>
             </thead>
             <tbody>
-              {this.state.tmtList.map((tmt) => (
+              {this.state.tmtList.map((tmt: Tournament) => (
                 <tr key={tmt.id}>
                   <td>{tmt.name}</td>
                   <td>{tmt.format}</td>

@@ -10,21 +10,29 @@ import HostTmt from "./components/tournament/host/hostTmt";
 import StartTmt from "./components/tournament/host/startTmt";
 import Round from "./components/tournament/player/round";
 
-class Root extends Component {
+type RootProps = {
+  serverAddress: string;
+};
+
+type RootState = {
+  serverAddress: string;
+};
+
+class Root extends Component<RootProps, RootState> {
   state = { serverAddress: "http://localhost:8080/api/v1/tournament" };
 
   render() {
-    const renderMergedProps = (component, ...rest) => {
+    const renderMergedProps = (component: any, ...rest: any[]) => {
       const finalProps = Object.assign({}, ...rest);
       finalProps.serverAddress = "http://localhost:8080/api/v1/tournament";
       return React.createElement(component, finalProps);
     };
 
-    const PropsRoute = ({ component, ...rest }) => {
+    const PropsRoute = ({ component, ...rest }: any) => {
       return (
         <Route
           {...rest}
-          render={(routeProps) => {
+          render={(routeProps: any) => {
             return renderMergedProps(component, routeProps, rest);
           }}
         />

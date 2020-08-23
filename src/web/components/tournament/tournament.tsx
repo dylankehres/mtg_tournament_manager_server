@@ -1,16 +1,26 @@
 import React, { Component } from "react";
 import { Form, Button } from "react-bootstrap";
+import { Player } from "../dtos/player";
 
-class Tournament extends Component {
+type TournamentProps = {
+  serverAddress: string;
+};
+
+type TournamentState = {
+  path: string;
+  playerList: Player[];
+};
+
+class Tournament extends Component<TournamentProps, TournamentState> {
   state = {
     path: "",
     playerList: [],
   };
 
-  constructor() {
-    super();
-    this.state.path = "/join";
-  }
+  // constructor() {
+  //   super(this.props);
+  //   this.state.path = "/join";
+  // }
 
   render() {
     return (

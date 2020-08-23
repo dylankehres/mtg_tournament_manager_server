@@ -4,14 +4,33 @@ import $ from "jquery";
 import Pairings from "../pairings";
 import PlayerList from "../playerList";
 import PlayerMatch from "./playerMatch";
+import { Player } from "../../dtos/player";
+import { MatchData } from "../../dtos/matchData";
 
-class PlayerWaiting extends Component {
+type PlayerWaitingProps = {
+  serverAddress: string;
+  match: {
+    params: {
+      playerID: string;
+    };
+  };
+};
+
+type PlayerWaitingState = {
+  pairings: MatchData[];
+  matchData: MatchData;
+  currPlayer: Player;
+  player1: Player;
+  player2: Player;
+};
+
+class PlayerWaiting extends Component<PlayerWaitingProps, PlayerWaitingState> {
   state = {
     pairings: [],
-    matchData: {},
-    currPlayer: {
-      roomCode: "",
-    },
+    matchData: new MatchData(),
+    currPlayer: new Player(),
+    player1: new Player(),
+    player2: new Player(),
   };
 
   handleLeaveTmt() {

@@ -1,8 +1,18 @@
 import React, { Component } from "react";
 import $ from "jquery";
 import { Table } from "react-bootstrap";
+import { Player } from "../dtos/player";
 
-class PlayerList extends Component {
+type PlayerListProps = {
+  serverAddress: string;
+  roomCode: string;
+};
+
+type PlayerListState = {
+  playerList: Player[];
+};
+
+class PlayerList extends Component<PlayerListProps, PlayerListState> {
   state = {
     playerList: [],
   };
@@ -43,7 +53,7 @@ class PlayerList extends Component {
               </tr>
             </thead>
             <tbody>
-              {this.state.playerList.map((player, index) => (
+              {this.state.playerList.map((player: Player, index) => (
                 <tr key={player.id}>
                   <td>{index + 1}</td>
                   <td>{player.name}</td>
