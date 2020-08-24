@@ -1,6 +1,5 @@
 import React, { Component } from "react";
 import Table from "react-bootstrap/Table";
-import $ from "jquery";
 import { Tournament } from "../dtos/tournament";
 
 type TmtListProps = {
@@ -17,20 +16,17 @@ class TmtList extends Component<TmtListProps, TmtListState> {
   };
 
   componentDidMount() {
-    $.ajax({
+    fetch(`${this.props.serverAddress}/`, {
+      method: "GET",
       headers: {
         Accept: "application/json",
         "Content-Type": "application/json",
       },
-      url: this.props.serverAddress,
-      type: "GET",
-      success: (tmtList) => {
+    })
+      .then((res) => res.json())
+      .then((tmtList: Tournament[]) => {
         this.setState({ tmtList });
-      },
-      error: function (jqxhr, status) {
-        console.log("Ajax Error in componentDidMount for tmtList.jsx", status);
-      },
-    });
+      });
   }
 
   render() {

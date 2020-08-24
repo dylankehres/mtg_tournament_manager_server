@@ -1,7 +1,7 @@
 import React, { Component } from "react";
-import $ from "jquery";
 import { Form, Dropdown, Button } from "react-bootstrap";
 import { Redirect } from "react-router-dom";
+import $ from "jquery";
 
 type HostTmtProps = {
   serverAddress: string;
@@ -71,26 +71,27 @@ class HostTmt extends Component<HostTmtProps, HostTmtState> {
 
   handleOpenTmt(): void {
     if (this.formIsValid()) {
-      $.ajax({
+      const tournament = this.state;
+      fetch(`${this.props.serverAddress}/host`, {
+        method: "POST",
         headers: {
           Accept: "application/json",
           "Content-Type": "application/json",
         },
-        url: this.props.serverAddress + "/host",
-        type: "POST",
-        dataType: "text",
-        data: JSON.stringify(this.state),
-        success: (id) => {
+        body: JSON.stringify(tournament),
+      })
+        .then((res) => {
+          return res.text();
+        })
+        .then((id: string) => {
+          console.log("id: ", id);
           if (id === "") {
             alert("Room code is not unique. Please try a differnt code.");
           } else {
             this.setState({ id });
           }
-        },
-        error: function (jqxhr, status) {
-          console.log("Ajax Error in handleOpenTmt", status);
-        },
-      });
+        })
+        .catch((err) => console.log(err));
     }
   }
 
@@ -136,6 +137,7 @@ class HostTmt extends Component<HostTmtProps, HostTmtState> {
             className="btn btn-primary m-2 "
             onClick={() => this.handleOpenTmt()}
             disabled={this.getOpenDisabled()}
+            // href={`/host/${this.state.id}`}
           >
             Open Tournament
           </Button>

@@ -1,10 +1,9 @@
 import React, { Component } from "react";
 import { Button, Table } from "react-bootstrap";
 import Timer from "react-compound-timer";
-import $ from "jquery";
 import LoadingDiv from "../../loadingDiv";
-import "../../dtos/match";
 import { MatchData } from "../../dtos/matchData";
+import { Game } from "../../dtos/game";
 
 type RoundProps = {
   serverAddress: string;
@@ -34,25 +33,13 @@ class Round extends Component<RoundProps, RoundState> {
     matchData: new MatchData(),
     winnersList: [],
     timeRemaining: -1,
-    // results: [
-    // { gameNum: "1", winner: "" },
-    // { gameNum: "2", winner: "" },
-    // { gameNum: "3", winner: "" },
-    //   { gameNum: "1", winner: "Dylan" },
-    //   { gameNum: "2", winner: "Matt" },
-    //   { gameNum: "3", winner: "Dylan" },
-    // ],
   };
 
   playerGameWin() {
-    console.log("Player Game Win");
-
     this.reportResults(this.state.playerID);
   }
 
   opponentGameWin() {
-    console.log("Opponent Game Win");
-
     this.reportResults(this.state.opponentID);
   }
 
@@ -61,8 +48,10 @@ class Round extends Component<RoundProps, RoundState> {
     console.log("Game List: ", this.state.matchData.gameList);
 
     let currentGameID = "-1";
-    let currentGame = null;
-    currentGame = this.state.matchData.gameList.find((game) => game.isActive);
+    const currentGame = this.state.matchData.gameList.find(
+      (game) => game.isActive,
+      new Game()
+    );
 
     if (currentGame !== undefined) {
       currentGameID = currentGame.id;
@@ -70,98 +59,84 @@ class Round extends Component<RoundProps, RoundState> {
 
     const round = this;
 
-    $.ajax({
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-      },
-      url:
-        this.props.serverAddress +
-        "/match/gameResults/" +
-        this.state.playerID +
-        "/" +
-        winnerID,
-      type: "POST",
-      success: (matchData) => {
-        if (matchData === "") {
-          alert("Something went wrong. Please try that again.");
-        } else {
-          console.log("matchData: ", matchData);
-          // const activeGame = matchData.gameList.find(
-          //   (game: Game) => game.id === currentGameID
-          // );
+    fetch(
+      `${round.props.serverAddress}/match/gameResults/${round.props.match.params.playerID}/${winnerID}`,
+      {
+        method: "POST",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+      }
+    )
+      .then((res) => res.json())
+      .then((matchData: MatchData) => {
+        const activeGame = matchData.gameList.find(
+          (game: Game) => game.id === currentGameID,
+          new Game()
+        );
+
+        if (activeGame !== undefined) {
           if (currentGameID === matchData.match.activeGameID) {
-            if (matchData.resultStatus === 1) {
+            if (activeGame.resultStatus === 1) {
               // Waiting on other votes
               console.log("Awaiting final results");
-              round.setState({ currGameResultStatus: matchData.resultStatus });
+              round.setState({ currGameResultStatus: activeGame.resultStatus });
             } else {
               // Disputed results
               console.log("Results are being disputed");
-              round.setState({ currGameResultStatus: matchData.resultStatus });
+              round.setState({ currGameResultStatus: activeGame.resultStatus });
             }
           } else {
-            if (matchData.resultStatus === 2) {
+            if (activeGame.resultStatus === 2) {
               // These are final results
               console.log("Results are final");
               round.setState({ matchData });
             }
           }
         }
-      },
-      error: function (jqxhr, status) {
-        console.log("Ajax Error in getPlayerMatch", status);
-      },
-    });
+      });
   }
 
   gameDraw() {
     console.log("Game Draw");
   }
 
-  getMatchData() {
+  getMatchData(): void {
     const round = this;
 
-    return $.ajax({
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-      },
-      url:
-        round.props.serverAddress +
-        "/match/" +
-        round.props.match.params.playerID,
-      type: "GET",
-      success: (matchData) => {
-        if (matchData === "") {
-          alert("Something went wrong. Please try that again.");
-        } else {
-          round.setState({ matchData });
+    fetch(
+      `${round.props.serverAddress}/match/${round.props.match.params.playerID}`,
+      {
+        method: "GET",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+      }
+    )
+      .then((res) => res.json())
+      .then((matchData: MatchData) => {
+        round.setState({ matchData });
+        round.setState({ timeRemaining: matchData.match.endTime - Date.now() });
 
-          if (round.props.match.params.playerID === matchData.player1.id) {
-            round.setState({
-              playerID: matchData.player1.id,
-              opponentID: matchData.player2.id,
-            });
-          } else {
-            round.setState({
-              playerID: matchData.player2.id,
-              opponentID: matchData.player1.id,
-            });
-          }
-          round.buildWinnersList();
-          console.log("matchData: ", matchData);
+        if (round.props.match.params.playerID === matchData.player1.id) {
+          round.setState({
+            playerID: matchData.player1.id,
+            opponentID: matchData.player2.id,
+          });
+        } else {
+          round.setState({
+            playerID: matchData.player2.id,
+            opponentID: matchData.player1.id,
+          });
         }
-      },
-      error: function (jqxhr, status) {
-        console.log("Ajax Error in getPlayerMatch", status);
-      },
-    });
+        round.buildWinnersList();
+      });
   }
 
   buildWinnersList() {
     let winners = [];
-    console.log("State: ", this.state);
     this.state.matchData.gameList.reverse();
     this.state.matchData.gameList.forEach((game) => {
       if (game !== null) {
@@ -180,19 +155,12 @@ class Round extends Component<RoundProps, RoundState> {
     if (winners.length === 0) {
       winners.push("");
     }
-    console.log("Winners list", winners);
+
     this.setState({ winnersList: winners });
   }
 
   componentDidMount() {
-    this.getMatchData().then(() => {
-      const now = Date.now();
-      const timeRemaining = this.state.matchData.match.endTime - now;
-      this.setState({ timeRemaining });
-      console.log("Current time: ", now);
-      console.log("End time: ", this.state.matchData.match.endTime);
-      console.log("Remaining time: ", this.state.timeRemaining);
-    });
+    this.getMatchData();
   }
 
   render() {
@@ -210,22 +178,7 @@ class Round extends Component<RoundProps, RoundState> {
               <th></th>
               <th>
                 <Timer
-                  initialTime={
-                    this.state.timeRemaining
-                    // Date.now() - this.state.matchData.match.endTime <= 0
-                    //   ? 0
-                    //   : Date.now() - this.state.matchData.match.endTime
-                    // -1 * (this.state.matchData.match.endTime - Date.now()) <= 0
-                    //   ? 0
-                    //   : -1 * (this.state.matchData.match.endTime - Date.now())
-                    // Date.now() - this.state.matchData.match.endTime <= 0
-                    //   ? 0
-                    //   : Date.now() - this.state.matchData.match.endTime
-                    // this.state.matchData.match.endTime - Date.now()
-                    // 3000000
-                    // 2888115
-                  }
-                  timeToUpdate={10}
+                  initialTime={this.state.timeRemaining}
                   direction="backward"
                 >
                   {() => (
@@ -252,17 +205,7 @@ class Round extends Component<RoundProps, RoundState> {
                     {this.state.winnersList.map((winner, index) => (
                       <tr key={index}>
                         <td>{index + 1}</td>
-                        <td>
-                          {
-                            // "player name here"
-                            winner
-                            // game.player1Wins > game.player2Wins
-                            //   ? "Player 1 Name"
-                            //   : "Player 2 Name"
-                            // ? this.state.matchData.match.player1.name
-                            // : this.state.matchData.match.player2.name
-                          }
-                        </td>
+                        <td>{winner}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -279,6 +222,7 @@ class Round extends Component<RoundProps, RoundState> {
                         <Button
                           className="btn btn-success"
                           style={{ width: "136px" }}
+                          type="submit"
                           onClick={() => this.playerGameWin()}
                         >
                           I Won
@@ -290,6 +234,7 @@ class Round extends Component<RoundProps, RoundState> {
                         <Button
                           className="btn btn-danger"
                           style={{ width: "136px" }}
+                          type="submit"
                           onClick={() => this.opponentGameWin()}
                         >
                           Opponent Won
