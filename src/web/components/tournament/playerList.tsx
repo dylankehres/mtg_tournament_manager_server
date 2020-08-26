@@ -1,5 +1,4 @@
 import React, { Component } from "react";
-import $ from "jquery";
 import { Table } from "react-bootstrap";
 import { Player } from "../dtos/player";
 
@@ -21,23 +20,20 @@ class PlayerList extends Component<PlayerListProps, PlayerListState> {
     this.getPlayerList();
   }
 
-  async getPlayerList() {
-    await $.ajax({
+  getPlayerList() {
+    fetch(`${this.props.serverAddress}/playerList/${this.props.roomCode}`, {
+      method: "GET",
       headers: {
         Accept: "application/json",
         "Content-Type": "application/json",
       },
-      url: this.props.serverAddress + "/playerList/" + this.props.roomCode,
-      type: "GET",
-      success: (playerList) => {
+    })
+      .then((res) => res.json())
+      .then((playerList: Player[]) => {
         if (playerList.length > 0) {
           this.setState({ playerList });
         }
-      },
-      error: function (jqxhr, status) {
-        console.log("Ajax Error in getPlayerList", status);
-      },
-    });
+      });
   }
 
   render() {

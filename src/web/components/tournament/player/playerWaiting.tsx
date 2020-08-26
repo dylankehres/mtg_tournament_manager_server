@@ -1,6 +1,5 @@
 import React, { Component } from "react";
 import { Button, Form } from "react-bootstrap";
-import $ from "jquery";
 import Pairings from "../pairings";
 import PlayerList from "../playerList";
 import PlayerMatch from "./playerMatch";
@@ -34,126 +33,117 @@ class PlayerWaiting extends Component<PlayerWaitingProps, PlayerWaitingState> {
   };
 
   handleLeaveTmt() {
-    $.ajax({
+    fetch(`${this.props.serverAddress}/join`, {
+      method: "DELETE",
       headers: {
         Accept: "application/json",
         "Content-Type": "application/json",
       },
-      url: this.props.serverAddress + "/join",
-      type: "DELETE",
-      data: this.props.match.params.playerID,
-      success: () => {},
-      error: function (jqxhr, status) {
-        console.log("Ajax Error", status);
-      },
-    });
+      body: this.props.match.params.playerID,
+    })
+      .then((res) => res.json())
+      .then(() => {})
+      .catch((err) => console.log("Fetch Error in handleLeaveTmt", err));
   }
 
   // async getPlayerData(getPairings) {
   getPlayerData() {
-    let waiting = this;
+    return fetch(
+      `${this.props.serverAddress}/join/${this.props.match.params.playerID}`,
+      {
+        method: "GET",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+      }
+    ).then((res) => res.json());
+    // let waiting = this;
 
-    return $.ajax({
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-      },
-      url:
-        this.props.serverAddress + "/join/" + this.props.match.params.playerID,
-      type: "GET",
-      success: (currPlayer) => {
-        if (currPlayer.roomCode === "") {
-          alert("Something went wrong. Please try that again.");
-        } else {
-          waiting.setState({ currPlayer });
-          // getPairings();
-        }
-      },
-      error: function (jqxhr, status) {
-        console.log("Ajax Error in getPlayerData", status);
-      },
+    // return $.ajax({
+    //   headers: {
+    //     Accept: "application/json",
+    //     "Content-Type": "application/json",
+    //   },
+    //   url:
+    //     this.props.serverAddress + "/join/" + this.props.match.params.playerID,
+    //   type: "GET",
+    //   success: (currPlayer) => {
+    //     if (currPlayer.roomCode === "") {
+    //       alert("Something went wrong. Please try that again.");
+    //     } else {
+    //       waiting.setState({ currPlayer });
+    //       // getPairings();
+    //     }
+    //   },
+    //   error: function (jqxhr, status) {
+    //     console.log("Ajax Error in getPlayerData", status);
+    //   },
+    // });
+  }
+
+  getPairings() {
+    this.getPlayerData().then((currPlayer: Player) => {
+      if (currPlayer.roomCode === "") {
+        alert("Something went wrong. Please try that again.");
+      } else {
+        this.setState({ currPlayer });
+        fetch(
+          `${this.props.serverAddress}/pairings/${this.state.currPlayer.roomCode}`,
+          {
+            method: "GET",
+            headers: {
+              Accept: "application/json",
+              "Content-Type": "application/json",
+            },
+          }
+        )
+          .then((res) => res.json())
+          .then((pairings: MatchData[]) => {
+            this.setState({ pairings });
+          })
+          .catch((err) =>
+            console.log("Fetch Error in getPairings for playerWaiting.jsx", err)
+          );
+      }
     });
   }
 
-  async getPairings() {
-    let waiting = this;
-
-    await this.getPlayerData();
-
-    if (waiting.state.currPlayer.roomCode !== "") {
-      $.ajax({
+  getPlayerMatch() {
+    fetch(
+      `${this.props.serverAddress}/match/${this.props.match.params.playerID}`,
+      {
+        method: "GET",
         headers: {
           Accept: "application/json",
           "Content-Type": "application/json",
         },
-        url:
-          this.props.serverAddress +
-          "/pairings/" +
-          waiting.state.currPlayer.roomCode,
-        type: "GET",
-        success: (pairings) => {
-          waiting.setState({ pairings });
-        },
-        error: function (jqxhr, status) {
-          console.log(
-            "Ajax Error in getPairings for playerWaiting.jsx",
-            status
-          );
-        },
-      });
-    }
-  }
-
-  async getPlayerMatch() {
-    let waiting = this;
-    console.log("Try getPlayerMatch()");
-    if (this.props.match.params.playerID !== "") {
-      await $.ajax({
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-        },
-        url:
-          this.props.serverAddress +
-          "/match/" +
-          this.props.match.params.playerID,
-        dataType: "json",
-        type: "GET",
-        success: (matchData) => {
-          if (matchData === "") {
-            alert("Something went wrong. Please try that again.");
-          } else {
-            waiting.setState({ matchData });
-            console.log("matchData: ", matchData);
-          }
-        },
-        error: function (jqxhr, status) {
-          console.log("Ajax Error in getPlayerMatch", status);
-        },
-      });
-    }
+      }
+    )
+      .then((res) => res.json())
+      .then((matchData: MatchData) => {
+        this.setState({ matchData });
+        console.log("matchData: ", matchData);
+      })
+      .catch((err) => console.log("Fetch Error in getPlayerMatch", err));
   }
 
   readyUp() {
-    let waiting = this;
-
-    $.ajax({
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-      },
-      url:
-        this.props.serverAddress +
-        "/match/ready/" +
-        waiting.state.currPlayer.id,
-      type: "POST",
-      success: (game) => {
-        console.log("ReadyUp success: ", game);
-      },
-      error: function (jqxhr, status) {
-        console.log("Ajax Error in readyUp for playerWaiting.jsx", status);
-      },
-    });
+    fetch(
+      `${this.props.serverAddress}/match/ready/${this.state.currPlayer.id}`,
+      {
+        method: "POST",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+      }
+    )
+      .then((res) => res.json())
+      .then(() => {})
+      .catch((err) =>
+        console.log("Fetch Error in readyUp for playerWaiting.jsx", err)
+      );
   }
 
   componentDidMount() {

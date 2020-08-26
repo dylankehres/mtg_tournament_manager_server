@@ -1,9 +1,9 @@
 import React, { Component } from "react";
 import { Button, Form } from "react-bootstrap";
 import PlayerList from "../playerList";
-import $ from "jquery";
 import Pairings from "../pairings";
 import { MatchData } from "../../dtos/matchData";
+import { Tournament } from "../../dtos/tournament";
 
 type StartTmtProps = {
   serverAddress: string;
@@ -28,86 +28,76 @@ class StartTmt extends Component<StartTmtProps, StartTmtState> {
   handleCancelTmt() {
     let tmt = this;
 
-    $.ajax({
+    fetch(`${this.props.serverAddress}/host`, {
+      method: "DELETE",
       headers: {
         Accept: "application/json",
         "Content-Type": "application/json",
       },
-      url: this.props.serverAddress + "/host",
-      type: "DELETE",
-      data: tmt.props.match.params.tmtID,
-      success: (data) => {},
-      error: function (jqxhr, status) {
-        console.log("Ajax Error in handleCancelTmt", status);
-      },
-    });
+      body: tmt.props.match.params.tmtID,
+    })
+      .then((res) => res.json())
+      .then(() => {})
+      .catch((err) => console.log("Fetch Error in handleCancelTmt", err));
   }
 
   handleStartTmt() {
     let tmt = this;
 
-    $.ajax({
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-      },
-      url:
-        this.props.serverAddress +
-        "/host/pairings/" +
-        tmt.props.match.params.tmtID,
-      type: "GET",
-      success: (pairings: MatchData[]) => {
-        tmt.setState({ pairings });
-      },
-      error: function (jqxhr, status) {
-        console.log("Ajax Error in handleStartTmt", status);
-      },
-    });
-  }
-
-  async getPairings() {
-    let tmt = this;
-
-    await this.getTournamentData();
-
-    if (tmt.state.roomCode !== "") {
-      $.ajax({
+    fetch(
+      `${this.props.serverAddress}/host/pairings/${tmt.props.match.params.tmtID}`,
+      {
+        method: "GET",
         headers: {
           Accept: "application/json",
           "Content-Type": "application/json",
         },
-        url: tmt.props.serverAddress + "/pairings/" + tmt.state.roomCode,
-        type: "GET",
-        success: (pairings: MatchData[]) => {
-          tmt.setState({ pairings });
-        },
-        error: function (jqxhr, status) {
-          console.log("Ajax Error in getPairings for startTmt.jsx", tmt);
-        },
-      });
-    }
+      }
+    )
+      .then((res) => res.json())
+      .then((pairings: MatchData[]) => {
+        tmt.setState({ pairings });
+      })
+      .catch((err) => console.log("Fetch Error in handleStartTmt", err));
+  }
+
+  getPairings() {
+    this.getTournamentData()
+      .then((tournament: Tournament) => {
+        if (tournament.roomCode === "") {
+          alert("Something went wrong. Please try that again.");
+        } else {
+          this.setState({ roomCode: tournament.roomCode });
+          fetch(`${this.props.serverAddress}/pairings/${this.state.roomCode}`, {
+            method: "GET",
+            headers: {
+              Accept: "application/json",
+              "Content-Type": "application/json",
+            },
+          })
+            .then((res) => res.json())
+            .then((pairings: MatchData[]) => {
+              this.setState({ pairings });
+            })
+            .catch((err) =>
+              console.log("Fetch Error in getPairings for startTmt.jsx", err)
+            );
+        }
+      })
+      .catch((err) => console.log("Fetch Error in getTournamentData", err));
   }
 
   getTournamentData() {
-    return $.ajax({
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-      },
-      url: this.props.serverAddress + "/host/" + this.props.match.params.tmtID,
-      type: "GET",
-      success: (tmt) => {
-        if (tmt.roomCode === "") {
-          alert("Something went wrong. Please try that again.");
-        } else {
-          this.setState({ roomCode: tmt.roomCode });
-          // getPairings();
-        }
-      },
-      error: function (jqxhr, status) {
-        console.log("Ajax Error", status);
-      },
-    });
+    return fetch(
+      `${this.props.serverAddress}/host/${this.props.match.params.tmtID}`,
+      {
+        method: "GET",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+      }
+    ).then((res) => res.json());
   }
 
   componentDidMount() {

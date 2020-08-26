@@ -57,10 +57,8 @@ class Round extends Component<RoundProps, RoundState> {
       currentGameID = currentGame.id;
     }
 
-    const round = this;
-
     fetch(
-      `${round.props.serverAddress}/match/gameResults/${round.props.match.params.playerID}/${winnerID}`,
+      `${this.props.serverAddress}/match/gameResults/${this.props.match.params.playerID}/${winnerID}`,
       {
         method: "POST",
         headers: {
@@ -81,21 +79,24 @@ class Round extends Component<RoundProps, RoundState> {
             if (activeGame.resultStatus === 1) {
               // Waiting on other votes
               console.log("Awaiting final results");
-              round.setState({ currGameResultStatus: activeGame.resultStatus });
+              this.setState({ currGameResultStatus: activeGame.resultStatus });
             } else {
               // Disputed results
               console.log("Results are being disputed");
-              round.setState({ currGameResultStatus: activeGame.resultStatus });
+              this.setState({ currGameResultStatus: activeGame.resultStatus });
             }
           } else {
             if (activeGame.resultStatus === 2) {
               // These are final results
               console.log("Results are final");
-              round.setState({ matchData });
+              this.setState({ matchData });
             }
           }
         }
-      });
+      })
+      .catch((err) =>
+        console.log("Ajax Error in round.tsx reportResults", err)
+      );
   }
 
   gameDraw() {
@@ -132,7 +133,8 @@ class Round extends Component<RoundProps, RoundState> {
           });
         }
         round.buildWinnersList();
-      });
+      })
+      .catch((err) => console.log("Ajax Error in round.tsx getMatchData", err));
   }
 
   buildWinnersList() {

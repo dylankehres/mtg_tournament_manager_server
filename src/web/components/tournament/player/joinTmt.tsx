@@ -1,7 +1,6 @@
 import React, { Component } from "react";
 import { Form, Dropdown, Button, Table } from "react-bootstrap";
 import { Redirect } from "react-router-dom";
-import $ from "jquery";
 import TmtList from "../tmtList";
 
 type JoinTmtProps = {
@@ -17,7 +16,6 @@ type JoinTmtState = {
 };
 
 class JoinTmt extends Component<JoinTmtProps, JoinTmtState> {
-  // class JoinTmt extends Component {
   state = {
     id: "",
     name: "",
@@ -61,28 +59,25 @@ class JoinTmt extends Component<JoinTmtProps, JoinTmtState> {
 
   handleJoinTmt(): void {
     if (this.formIsValid()) {
-      console.log("Joining tournament", this.state);
-      $.ajax({
+      fetch(`${this.props.serverAddress}/join`, {
+        method: "POST",
         headers: {
           Accept: "application/json",
           "Content-Type": "application/json",
         },
-        url: this.props.serverAddress + "/join",
-        type: "POST",
-        dataType: "text",
-        data: JSON.stringify(this.state),
-        success: (id) => {
+        body: JSON.stringify(this.state),
+      })
+        .then((res) => {
+          return res.text();
+        })
+        .then((id: string) => {
           if (id === "") {
             alert("Invalid room code");
           } else {
-            console.log("ID: ", id);
             this.setState({ id });
           }
-        },
-        error: function (jqxhr, status) {
-          console.log("Ajax Error in handleJoinTmt", status);
-        },
-      });
+        })
+        .catch((err) => console.log("Fetch Error in handleJoinTmt", err));
     }
   }
 

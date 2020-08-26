@@ -26,7 +26,10 @@ class TmtList extends Component<TmtListProps, TmtListState> {
       .then((res) => res.json())
       .then((tmtList: Tournament[]) => {
         this.setState({ tmtList });
-      });
+      })
+      .catch((err) =>
+        console.log("Ajax Error in componentDidMount for tmtList.jsx", err)
+      );
   }
 
   render() {

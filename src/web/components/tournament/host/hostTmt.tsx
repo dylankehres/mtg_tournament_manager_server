@@ -1,7 +1,6 @@
 import React, { Component } from "react";
 import { Form, Dropdown, Button } from "react-bootstrap";
 import { Redirect } from "react-router-dom";
-import $ from "jquery";
 
 type HostTmtProps = {
   serverAddress: string;
