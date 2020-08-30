@@ -74,7 +74,8 @@ public class TournamentController {
 
     @GetMapping(path = "join/{id}")
     public Player getPlayerById(@PathVariable("id") String id) {
-        return tournamentService.getPlayerById(id);
+        Player newPlayer = tournamentService.getPlayerById(id);
+        return newPlayer;
     }
 
     @GetMapping(path = "playerList/{id}")

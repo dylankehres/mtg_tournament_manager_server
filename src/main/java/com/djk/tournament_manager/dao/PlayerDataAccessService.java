@@ -9,6 +9,8 @@ import org.springframework.stereotype.Repository;
 
 import java.util.*;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Future;
 
 @Repository("firebasePlayerDao")
 public class PlayerDataAccessService implements PlayerDao{
@@ -20,7 +22,19 @@ public class PlayerDataAccessService implements PlayerDao{
         Player newPlayer = new Player(id, tournamentID, name, roomCode, format, deckName);
         ApiFuture<WriteResult> collectionApiFuture = dbFirestore.collection(collection).document(id.toString()).set(newPlayer);
 
-        return newPlayer;
+        try {
+            WriteResult res = collectionApiFuture.get();
+
+            if (collectionApiFuture.isDone()) {
+                return newPlayer;
+            }
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        }
+
+        return new Player();
     }
 
     @Override
@@ -107,7 +121,7 @@ public class PlayerDataAccessService implements PlayerDao{
             return player;
         }
 
-        return null;
+        return new Player();
     }
 
     @Override

@@ -171,6 +171,7 @@ class JoinTmt extends Component<JoinTmtProps, JoinTmtState> {
         </React.Fragment>
       );
     } else {
+      console.log("Join tmt redirect");
       return <Redirect to={`/join/${this.state.id}`} />;
     }
   }

@@ -46,8 +46,8 @@ class PlayerWaiting extends Component<PlayerWaitingProps, PlayerWaitingState> {
       .catch((err) => console.log("Fetch Error in handleLeaveTmt", err));
   }
 
-  // async getPlayerData(getPairings) {
   getPlayerData() {
+    console.log("Get player data");
     return fetch(
       `${this.props.serverAddress}/join/${this.props.match.params.playerID}`,
       {
@@ -57,29 +57,9 @@ class PlayerWaiting extends Component<PlayerWaitingProps, PlayerWaitingState> {
           "Content-Type": "application/json",
         },
       }
-    ).then((res) => res.json());
-    // let waiting = this;
-
-    // return $.ajax({
-    //   headers: {
-    //     Accept: "application/json",
-    //     "Content-Type": "application/json",
-    //   },
-    //   url:
-    //     this.props.serverAddress + "/join/" + this.props.match.params.playerID,
-    //   type: "GET",
-    //   success: (currPlayer) => {
-    //     if (currPlayer.roomCode === "") {
-    //       alert("Something went wrong. Please try that again.");
-    //     } else {
-    //       waiting.setState({ currPlayer });
-    //       // getPairings();
-    //     }
-    //   },
-    //   error: function (jqxhr, status) {
-    //     console.log("Ajax Error in getPlayerData", status);
-    //   },
-    // });
+    ).then((res) => {
+      return res.json();
+    });
   }
 
   getPairings() {
@@ -147,7 +127,6 @@ class PlayerWaiting extends Component<PlayerWaitingProps, PlayerWaitingState> {
   }
 
   componentDidMount() {
-    // this.getPlayerData(() => this.getPairings());
     this.getPairings();
     this.getPlayerMatch();
   }
