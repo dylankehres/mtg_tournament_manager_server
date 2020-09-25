@@ -45,7 +45,8 @@ public class TournamentService {
 
     public String addTournament(Tournament tournament)
     {
-        return tournamentDao.insertTournament(tournament);
+        Tournament newTournament = tournamentDao.insertTournament(tournament);
+        return newTournament.getID();
     }
 
     public List<Tournament> getAllTournaments()
@@ -227,7 +228,7 @@ public class TournamentService {
         {
             // Results are in start a new game
             game.setIsActive(false);
-            Game newGame = gameDao.insertGame(match.getID(), match.getTournamentID());
+            Game newGame = gameDao.insertGame(match.getID(), match.getTournamentID(), game.getGameNum() + 1);
             newGame.setIsActive(true);
             match.addNewActiveGameKey(newGame.getID());
         }
@@ -250,7 +251,7 @@ public class TournamentService {
 
         if(match.getActive()) {
 //            Game game = gameDao.selectGameById(match.getActiveGameID());
-            Game newGame = gameDao.insertGame(match.getID(), match.getTournamentID());
+            Game newGame = gameDao.insertGame(match.getID(), match.getTournamentID(), 1);
             match.addNewActiveGameKey(newGame.getID());
             newGame.setIsActive(true);
             gameDao.updateGame(newGame);

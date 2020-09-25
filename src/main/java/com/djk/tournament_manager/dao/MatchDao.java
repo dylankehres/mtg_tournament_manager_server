@@ -23,6 +23,6 @@ public interface MatchDao {
 
     void deleteMatchById(String id);
 
-    void updateMatch(Match match);
+    Match updateMatch(Match match);
 
 }

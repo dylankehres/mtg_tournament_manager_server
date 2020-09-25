@@ -8,9 +8,9 @@ import java.util.concurrent.ExecutionException;
 
 public interface TournamentDao {
 
-    String insertTournament(String id, Tournament tournament);
+    Tournament insertTournament(String id, Tournament tournament);
 
-    default String insertTournament(Tournament tournament) {
+    default Tournament insertTournament(Tournament tournament) {
         UUID id = UUID.randomUUID();
         return insertTournament(id.toString(), new Tournament(id.toString(), tournament.getName(), tournament.getRoomCode(), tournament.getFormat()));
     }
@@ -23,6 +23,6 @@ public interface TournamentDao {
 
     void deleteTournamentById(String id);
 
-    void updateTournamentById(String id, Tournament tournament);
+    Tournament updateTournamentById(String id, Tournament tournament);
 
 }

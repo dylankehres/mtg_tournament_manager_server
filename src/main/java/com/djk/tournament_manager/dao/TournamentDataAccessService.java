@@ -1,5 +1,6 @@
 package com.djk.tournament_manager.dao;
 
+import com.djk.tournament_manager.model.Player;
 import com.djk.tournament_manager.model.Tournament;
 import com.google.api.core.ApiFuture;
 import com.google.cloud.firestore.*;
@@ -14,10 +15,23 @@ public class TournamentDataAccessService implements TournamentDao {
     static final String collection = "tournament";
 
     @Override
-    public String insertTournament(String id, Tournament tournament) {
+    public Tournament insertTournament(String id, Tournament tournament) {
         Firestore dbFirestore = FirestoreClient.getFirestore();
         ApiFuture<WriteResult> collectionApiFuture = dbFirestore.collection(collection).document(id.toString()).set(tournament);
-        return id;
+
+        try {
+            WriteResult res = collectionApiFuture.get();
+
+            if (collectionApiFuture.isDone()) {
+                return tournament;
+            }
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        }
+
+        return new Tournament();
     }
 
     @Override
@@ -92,8 +106,22 @@ public class TournamentDataAccessService implements TournamentDao {
     }
 
     @Override
-    public void updateTournamentById(String id, Tournament tournament) {
+    public Tournament updateTournamentById(String id, Tournament tournament) {
         Firestore dbFirestore = FirestoreClient.getFirestore();
         ApiFuture<WriteResult> collectionApiFuture = dbFirestore.collection(collection).document(id.toString()).set(tournament);
+
+        try {
+            WriteResult res = collectionApiFuture.get();
+
+            if (collectionApiFuture.isDone()) {
+                return tournament;
+            }
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        }
+
+        return new Tournament();
     }
 }

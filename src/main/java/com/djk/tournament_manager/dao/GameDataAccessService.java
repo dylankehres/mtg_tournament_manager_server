@@ -7,6 +7,7 @@ import com.google.firebase.cloud.FirestoreClient;
 import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
@@ -15,11 +16,24 @@ public class GameDataAccessService implements GameDao{
     static final String collection = "game";
 
     @Override
-    public Game insertGame(String id, String matchID, String tournamentID) {
+    public Game insertGame(String id, String matchID, String tournamentID, int gameNum) {
         Firestore dbFirestore = FirestoreClient.getFirestore();
-        Game newGame = new Game(id, matchID, tournamentID);
+        Game newGame = new Game(id, matchID, tournamentID, gameNum);
         ApiFuture<WriteResult> collectionApiFuture = dbFirestore.collection(collection).document(id.toString()).set(newGame);
-        return newGame;
+
+        try {
+            WriteResult res = collectionApiFuture.get();
+
+            if (collectionApiFuture.isDone()) {
+                return newGame;
+            }
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        }
+
+        return new Game();
     }
 
     @Override
@@ -59,6 +73,14 @@ public class GameDataAccessService implements GameDao{
         } catch (ExecutionException e) {
             e.printStackTrace();
         }
+
+//        gamesInMatch.sort(new Comparator<Game>() {
+//            @Override
+//            public int compare(Game g1, Game g2) {
+//                return g1.getGameNum() - g2.getGameNum();
+//            }
+//        });
+        gamesInMatch.sort(Comparator.comparing(Game::getGameNum));
 
         return gamesInMatch;
     }
@@ -117,8 +139,22 @@ public class GameDataAccessService implements GameDao{
     }
 
     @Override
-    public void updateGame(Game game) {
+    public Game updateGame(Game game) {
         Firestore dbFirestore = FirestoreClient.getFirestore();
         ApiFuture<WriteResult> collectionApiFuture = dbFirestore.collection(collection).document(game.getID()).set(game);
+
+        try {
+            WriteResult res = collectionApiFuture.get();
+
+            if (collectionApiFuture.isDone()) {
+                return game;
+            }
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        }
+
+        return new Game();
     }
 }

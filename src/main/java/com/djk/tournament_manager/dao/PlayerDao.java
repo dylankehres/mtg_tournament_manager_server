@@ -27,5 +27,5 @@ public interface PlayerDao {
 
     void deletePlayerById(String id);
 
-    void updatePlayerById(String id, Player player);
+    Player updatePlayerById(String id, Player player);
 }

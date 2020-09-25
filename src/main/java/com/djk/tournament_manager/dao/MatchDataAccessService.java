@@ -1,5 +1,6 @@
 package com.djk.tournament_manager.dao;
 
+import com.djk.tournament_manager.model.Game;
 import com.djk.tournament_manager.model.Match;
 import com.google.api.core.ApiFuture;
 import com.google.cloud.firestore.*;
@@ -19,7 +20,20 @@ public class MatchDataAccessService implements MatchDao {
         Firestore dbFirestore = FirestoreClient.getFirestore();
         Match newMatch = new Match(id, tournamentID, numGames, player1ID, player2ID, tableNum);
         ApiFuture<WriteResult> collectionApiFuture = dbFirestore.collection(collection).document(id.toString()).set(newMatch);
-        return newMatch;
+
+        try {
+            WriteResult res = collectionApiFuture.get();
+
+            if (collectionApiFuture.isDone()) {
+                return newMatch;
+            }
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        }
+
+        return new Match();
     }
 
     @Override
@@ -121,8 +135,22 @@ public class MatchDataAccessService implements MatchDao {
     }
 
     @Override
-    public void updateMatch(Match match) {
+    public Match updateMatch(Match match) {
         Firestore dbFirestore = FirestoreClient.getFirestore();
         ApiFuture<WriteResult> collectionApiFuture = dbFirestore.collection(collection).document(match.getID()).set(match);
+
+        try {
+            WriteResult res = collectionApiFuture.get();
+
+            if (collectionApiFuture.isDone()) {
+                return match;
+            }
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        }
+
+        return new Match();
     }
 }

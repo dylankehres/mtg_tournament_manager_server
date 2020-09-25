@@ -7,11 +7,11 @@ import java.util.List;
 import java.util.UUID;
 
 public interface GameDao {
-    Game insertGame(String id, String matchID, String tournamentID);
+    Game insertGame(String id, String matchID, String tournamentID, int gameNum);
 
-    default Game insertGame(String matchID, String tournamentID) {
+    default Game insertGame(String matchID, String tournamentID, int gameNum) {
         UUID id = UUID.randomUUID();
-        return insertGame(id.toString(), matchID, tournamentID);
+        return insertGame(id.toString(), matchID, tournamentID, gameNum);
     }
 
     List<Game> selectAllGames();
@@ -24,6 +24,6 @@ public interface GameDao {
 
     void deleteGameById(String id);
 
-    void updateGame(Game game);
+    Game updateGame(Game game);
 
 }
