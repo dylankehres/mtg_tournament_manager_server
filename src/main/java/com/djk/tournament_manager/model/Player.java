@@ -9,14 +9,15 @@ import java.util.UUID;
 
 public class Player {
 
-    private final String id;
-    private String tournamentID;
+    @JsonProperty("id") private final String id;
+    @JsonProperty("tmtID") private String tournamentID;
 
     @NotBlank
-    private String name;
-    private String roomCode;
-    private String format;
-    private String deckName;
+    @JsonProperty("name")  private String name;
+    @JsonProperty("roomCode") private String roomCode;
+    @JsonProperty("format") private String format;
+    @JsonProperty("deckName") private String deckName;
+    @JsonProperty("points") private int points;
 
 //    @Qualifier("firebasePlayerDao") PlayerDao playerDao;
 
@@ -28,33 +29,26 @@ public class Player {
         this.roomCode = "";
         this.format = "";
         this.deckName = "";
+        this.points = 0;
     }
 
     public Player(String id)
     {
-//        Player storedPlayer = playerDao.selectPlayerById(id);
-
-//        this.id = storedPlayer.getID();
-//        this.tournamentID = storedPlayer.getTournamentID();
-//        this.name = storedPlayer.getName();
-//        this.roomCode = storedPlayer.getRoomCode();
-//        this.format = storedPlayer.getFormat();
-//        this.deckName = storedPlayer.getDeckName();
-
         this.id = id;
         this.tournamentID = "";
         this.name = "";
         this.roomCode = "";
         this.format = "";
         this.deckName = "";
+        this.points = 0;
     }
 
-    public Player(@JsonProperty("id") String id,
-                  @JsonProperty("tmtID") String tournamentID,
-                  @JsonProperty("name") String name,
-                  @JsonProperty("roomCode") String roomCode,
-                  @JsonProperty("format") String format,
-                  @JsonProperty("deckName") String deckName)
+    public Player(String id,
+                  String tournamentID,
+                  String name,
+                  String roomCode,
+                  String format,
+                  String deckName)
     {
         this.id = id;
         this.tournamentID = tournamentID;
@@ -62,20 +56,8 @@ public class Player {
         this.roomCode = roomCode;
         this.format = format;
         this.deckName = deckName;
+        this.points = 0;
     }
-
-//    public Player(@JsonProperty("id") String id,
-//                  @JsonProperty("tmtID") String tournamentID,
-//                  @JsonProperty("roomCode") String roomCode,
-//                  @JsonProperty("format") String format)
-//    {
-//        this.id = id;
-//        this.tournamentID = tournamentID;
-//        this.userName = "BYE";
-//        this.roomCode = roomCode;
-//        this.format = format;
-//        this.deckName = "";
-//    }
 
     public String getID()
     {
@@ -101,5 +83,23 @@ public class Player {
         return this.deckName;
     }
 
+    public int getPoints() { return this.points; }
+
     public void setTournamentID(String tournamentID) {this.tournamentID = tournamentID; }
+
+    public void addPoints(int addPoints) {
+        this.points+= addPoints;
+    }
+
+    public void addWinPoints(boolean shutout) {
+        if(shutout) {
+            this.points += 3;
+        } else {
+            this.points += 2;
+        }
+    }
+
+    public void addDrawPoints() {
+        this.points ++;
+    }
 }

@@ -131,9 +131,9 @@ public class PlayerDataAccessService implements PlayerDao{
     }
 
     @Override
-    public Player updatePlayerById(String id, Player player) {
+    public Player updatePlayerById(Player player) {
         Firestore dbFirestore = FirestoreClient.getFirestore();
-        ApiFuture<WriteResult> collectionApiFuture = dbFirestore.collection(collection).document(id.toString()).set(player);
+        ApiFuture<WriteResult> collectionApiFuture = dbFirestore.collection(collection).document(player.getID()).set(player);
 
         try {
             WriteResult res = collectionApiFuture.get();

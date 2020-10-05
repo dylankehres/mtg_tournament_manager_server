@@ -1,10 +1,8 @@
 package com.djk.tournament_manager.dao;
 
-import com.djk.tournament_manager.model.Player;
 import com.djk.tournament_manager.model.Tournament;
 
 import java.util.*;
-import java.util.concurrent.ExecutionException;
 
 public interface TournamentDao {
 
@@ -12,7 +10,7 @@ public interface TournamentDao {
 
     default Tournament insertTournament(Tournament tournament) {
         UUID id = UUID.randomUUID();
-        return insertTournament(id.toString(), new Tournament(id.toString(), tournament.getName(), tournament.getRoomCode(), tournament.getFormat()));
+        return insertTournament(id.toString(), new Tournament(id.toString(), tournament.getName(), tournament.getRoomCode(), tournament.getFormat(), tournament.getRounds(), tournament.getGames()));
     }
 
     List<Tournament> selectAllTournaments();

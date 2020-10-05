@@ -114,9 +114,7 @@ public class TournamentService {
     public void deletePlayer(String id) { playerDao.deletePlayerById(id); }
 
     public List<MatchDataDTO> generatePairings(String tournamentID)  {
-        int numGames = 3;
-        Tournament tournament = null;
-        tournament = tournamentDao.selectTournamentById(tournamentID);
+        Tournament tournament = tournamentDao.selectTournamentById(tournamentID);
 
 
         if(!tournament.equals(null))
@@ -125,7 +123,7 @@ public class TournamentService {
             Match newMatch = new Match();
             Game newGame = new Game();
 
-            if (getMatchesByRoomCode(code).isEmpty())
+            if (getMatchesByRoomCode(code).stream().noneMatch(matchData -> matchData.match.getActive()))
             {
                 List<Player> waitingPlayers = playerDao.selectPlayersByTournament(code);
 
@@ -138,7 +136,7 @@ public class TournamentService {
                 Collections.shuffle(waitingPlayers);
 
                 for (int i = 0; i < waitingPlayers.size(); i += 2) {
-                    newMatch = matchDao.insertMatch(tournament.getID(), numGames, waitingPlayers.get(i).getID(), waitingPlayers.get(i + 1).getID(), i+1);
+                    newMatch = matchDao.insertMatch(tournament.getID(), tournament.getGames(), waitingPlayers.get(i).getID(), waitingPlayers.get(i + 1).getID(), i+1);
 //                    newGame = gameDao.insertGame(newMatch.getID(), newMatch.getTournamentID());
 //                    newMatch.addNewActiveGameKey(newGame.getID());
                     matchDao.updateMatch(newMatch);
@@ -220,9 +218,30 @@ public class TournamentService {
         // Query for the corresponding match and game
         Match match = matchDao.selectMatchByPlayerID(votingPlayerID);
         Game game = gameDao.selectGameById(match.getActiveGameID());
+        Tournament tournament = tournamentDao.selectTournamentById(match.getTournamentID());
 
         // Report results
         int resultStatus = game.votePlayerWin(match, votingPlayerID, winningPlayerID);
+
+        // Was this the final game?
+        if(!match.getActive()) {
+            // The game is over tally the points
+            if ("draw".equals(winningPlayerID)) {
+                // They drew, each player gets a point
+                Player p1 = playerDao.selectPlayerById(match.getPlayer1ID());
+                Player p2 = playerDao.selectPlayerById(match.getPlayer2ID());
+
+                p1.addDrawPoints();
+                p2.addDrawPoints();
+
+                playerDao.updatePlayerById(p1);
+                playerDao.updatePlayerById(p2);
+            } else {
+                Player winner = playerDao.selectPlayerById(winningPlayerID);
+                winner.addWinPoints(match.wasShutout(winningPlayerID));
+                playerDao.updatePlayerById(winner);
+            }
+        }
 
         if(resultStatus == Game.getResultStatusFinal())
         {

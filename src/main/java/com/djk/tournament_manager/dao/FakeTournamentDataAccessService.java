@@ -1,6 +1,5 @@
 package com.djk.tournament_manager.dao;
 
-import com.djk.tournament_manager.model.Player;
 import com.djk.tournament_manager.model.Tournament;
 import org.springframework.stereotype.Repository;
 
@@ -19,7 +18,7 @@ public class FakeTournamentDataAccessService {
             return null;
         }
 
-        DB.add(new Tournament(id, tournament.getName(), tournament.getRoomCode(), tournament.getFormat()));
+        DB.add(new Tournament(id, tournament.getName(), tournament.getRoomCode(), tournament.getFormat(), tournament.getRounds(), tournament.getGames()));
         return id;
     }
 
@@ -70,7 +69,7 @@ public class FakeTournamentDataAccessService {
         {
             int indexOfTournamentToUpdate = DB.indexOf(t);
             if(indexOfTournamentToUpdate >= 0){
-                DB.set(indexOfTournamentToUpdate, new Tournament(id, update.getName(), update.getRoomCode(), update.getFormat()));
+                DB.set(indexOfTournamentToUpdate, new Tournament(id, update.getName(), update.getRoomCode(), update.getFormat(), update.getRounds(), update.getGames()));
             }
         }
     }

@@ -118,7 +118,10 @@ public class Game {
                 this.player1Wins++;
             } else if (match.getPlayer2ID().equals(winningPlayerID)) {
                 this.player2Wins++;
-            } else {
+            } else if ("Draw".equals(winningPlayerID)){
+                this.draw++;
+            }
+            else {
                 System.err.println("ERROR: Unable to increment player wins");
             }
         }
@@ -131,6 +134,11 @@ public class Game {
 
                 match.addPlayerWin(winningPlayer);
                 this.winningPlayerID = winningPlayer;
+                this.resultStatus = Game.getResultStatusFinal();
+            }
+            else if(draw > 0) {
+                match.didDraw();
+                this.winningPlayerID = "Draw";
                 this.resultStatus = Game.getResultStatusFinal();
             }
             else {

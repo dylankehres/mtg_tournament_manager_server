@@ -14,6 +14,7 @@ public class Match {
     @JsonProperty("player2ID") private final String player2ID;
     @JsonProperty("player1Wins") private int player1Wins;
     @JsonProperty("player2Wins") private int player2Wins;
+    @JsonProperty("draws") private int draws;
     @JsonProperty("player1Ready") private boolean player1Ready;
     @JsonProperty("player2Ready") private boolean player2Ready;
     @JsonProperty("tableNum") private int tableNum;
@@ -32,6 +33,7 @@ public class Match {
         this.player2ID = "";
         this.player1Wins = 0;
         this.player2Wins = 0;
+        this.draws = 0;
         this.player1Ready = false;
         this.player2Ready = false;
         this.tableNum = 0;
@@ -49,6 +51,7 @@ public class Match {
         this.tournamentID = tournamentID;
         this.player1ID = player1ID;
         this.player2ID = player2ID;
+        this.draws = 0;
         this.player1Wins = 0;
         this.player2Wins = 0;
         this.player1Ready = false;
@@ -74,6 +77,8 @@ public class Match {
     public int getPlayer1Wins() { return this.player1Wins; }
 
     public int getPlayer2Wins() { return this.player2Wins; }
+
+    public int getDraws() { return this.draws; }
 
     public boolean getPlayer1Ready() { return this.player1Ready; }
 
@@ -109,9 +114,19 @@ public class Match {
     public boolean addPlayerWin(String playerID) {
         if(playerID.equals(this.getPlayer1ID())) {
             this.player1Wins++;
+
+            // Has player1 won the match?
+            if(this.player1Wins / this.gameKeys.size() > 0.5) {
+                this.active = false;
+            }
         }
         else if (playerID.equals(this.getPlayer2ID())){
             this.player2Wins++;
+
+            // Has player2 won the match?
+            if(this.player2Wins / this.gameKeys.size() > 0.5) {
+                this.active = false;
+            }
         }
         else {
             System.out.println("ERROR: Unable to increment player win  (player ID: " + playerID + ")");
@@ -122,7 +137,24 @@ public class Match {
 
     public void didDraw()
     {
-        // TODO
+        this.draws++;
+
+        // Were there more draws than wins?
+        if(this.draws / this.gameKeys.size() > 0.5) {
+            this.active = false;
+        }
+        // Was the last game a draw?
+        else if (this.player1Wins + this.player2Wins + this.draws == this.gameKeys.size()) {
+            this.active = false;
+        }
+    }
+
+    public boolean wasShutout(String winningPlayerID) {
+        if (this.player1ID.equals(winningPlayerID)) {
+            return this.getPlayer2Wins() == 0;
+        } else {
+           return this.getPlayer1Wins() == 0;
+        }
     }
 
     public void playerReady(String playerID) {
