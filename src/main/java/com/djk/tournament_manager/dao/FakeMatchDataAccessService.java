@@ -13,8 +13,8 @@ public class FakeMatchDataAccessService {
     private static List<Match> DB = new ArrayList<>();
 
 //    @Override
-    public String insertMatch(String id, String tournamentID, int numGames, String player1ID, String player2ID, int tableNum) {
-        DB.add(new Match(id, tournamentID, numGames, player1ID, player2ID, tableNum));
+    public String insertMatch(String id, String tournamentID, int numGames, String player1ID, String player2ID, int tableNum, int roundNum) {
+        DB.add(new Match(id, tournamentID, numGames, player1ID, player2ID, tableNum, roundNum));
         return id;
     }
 

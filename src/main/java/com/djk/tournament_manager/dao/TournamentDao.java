@@ -10,7 +10,7 @@ public interface TournamentDao {
 
     default Tournament insertTournament(Tournament tournament) {
         UUID id = UUID.randomUUID();
-        return insertTournament(id.toString(), new Tournament(id.toString(), tournament.getName(), tournament.getRoomCode(), tournament.getFormat(), tournament.getRounds(), tournament.getGames()));
+        return insertTournament(id.toString(), new Tournament(id.toString(), tournament.getName(), tournament.getRoomCode(), tournament.getFormat(), tournament.getNumRounds(), tournament.getNumGames()));
     }
 
     List<Tournament> selectAllTournaments();
@@ -21,6 +21,6 @@ public interface TournamentDao {
 
     void deleteTournamentById(String id);
 
-    Tournament updateTournamentById(String id, Tournament tournament);
+    Tournament updateTournamentById(Tournament tournament);
 
 }

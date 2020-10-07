@@ -106,9 +106,9 @@ public class TournamentDataAccessService implements TournamentDao {
     }
 
     @Override
-    public Tournament updateTournamentById(String id, Tournament tournament) {
+    public Tournament updateTournamentById(Tournament tournament) {
         Firestore dbFirestore = FirestoreClient.getFirestore();
-        ApiFuture<WriteResult> collectionApiFuture = dbFirestore.collection(collection).document(id.toString()).set(tournament);
+        ApiFuture<WriteResult> collectionApiFuture = dbFirestore.collection(collection).document(tournament.getID()).set(tournament);
 
         try {
             WriteResult res = collectionApiFuture.get();

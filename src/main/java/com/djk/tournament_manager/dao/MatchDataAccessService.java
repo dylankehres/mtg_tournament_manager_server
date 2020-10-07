@@ -16,9 +16,9 @@ public class MatchDataAccessService implements MatchDao {
     static final String collection = "match";
 
     @Override
-    public Match insertMatch(String id, String tournamentID, int numGames, String player1ID, String player2ID, int tableNum) {
+    public Match insertMatch(String id, String tournamentID, int numGames, String player1ID, String player2ID, int tableNum, int roundNum) {
         Firestore dbFirestore = FirestoreClient.getFirestore();
-        Match newMatch = new Match(id, tournamentID, numGames, player1ID, player2ID, tableNum);
+        Match newMatch = new Match(id, tournamentID, numGames, player1ID, player2ID, tableNum, roundNum);
         ApiFuture<WriteResult> collectionApiFuture = dbFirestore.collection(collection).document(id.toString()).set(newMatch);
 
         try {
@@ -78,6 +78,31 @@ public class MatchDataAccessService implements MatchDao {
     }
 
     @Override
+    public List<Match> selectMatchesInRound(String tournamentID, int roundNum) {
+        Firestore dbFirestore = FirestoreClient.getFirestore();
+        ApiFuture<QuerySnapshot> querySnapshot = dbFirestore.collection(collection)
+                .whereEqualTo("tournamentID", tournamentID)
+                .whereEqualTo("roundNum", roundNum)
+                .get();
+        List<Match> matchesInTournament = new ArrayList();
+
+        try {
+            List<QueryDocumentSnapshot> docList = querySnapshot.get().getDocuments();
+            if(!docList.isEmpty()){
+                for(int i = 0; i<docList.size(); i++) {
+                    matchesInTournament.add(docList.get(i).toObject(Match.class));
+                }
+            }
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        }
+
+        return matchesInTournament;
+    }
+
+    @Override
     public Match selectMatchById(String id) {
         Firestore dbFirestore = FirestoreClient.getFirestore();
         DocumentReference documentReference = dbFirestore.collection(collection).document(id.toString());
@@ -102,10 +127,16 @@ public class MatchDataAccessService implements MatchDao {
     }
 
     @Override
-    public Match selectMatchByPlayerID(String playerId) {
+    public Match selectMatchByPlayerID(String playerId, int roundNum) {
         Firestore dbFirestore = FirestoreClient.getFirestore();
-        ApiFuture<QuerySnapshot> querySnapshotP1 = dbFirestore.collection(collection).whereEqualTo("player1ID", playerId).get();
-        ApiFuture<QuerySnapshot> querySnapshotP2 = dbFirestore.collection(collection).whereEqualTo("player2ID", playerId).get();
+        ApiFuture<QuerySnapshot> querySnapshotP1 = dbFirestore.collection(collection)
+                .whereEqualTo("player1ID", playerId)
+                .whereEqualTo("roundNum", roundNum)
+                .get();
+        ApiFuture<QuerySnapshot> querySnapshotP2 = dbFirestore.collection(collection)
+                .whereEqualTo("player2ID", playerId)
+                .whereEqualTo("roundNum", roundNum)
+                .get();
         Match match = null;
 
         try {

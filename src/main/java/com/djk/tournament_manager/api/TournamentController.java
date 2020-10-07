@@ -39,14 +39,14 @@ public class TournamentController {
         return tournamentService.addPlayer(player).getID();
     }
 
-    @PostMapping(path = "/match/gameResults/{playerID}/{winnerID}")
-    public MatchDataDTO receiveGameResults(@PathVariable("playerID") String votingPlayerID, @PathVariable("winnerID") String winningPlayerID) {
-        return tournamentService.reportGameResults(votingPlayerID, winningPlayerID);
+    @PostMapping(path = "/match/gameResults/{playerID}/{winnerID}/{roundNum}")
+    public MatchDataDTO receiveGameResults(@PathVariable("playerID") String votingPlayerID, @PathVariable("winnerID") String winningPlayerID, @PathVariable("roundNum") int roundNum) {
+        return tournamentService.reportGameResults(votingPlayerID, winningPlayerID, roundNum);
     }
 
-    @PostMapping(path =  "/match/ready/{playerID}")
-    public Match readyUp (@PathVariable("playerID") String playerID) {
-        return tournamentService.setPlayerReady(playerID);
+    @PostMapping(path =  "/match/ready/{playerID}/{roundNum}")
+    public Match readyUp (@PathVariable("playerID") String playerID, @PathVariable("roundNum") int roundNum) {
+        return tournamentService.setPlayerReady(playerID, roundNum);
     }
 
     @GetMapping

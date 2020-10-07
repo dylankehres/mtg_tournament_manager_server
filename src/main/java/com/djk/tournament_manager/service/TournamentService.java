@@ -88,7 +88,7 @@ public class TournamentService {
 
     public void updateTournament(String id, Tournament tournament)
     {
-        tournamentDao.updateTournamentById(id, tournament);
+        tournamentDao.updateTournamentById(tournament);
     }
 
     public Player addPlayer(Player player) {
@@ -119,31 +119,29 @@ public class TournamentService {
 
         if(!tournament.equals(null))
         {
-            String code = tournament.getRoomCode();
-            Match newMatch = new Match();
-            Game newGame = new Game();
-
-            if (getMatchesByRoomCode(code).stream().noneMatch(matchData -> matchData.match.getActive()))
+            if (getMatchesByRoomCode(tournament.getRoomCode()).stream().noneMatch(matchData -> matchData.match.getActive()))
             {
-                List<Player> waitingPlayers = playerDao.selectPlayersByTournament(code);
+                tournament.incrementCurrRound();
+                tournamentDao.updateTournamentById(tournament);
+                List<Player> waitingPlayers = playerDao.selectPlayersByTournament(tournament.getRoomCode());
 
                 if (waitingPlayers.size() % 2 == 1)
                 {
-                    Player bye = playerDao.insertPlayer(tournament.getID(), "BYE", code, tournament.getFormat(), "");
+                    Player bye = playerDao.insertPlayer(tournament.getID(), "BYE", tournament.getRoomCode(), tournament.getFormat(), "");
                     waitingPlayers.add(bye);
                 }
 
                 Collections.shuffle(waitingPlayers);
 
                 for (int i = 0; i < waitingPlayers.size(); i += 2) {
-                    newMatch = matchDao.insertMatch(tournament.getID(), tournament.getGames(), waitingPlayers.get(i).getID(), waitingPlayers.get(i + 1).getID(), i+1);
+                    Match newMatch = matchDao.insertMatch(tournament.getID(), tournament.getNumGames(), waitingPlayers.get(i).getID(), waitingPlayers.get(i + 1).getID(), i, tournament.getCurrRound());
 //                    newGame = gameDao.insertGame(newMatch.getID(), newMatch.getTournamentID());
 //                    newMatch.addNewActiveGameKey(newGame.getID());
                     matchDao.updateMatch(newMatch);
                 }
             }
 
-            return getMatchesByRoomCode(code);
+            return getMatchesByRoomCode(tournament.getRoomCode());
         }
 
         return new ArrayList<>();
@@ -155,7 +153,7 @@ public class TournamentService {
 
         if(tournament != null)
         {
-            List<Match> matches = matchDao.selectMatchesInTournament(tournament.getID());
+            List<Match> matches = matchDao.selectMatchesInRound(tournament.getID(), tournament.getCurrRound());
             Player p1 = new Player();
             Player p2 = new Player();
             List<Game> gameList = new ArrayList<>();
@@ -174,7 +172,9 @@ public class TournamentService {
 
     public MatchDataDTO getMatchByPlayerID(String playerID)
     {
-        Match match = matchDao.selectMatchByPlayerID(playerID);
+        Player player = playerDao.selectPlayerById(playerID);
+        Tournament tournament = tournamentDao.selectTournamentById(player.getTournamentID());
+        Match match = matchDao.selectMatchByPlayerID(playerID, tournament.getCurrRound());
         Player p1 = new Player();
         Player p2 = new Player();
         Game game = new Game();
@@ -207,16 +207,16 @@ public class TournamentService {
         }
     }
 
-    public Match incrementPlayerWin(String playerID) {
-        Match match = matchDao.selectMatchByPlayerID(playerID);
+    public Match incrementPlayerWin(String playerID, int roundNum) {
+        Match match = matchDao.selectMatchByPlayerID(playerID, roundNum);
         match.addPlayerWin(playerID);
 
         return match;
     }
 
-    public MatchDataDTO reportGameResults(String votingPlayerID, String winningPlayerID) {
+    public MatchDataDTO reportGameResults(String votingPlayerID, String winningPlayerID, int roundNum) {
         // Query for the corresponding match and game
-        Match match = matchDao.selectMatchByPlayerID(votingPlayerID);
+        Match match = matchDao.selectMatchByPlayerID(votingPlayerID, roundNum);
         Game game = gameDao.selectGameById(match.getActiveGameID());
         Tournament tournament = tournamentDao.selectTournamentById(match.getTournamentID());
 
@@ -224,7 +224,17 @@ public class TournamentService {
         int resultStatus = game.votePlayerWin(match, votingPlayerID, winningPlayerID);
 
         // Was this the final game?
-        if(!match.getActive()) {
+        if(match.getActive()) {
+            if(resultStatus == Game.getResultStatusFinal())
+            {
+                // Results are in start a new game
+                game.setIsActive(false);
+                Game newGame = gameDao.insertGame(match.getID(), match.getTournamentID(), game.getGameNum() + 1);
+                newGame.setIsActive(true);
+                match.addNewActiveGameKey(newGame.getID());
+            }
+        }
+        else {
             // The game is over tally the points
             if ("draw".equals(winningPlayerID)) {
                 // They drew, each player gets a point
@@ -241,15 +251,8 @@ public class TournamentService {
                 winner.addWinPoints(match.wasShutout(winningPlayerID));
                 playerDao.updatePlayerById(winner);
             }
-        }
 
-        if(resultStatus == Game.getResultStatusFinal())
-        {
-            // Results are in start a new game
             game.setIsActive(false);
-            Game newGame = gameDao.insertGame(match.getID(), match.getTournamentID(), game.getGameNum() + 1);
-            newGame.setIsActive(true);
-            match.addNewActiveGameKey(newGame.getID());
         }
 
         matchDao.updateMatch(match);
@@ -264,8 +267,8 @@ public class TournamentService {
         return matchData;
     }
 
-    public Match setPlayerReady(String playerID) {
-        Match match = matchDao.selectMatchByPlayerID(playerID);
+    public Match setPlayerReady(String playerID, int roundNum) {
+        Match match = matchDao.selectMatchByPlayerID(playerID, roundNum);
         match.playerReady(playerID);
 
         if(match.getActive()) {

@@ -12,8 +12,9 @@ public class Tournament {
     @JsonProperty("name") private final String name;
     @JsonProperty("roomCode") private final String roomCode;
     @JsonProperty("format") private final String format;
-    @JsonProperty("rounds") private final int rounds;
-    @JsonProperty("games") private final int games;
+    @JsonProperty("numRounds") private final int numRounds;
+    @JsonProperty("numGames") private final int numGames;
+    @JsonProperty("currRound") private int currRound;
 
     public Tournament()
     {
@@ -21,44 +22,40 @@ public class Tournament {
         this.name = "";
         this.roomCode = "";
         this.format = "";
-        this.rounds = 0;
-        this.games = 0;
+        this.numRounds = 0;
+        this.numGames = 0;
+        this.currRound = 0;
     }
 
     public Tournament(String id,
                       String name,
                       String roomCode,
                       String format,
-                      int rounds,
-                      int games)
+                      int numRounds,
+                      int numGames)
     {
         this.id = id;
         this.name = name;
         this.roomCode = roomCode;
         this.format = format;
-        this.rounds = rounds;
-        this.games = games;
+        this.numRounds = numRounds;
+        this.numGames = numGames;
+        this.currRound = 0;
     }
 
 
-    public String getID()
-    {
-        return this.id;
-    }
+    public String getID() { return this.id; }
 
-    public String getName()
-    {
-        return this.name;
-    }
+    public String getName() { return this.name; }
 
     public String getRoomCode() { return this.roomCode;}
 
-    public String getFormat()
-    {
-        return this.format;
-    }
+    public String getFormat() { return this.format; }
 
-    public int getRounds() { return this.rounds; }
+    public int getNumRounds() { return this.numRounds; }
 
-    public int getGames() {return this.games; }
+    public int getNumGames() { return this.numGames; }
+
+    public int getCurrRound() { return this.currRound; }
+    public void incrementCurrRound() { this.currRound++; }
 }

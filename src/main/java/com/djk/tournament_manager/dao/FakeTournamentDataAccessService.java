@@ -18,7 +18,7 @@ public class FakeTournamentDataAccessService {
             return null;
         }
 
-        DB.add(new Tournament(id, tournament.getName(), tournament.getRoomCode(), tournament.getFormat(), tournament.getRounds(), tournament.getGames()));
+        DB.add(new Tournament(id, tournament.getName(), tournament.getRoomCode(), tournament.getFormat(), tournament.getNumRounds(), tournament.getNumGames()));
         return id;
     }
 
@@ -69,7 +69,7 @@ public class FakeTournamentDataAccessService {
         {
             int indexOfTournamentToUpdate = DB.indexOf(t);
             if(indexOfTournamentToUpdate >= 0){
-                DB.set(indexOfTournamentToUpdate, new Tournament(id, update.getName(), update.getRoomCode(), update.getFormat(), update.getRounds(), update.getGames()));
+                DB.set(indexOfTournamentToUpdate, new Tournament(id, update.getName(), update.getRoomCode(), update.getFormat(), update.getNumRounds(), update.getNumGames()));
             }
         }
     }

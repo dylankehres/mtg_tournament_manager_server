@@ -24,6 +24,7 @@ public class Match {
     @JsonProperty("startTime") private long startTime;
     @JsonProperty("endTime") private long endTime;
     @JsonProperty("timeLimit") private long timeLimit;
+    @JsonProperty("roundNum") private final int roundNum;
 
     public Match()
     {
@@ -43,9 +44,10 @@ public class Match {
         this.startTime = 0;
         this.endTime = 0;
         this.timeLimit = 0;
+        this.roundNum = 0;
     }
 
-    public Match(String id, String tournamentID, int numGames, String player1ID, String player2ID, int tableNum)
+    public Match(String id, String tournamentID, int numGames, String player1ID, String player2ID, int tableNum, int roundNum)
     {
         this.id = id;
         this.tournamentID = tournamentID;
@@ -63,6 +65,7 @@ public class Match {
         this.startTime = 0;
         this.endTime = 0;
         this.timeLimit = 3000000;
+        this.roundNum = roundNum;
     }
 
 
@@ -98,6 +101,8 @@ public class Match {
 
     public long getTimeLimit() { return this.timeLimit; }
 
+    public int getRoundNum() { return this.roundNum; }
+
     public void setTableNum(int tableNum) { this.tableNum = tableNum; }
 
     public void setActive(boolean active) { this.active = active; }
@@ -116,7 +121,8 @@ public class Match {
             this.player1Wins++;
 
             // Has player1 won the match?
-            if(this.player1Wins / this.gameKeys.size() > 0.5) {
+            double winRatio = (double) this.player1Wins / (double) this.gameKeys.size();
+            if(winRatio > 0.5) {
                 this.active = false;
             }
         }
@@ -124,7 +130,8 @@ public class Match {
             this.player2Wins++;
 
             // Has player2 won the match?
-            if(this.player2Wins / this.gameKeys.size() > 0.5) {
+            double winRatio = (double) this.player2Wins / (double) this.gameKeys.size();
+            if(winRatio > 0.5) {
                 this.active = false;
             }
         }
