@@ -25,6 +25,7 @@ public class Match {
     @JsonProperty("endTime") private long endTime;
     @JsonProperty("timeLimit") private long timeLimit;
     @JsonProperty("roundNum") private final int roundNum;
+    @JsonProperty("numGames") private final int numGames;
 
     public Match()
     {
@@ -45,6 +46,7 @@ public class Match {
         this.endTime = 0;
         this.timeLimit = 0;
         this.roundNum = 0;
+        this.numGames = 0;
     }
 
     public Match(String id, String tournamentID, int numGames, String player1ID, String player2ID, int tableNum, int roundNum)
@@ -61,11 +63,12 @@ public class Match {
         this.tableNum = tableNum;
         this.active = false;
         this.activeGameID = "";
-        this.gameKeys = new ArrayList<>(numGames);
+        this.gameKeys = new ArrayList<>();
         this.startTime = 0;
         this.endTime = 0;
         this.timeLimit = 3000000;
         this.roundNum = roundNum;
+        this.numGames = numGames;
     }
 
 
@@ -103,6 +106,8 @@ public class Match {
 
     public int getRoundNum() { return this.roundNum; }
 
+    public int getNumGames() { return this.numGames; }
+
     public void setTableNum(int tableNum) { this.tableNum = tableNum; }
 
     public void setActive(boolean active) { this.active = active; }
@@ -111,8 +116,8 @@ public class Match {
 
     public void setActiveGameKey(String gameKey){ this.activeGameID = gameKey; }
 
-    public void addNewActiveGameKey(String gameID) {
-        this.gameKeys.add(gameID);
+    public void addNewActiveGameKey(String gameID, int roundNum) {
+        this.gameKeys.add(roundNum - 1, gameID);
         this.activeGameID = gameID;
     }
 
@@ -121,7 +126,7 @@ public class Match {
             this.player1Wins++;
 
             // Has player1 won the match?
-            double winRatio = (double) this.player1Wins / (double) this.gameKeys.size();
+            double winRatio = (double) this.player1Wins / (double) this.numGames;
             if(winRatio > 0.5) {
                 this.active = false;
             }
@@ -130,7 +135,7 @@ public class Match {
             this.player2Wins++;
 
             // Has player2 won the match?
-            double winRatio = (double) this.player2Wins / (double) this.gameKeys.size();
+            double winRatio = (double) this.player2Wins / (double) this.numGames;
             if(winRatio > 0.5) {
                 this.active = false;
             }
@@ -139,7 +144,7 @@ public class Match {
             System.out.println("ERROR: Unable to increment player win  (player ID: " + playerID + ")");
         }
 
-        return this.player1Wins + this.player2Wins == this.gameKeys.size();
+        return this.player1Wins + this.player2Wins == this.numGames;
     }
 
     public void didDraw()
@@ -147,11 +152,12 @@ public class Match {
         this.draws++;
 
         // Were there more draws than wins?
-        if(this.draws / this.gameKeys.size() > 0.5) {
+        double winRatio = (double) this.player2Wins / (double) this.numGames;
+        if(winRatio > 0.5) {
             this.active = false;
         }
         // Was the last game a draw?
-        else if (this.player1Wins + this.player2Wins + this.draws == this.gameKeys.size()) {
+        else if (this.player1Wins + this.player2Wins + this.draws == this.numGames) {
             this.active = false;
         }
     }

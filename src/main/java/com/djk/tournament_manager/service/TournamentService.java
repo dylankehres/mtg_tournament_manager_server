@@ -246,7 +246,7 @@ public class TournamentService {
                 game.setIsActive(false);
                 Game newGame = gameDao.insertGame(match.getID(), match.getTournamentID(), game.getGameNum() + 1);
                 newGame.setIsActive(true);
-                match.addNewActiveGameKey(newGame.getID());
+                match.addNewActiveGameKey(newGame.getID(), tournament.getCurrRound());
             }
         }
         else {
@@ -289,7 +289,7 @@ public class TournamentService {
         if(match.getActive()) {
 //            Game game = gameDao.selectGameById(match.getActiveGameID());
             Game newGame = gameDao.insertGame(match.getID(), match.getTournamentID(), 1);
-            match.addNewActiveGameKey(newGame.getID());
+            match.addNewActiveGameKey(newGame.getID(), roundNum);
             newGame.setIsActive(true);
             gameDao.updateGame(newGame);
         }
