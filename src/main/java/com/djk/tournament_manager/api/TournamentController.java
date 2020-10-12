@@ -45,7 +45,7 @@ public class TournamentController {
     }
 
     @PostMapping(path =  "/match/ready/{playerID}/{roundNum}")
-    public Match readyUp (@PathVariable("playerID") String playerID, @PathVariable("roundNum") int roundNum) {
+    public MatchDataDTO readyUp (@PathVariable("playerID") String playerID, @PathVariable("roundNum") int roundNum) {
         return tournamentService.setPlayerReady(playerID, roundNum);
     }
 

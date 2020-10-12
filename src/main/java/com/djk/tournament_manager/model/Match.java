@@ -18,7 +18,7 @@ public class Match {
     @JsonProperty("player1Ready") private boolean player1Ready;
     @JsonProperty("player2Ready") private boolean player2Ready;
     @JsonProperty("tableNum") private int tableNum;
-    @JsonProperty("active") private boolean active;
+    @JsonProperty("matchStatus") private int matchStatus;
     @JsonProperty("gameKeys") private List<String> gameKeys;
     @JsonProperty("activeGameID") private String activeGameID;
     @JsonProperty("startTime") private long startTime;
@@ -39,7 +39,7 @@ public class Match {
         this.player1Ready = false;
         this.player2Ready = false;
         this.tableNum = 0;
-        this.active = false;
+        this.matchStatus = MatchStatus.AwaitingPlayers.ordinal();
         this.gameKeys = new ArrayList<>();
         this.activeGameID = "";
         this.startTime = 0;
@@ -61,7 +61,7 @@ public class Match {
         this.player1Ready = false;
         this.player2Ready = false;
         this.tableNum = tableNum;
-        this.active = false;
+        this.matchStatus = MatchStatus.AwaitingPlayers.ordinal();
         this.activeGameID = "";
         this.gameKeys = new ArrayList<>();
         this.startTime = 0;
@@ -71,6 +71,9 @@ public class Match {
         this.numGames = numGames;
     }
 
+    public enum MatchStatus {
+        AwaitingPlayers, InProgress, Complete
+    };
 
     public String getID() { return this.id; }
 
@@ -96,7 +99,7 @@ public class Match {
 
     public int getTableNum() { return this.tableNum; }
 
-    public boolean getActive() { return this.active; }
+    public int getMatchStatus() { return this.matchStatus; }
 
     public long getStartTime() { return this.startTime; }
 
@@ -110,14 +113,16 @@ public class Match {
 
     public void setTableNum(int tableNum) { this.tableNum = tableNum; }
 
-    public void setActive(boolean active) { this.active = active; }
+//    public void setActive(boolean active) { this.active = active; }
+
+    public void setMatchStatus(int status) { this.matchStatus = status; }
 
     public void setGameKeys(List<String> gameKeys){ this.gameKeys = gameKeys; }
 
     public void setActiveGameKey(String gameKey){ this.activeGameID = gameKey; }
 
-    public void addNewActiveGameKey(String gameID, int roundNum) {
-        this.gameKeys.add(roundNum - 1, gameID);
+    public void addNewActiveGameKey(String gameID) {
+        this.gameKeys.add(gameID);
         this.activeGameID = gameID;
     }
 
@@ -128,7 +133,7 @@ public class Match {
             // Has player1 won the match?
             double winRatio = (double) this.player1Wins / (double) this.numGames;
             if(winRatio > 0.5) {
-                this.active = false;
+                this.matchStatus = MatchStatus.Complete.ordinal();
             }
         }
         else if (playerID.equals(this.getPlayer2ID())){
@@ -137,7 +142,7 @@ public class Match {
             // Has player2 won the match?
             double winRatio = (double) this.player2Wins / (double) this.numGames;
             if(winRatio > 0.5) {
-                this.active = false;
+                this.matchStatus = MatchStatus.Complete.ordinal();
             }
         }
         else {
@@ -154,11 +159,11 @@ public class Match {
         // Were there more draws than wins?
         double winRatio = (double) this.player2Wins / (double) this.numGames;
         if(winRatio > 0.5) {
-            this.active = false;
+            this.matchStatus = MatchStatus.Complete.ordinal();
         }
         // Was the last game a draw?
         else if (this.player1Wins + this.player2Wins + this.draws == this.numGames) {
-            this.active = false;
+            this.matchStatus = MatchStatus.Complete.ordinal();
         }
     }
 
@@ -180,7 +185,7 @@ public class Match {
         }
 
         if(player1Ready && player2Ready) {
-            active = true;
+            this.matchStatus = MatchStatus.InProgress.ordinal();
             startTime = System.currentTimeMillis();
             endTime = startTime + timeLimit;
         }

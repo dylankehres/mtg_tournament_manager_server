@@ -11,6 +11,7 @@ import com.djk.tournament_manager.model.Player;
 import com.djk.tournament_manager.model.Tournament;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.config.YamlProcessor;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -119,7 +120,7 @@ public class TournamentService {
 
         if(!tournament.equals(null))
         {
-            if (getMatchesByRoomCode(tournament.getRoomCode()).stream().noneMatch(matchData -> matchData.match.getActive()))
+            if (getMatchesByRoomCode(tournament.getRoomCode()).stream().allMatch(matchData -> matchData.match.getMatchStatus() == Match.MatchStatus.Complete.ordinal()))
             {
                 tournament.incrementCurrRound();
                 tournamentDao.updateTournamentById(tournament);
@@ -146,10 +147,11 @@ public class TournamentService {
                 }
 
                 // Primary sort: players point totals
-                waitingPlayers.sort(Comparator.comparing(Player::getPoints));
+                waitingPlayers.sort(Comparator.comparing(Player::getPoints).reversed());
 
+                int tableNum = 1;
                 for (int i = 0; i < waitingPlayers.size(); i += 2) {
-                    Match newMatch = matchDao.insertMatch(tournament.getID(), tournament.getNumGames(), waitingPlayers.get(i).getID(), waitingPlayers.get(i + 1).getID(), i, tournament.getCurrRound());
+                    Match newMatch = matchDao.insertMatch(tournament.getID(), tournament.getNumGames(), waitingPlayers.get(i).getID(), waitingPlayers.get(i + 1).getID(), tableNum++, tournament.getCurrRound());
 //                    newGame = gameDao.insertGame(newMatch.getID(), newMatch.getTournamentID());
 //                    newMatch.addNewActiveGameKey(newGame.getID());
                     matchDao.updateMatch(newMatch);
@@ -181,6 +183,8 @@ public class TournamentService {
                 matchDataList.add(new MatchDataDTO(p1, p2, match, gameList));
             }
         }
+
+        matchDataList.sort(Comparator.comparingInt(matchData -> matchData.match.getTableNum()));
 
         return matchDataList;
     }
@@ -239,14 +243,14 @@ public class TournamentService {
         int resultStatus = game.votePlayerWin(match, votingPlayerID, winningPlayerID);
 
         // Was this the final game?
-        if(match.getActive()) {
+        if(match.getMatchStatus() == Match.MatchStatus.InProgress.ordinal()) {
             if(resultStatus == Game.getResultStatusFinal())
             {
                 // Results are in start a new game
                 game.setIsActive(false);
                 Game newGame = gameDao.insertGame(match.getID(), match.getTournamentID(), game.getGameNum() + 1);
                 newGame.setIsActive(true);
-                match.addNewActiveGameKey(newGame.getID(), tournament.getCurrRound());
+                match.addNewActiveGameKey(newGame.getID());
             }
         }
         else {
@@ -282,20 +286,26 @@ public class TournamentService {
         return matchData;
     }
 
-    public Match setPlayerReady(String playerID, int roundNum) {
+    public MatchDataDTO setPlayerReady(String playerID, int roundNum) {
         Match match = matchDao.selectMatchByPlayerID(playerID, roundNum);
         match.playerReady(playerID);
 
-        if(match.getActive()) {
+        if(match.getMatchStatus() == Match.MatchStatus.InProgress.ordinal()) {
 //            Game game = gameDao.selectGameById(match.getActiveGameID());
             Game newGame = gameDao.insertGame(match.getID(), match.getTournamentID(), 1);
-            match.addNewActiveGameKey(newGame.getID(), roundNum);
+            match.addNewActiveGameKey(newGame.getID());
             newGame.setIsActive(true);
             gameDao.updateGame(newGame);
         }
 
         matchDao.updateMatch(match);
 
-        return match;
+        // Prepare MatchDatDTO
+        List<Game> gameList = gameDao.selectGamesInMatch(match.getID());
+        Player p1 = playerDao.selectPlayerById(match.getPlayer1ID());
+        Player p2 = playerDao.selectPlayerById(match.getPlayer2ID());
+        MatchDataDTO matchData = new MatchDataDTO(p1, p2, match, gameList);
+
+        return matchData;
     }
 }
