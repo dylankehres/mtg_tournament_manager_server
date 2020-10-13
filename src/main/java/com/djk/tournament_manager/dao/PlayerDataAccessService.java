@@ -75,6 +75,8 @@ public class PlayerDataAccessService implements PlayerDao{
             e.printStackTrace();
         }
 
+        playersInTournament.sort(Comparator.comparing(Player::getPoints).reversed());
+
         return playersInTournament;
     }
 

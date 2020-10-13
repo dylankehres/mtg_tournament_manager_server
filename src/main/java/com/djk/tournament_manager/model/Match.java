@@ -9,7 +9,7 @@ import java.util.UUID;
 
 public class Match {
     @JsonProperty("id")  private final String id;
-    @JsonProperty("tmtID") private final String tournamentID;
+    @JsonProperty("tournamentID") private final String tournamentID;
     @JsonProperty("player1ID") private final String player1ID;
     @JsonProperty("player2ID") private final String player2ID;
     @JsonProperty("player1Wins") private int player1Wins;
@@ -18,6 +18,7 @@ public class Match {
     @JsonProperty("player1Ready") private boolean player1Ready;
     @JsonProperty("player2Ready") private boolean player2Ready;
     @JsonProperty("tableNum") private int tableNum;
+    @JsonProperty("active") private boolean active;
     @JsonProperty("matchStatus") private int matchStatus;
     @JsonProperty("gameKeys") private List<String> gameKeys;
     @JsonProperty("activeGameID") private String activeGameID;
@@ -39,6 +40,7 @@ public class Match {
         this.player1Ready = false;
         this.player2Ready = false;
         this.tableNum = 0;
+        this.active = true;
         this.matchStatus = MatchStatus.AwaitingPlayers.ordinal();
         this.gameKeys = new ArrayList<>();
         this.activeGameID = "";
@@ -61,6 +63,7 @@ public class Match {
         this.player1Ready = false;
         this.player2Ready = false;
         this.tableNum = tableNum;
+        this.active = true;
         this.matchStatus = MatchStatus.AwaitingPlayers.ordinal();
         this.activeGameID = "";
         this.gameKeys = new ArrayList<>();
@@ -98,6 +101,8 @@ public class Match {
     public String getActiveGameID() { return this.activeGameID; }
 
     public int getTableNum() { return this.tableNum; }
+    
+    public boolean getActive() { return this.active; }
 
     public int getMatchStatus() { return this.matchStatus; }
 

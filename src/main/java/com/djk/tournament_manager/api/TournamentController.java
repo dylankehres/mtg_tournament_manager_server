@@ -93,6 +93,11 @@ public class TournamentController {
         return tournamentService.getMatchByPlayerID(id);
     }
 
+    @GetMapping(path = "tournament/{id}")
+    public Tournament getTournament(@PathVariable("id") String id) {
+        return tournamentService.getTournamentById(id);
+    }
+
     @DeleteMapping(path = "host")
     public void deleteTournamentById(@RequestBody String id)
     {

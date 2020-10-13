@@ -10,7 +10,7 @@ import java.util.UUID;
 public class Player {
 
     @JsonProperty("id") private final String id;
-    @JsonProperty("tmtID") private String tournamentID;
+    @JsonProperty("tournamentID") private String tournamentID;
 
     @NotBlank
     @JsonProperty("name")  private String name;
@@ -18,8 +18,6 @@ public class Player {
     @JsonProperty("format") private String format;
     @JsonProperty("deckName") private String deckName;
     @JsonProperty("points") private int points;
-
-//    @Qualifier("firebasePlayerDao") PlayerDao playerDao;
 
     public Player()
     {

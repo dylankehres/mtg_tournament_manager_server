@@ -11,7 +11,6 @@ import com.djk.tournament_manager.model.Player;
 import com.djk.tournament_manager.model.Tournament;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.config.YamlProcessor;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -114,56 +113,6 @@ public class TournamentService {
 
     public void deletePlayer(String id) { playerDao.deletePlayerById(id); }
 
-    public List<MatchDataDTO> generatePairings(String tournamentID)  {
-        Tournament tournament = tournamentDao.selectTournamentById(tournamentID);
-
-
-        if(!tournament.equals(null))
-        {
-            if (getMatchesByRoomCode(tournament.getRoomCode()).stream().allMatch(matchData -> matchData.match.getMatchStatus() == Match.MatchStatus.Complete.ordinal()))
-            {
-                tournament.incrementCurrRound();
-                tournamentDao.updateTournamentById(tournament);
-                List<Player> waitingPlayers = playerDao.selectPlayersByTournament(tournament.getRoomCode());
-
-                if (waitingPlayers.size() % 2 == 1)
-                {
-                    Player bye = playerDao.insertPlayer(tournament.getID(), "BYE", tournament.getRoomCode(), tournament.getFormat(), "");
-                    waitingPlayers.add(bye);
-                }
-
-                // Pair winning players with winning players and "randomize" players in each tier by sorting on the UUID assigned to the players ID
-                // Secondary sort: randomly in asc or desc by ID
-                Random rand = new Random();
-                int randInt = rand.nextInt(100);
-                boolean sortAsc = randInt % 2 == 1;
-                if (sortAsc)
-                {
-                    waitingPlayers.sort(Comparator.comparing(Player::getID));
-                }
-                else
-                {
-                    waitingPlayers.sort(Comparator.comparing(Player::getID).reversed());
-                }
-
-                // Primary sort: players point totals
-                waitingPlayers.sort(Comparator.comparing(Player::getPoints).reversed());
-
-                int tableNum = 1;
-                for (int i = 0; i < waitingPlayers.size(); i += 2) {
-                    Match newMatch = matchDao.insertMatch(tournament.getID(), tournament.getNumGames(), waitingPlayers.get(i).getID(), waitingPlayers.get(i + 1).getID(), tableNum++, tournament.getCurrRound());
-//                    newGame = gameDao.insertGame(newMatch.getID(), newMatch.getTournamentID());
-//                    newMatch.addNewActiveGameKey(newGame.getID());
-                    matchDao.updateMatch(newMatch);
-                }
-            }
-
-            return getMatchesByRoomCode(tournament.getRoomCode());
-        }
-
-        return new ArrayList<>();
-    }
-
     public List<MatchDataDTO> getMatchesByRoomCode(String code) {
         Tournament tournament = tournamentDao.selectTournamentByCode(code);
         List<MatchDataDTO> matchDataList = new ArrayList<>();
@@ -226,11 +175,57 @@ public class TournamentService {
         }
     }
 
-    public Match incrementPlayerWin(String playerID, int roundNum) {
-        Match match = matchDao.selectMatchByPlayerID(playerID, roundNum);
-        match.addPlayerWin(playerID);
+    public List<MatchDataDTO> generatePairings(String tournamentID)  {
+        Tournament tournament = tournamentDao.selectTournamentById(tournamentID);
 
-        return match;
+
+        if(!tournament.equals(null))
+        {
+            if (getMatchesByRoomCode(tournament.getRoomCode()).stream().allMatch(matchData -> matchData.match.getMatchStatus() == Match.MatchStatus.Complete.ordinal()))
+            {
+                if(tournament.getTournamentStatus() == Tournament.TournamentStatus.AwaitingStart.ordinal()) {
+                    tournament.setTournamentStatus(Tournament.TournamentStatus.InProgress.ordinal());
+                }
+
+                tournament.incrementCurrRound();
+                tournamentDao.updateTournamentById(tournament);
+
+                List<Player> waitingPlayers = playerDao.selectPlayersByTournament(tournament.getRoomCode());
+
+                if (waitingPlayers.size() % 2 == 1)
+                {
+                    Player bye = playerDao.insertPlayer(tournament.getID(), "BYE", tournament.getRoomCode(), tournament.getFormat(), "");
+                    waitingPlayers.add(bye);
+                }
+
+                // Pair winning players with winning players and "randomize" players in each tier by sorting on the UUID assigned to the players ID
+                // Secondary sort: randomly in asc or desc by ID
+                Random rand = new Random();
+                int randInt = rand.nextInt(100);
+                boolean sortAsc = randInt % 2 == 1;
+                if (sortAsc)
+                {
+                    waitingPlayers.sort(Comparator.comparing(Player::getID));
+                }
+                else
+                {
+                    waitingPlayers.sort(Comparator.comparing(Player::getID).reversed());
+                }
+
+                // Primary sort: players point totals
+                waitingPlayers.sort(Comparator.comparing(Player::getPoints).reversed());
+
+                int tableNum = 1;
+                for (int i = 0; i < waitingPlayers.size(); i += 2) {
+                    Match newMatch = matchDao.insertMatch(tournament.getID(), tournament.getNumGames(), waitingPlayers.get(i).getID(), waitingPlayers.get(i + 1).getID(), tableNum++, tournament.getCurrRound());
+                    matchDao.updateMatch(newMatch);
+                }
+            }
+
+            return getMatchesByRoomCode(tournament.getRoomCode());
+        }
+
+        return new ArrayList<>();
     }
 
     public MatchDataDTO reportGameResults(String votingPlayerID, String winningPlayerID, int roundNum) {
@@ -277,6 +272,15 @@ public class TournamentService {
         matchDao.updateMatch(match);
         gameDao.updateGame(game);
 
+        // Was this the last match of the last round?
+        if (tournament.getNumRounds() == match.getRoundNum() &&
+                matchDao.selectMatchesInRound(tournament.getID(), tournament.getCurrRound())
+                        .stream()
+                        .allMatch(m -> m.getMatchStatus() == Match.MatchStatus.Complete.ordinal()))
+        {
+            tournament.setTournamentStatus(Tournament.TournamentStatus.Complete.ordinal());
+        }
+
         // Prepare MatchDatDTO
         List<Game> gameList = gameDao.selectGamesInMatch(match.getID());
         Player p1 = playerDao.selectPlayerById(match.getPlayer1ID());
@@ -291,7 +295,6 @@ public class TournamentService {
         match.playerReady(playerID);
 
         if(match.getMatchStatus() == Match.MatchStatus.InProgress.ordinal()) {
-//            Game game = gameDao.selectGameById(match.getActiveGameID());
             Game newGame = gameDao.insertGame(match.getID(), match.getTournamentID(), 1);
             match.addNewActiveGameKey(newGame.getID());
             newGame.setIsActive(true);
