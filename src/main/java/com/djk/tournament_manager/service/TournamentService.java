@@ -45,6 +45,10 @@ public class TournamentService {
 
     public String addTournament(Tournament tournament)
     {
+        if(tournamentDao.selectTournamentByCode(tournament.getRoomCode()) != null) {
+            return "-1";
+        }
+
         Tournament newTournament = tournamentDao.insertTournament(tournament);
         return newTournament.getID();
     }
@@ -97,7 +101,7 @@ public class TournamentService {
         if(!tournament.equals(null))
         {
             player.setTournamentID(tournament.getID());
-            return playerDao.insertPlayer(player.getTournamentID(), player.getName(), player.getRoomCode(), player.getFormat(), player.getDeckName());
+            return playerDao.insertPlayer(player.getTournamentID(), player.getName(), player.getRoomCode(), player.getFormat(), player.getDeckName(), false);
         }
 
         return null;
@@ -192,10 +196,16 @@ public class TournamentService {
 
                 List<Player> waitingPlayers = playerDao.selectPlayersByTournament(tournament.getRoomCode());
 
+                Player bye = null;
                 if (waitingPlayers.size() % 2 == 1)
                 {
-                    Player bye = playerDao.insertPlayer(tournament.getID(), "BYE", tournament.getRoomCode(), tournament.getFormat(), "");
+                    bye = playerDao.insertPlayer(tournament.getID(), "BYE", tournament.getRoomCode(), tournament.getFormat(), "", true);
                     waitingPlayers.add(bye);
+                } else {
+                    Optional<Player> byeMaybe = waitingPlayers.stream().filter(player -> player.getBye()).findFirst();
+                    if (byeMaybe.isPresent()) {
+                        bye = byeMaybe.get();
+                    }
                 }
 
                 // Pair winning players with winning players and "randomize" players in each tier by sorting on the UUID assigned to the players ID
@@ -218,6 +228,21 @@ public class TournamentService {
                 int tableNum = 1;
                 for (int i = 0; i < waitingPlayers.size(); i += 2) {
                     Match newMatch = matchDao.insertMatch(tournament.getID(), tournament.getNumGames(), waitingPlayers.get(i).getID(), waitingPlayers.get(i + 1).getID(), tableNum++, tournament.getCurrRound());
+
+                    // Does this match have a bye?
+                    if(bye != null && newMatch.playerIsInMatch(bye.getID())) {
+                        // Report results for enough games to declare the real player winner
+                        String realPlayerID = newMatch.getPlayer1ID().equals(bye.getID()) ? newMatch.getPlayer2ID() : newMatch.getPlayer1ID();
+                        Player realPlayer = waitingPlayers.stream().filter(player -> player.getID().equals(realPlayerID)).findFirst().get();
+
+                        for (double game = 0; game / (double) newMatch.getNumGames() < 0.5; game++) {
+                            newMatch.addPlayerWin(realPlayerID);
+                        }
+
+                        realPlayer.addWinPoints(true);
+                        playerDao.updatePlayerById(realPlayer);
+                    }
+
                     matchDao.updateMatch(newMatch);
                 }
             }
@@ -279,6 +304,7 @@ public class TournamentService {
                         .allMatch(m -> m.getMatchStatus() == Match.MatchStatus.Complete.ordinal()))
         {
             tournament.setTournamentStatus(Tournament.TournamentStatus.Complete.ordinal());
+            tournamentDao.updateTournamentById(tournament);
         }
 
         // Prepare MatchDatDTO

@@ -13,7 +13,7 @@ public class FakePlayerDataAccessService {
 
 //    @Override
     public String insertPlayer(String id, Player player) {
-        DB.add(new Player(id, player.getTournamentID(), player.getName(), player.getRoomCode(), player.getFormat(), player.getDeckName()));
+        DB.add(new Player(id, player.getTournamentID(), player.getName(), player.getRoomCode(), player.getFormat(), player.getDeckName(), player.getBye()));
         return id;
     }
 
@@ -68,7 +68,7 @@ public class FakePlayerDataAccessService {
         if(player != null) {
             int indexOfPlayerToUpdate = DB.indexOf(player);
             if(indexOfPlayerToUpdate >= 0){
-                DB.set(indexOfPlayerToUpdate, new Player(update.getID(), update.getTournamentID(), update.getName(), update.getRoomCode(), update.getFormat(), update.getDeckName()));
+                DB.set(indexOfPlayerToUpdate, new Player(update.getID(), update.getTournamentID(), update.getName(), update.getRoomCode(), update.getFormat(), update.getDeckName(), update.getBye()));
             }
         }
 

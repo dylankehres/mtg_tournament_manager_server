@@ -18,6 +18,7 @@ public class Player {
     @JsonProperty("format") private String format;
     @JsonProperty("deckName") private String deckName;
     @JsonProperty("points") private int points;
+    @JsonProperty("bye") private boolean bye;
 
     public Player()
     {
@@ -28,6 +29,7 @@ public class Player {
         this.format = "";
         this.deckName = "";
         this.points = 0;
+        this.bye = false;
     }
 
     public Player(String id)
@@ -39,6 +41,7 @@ public class Player {
         this.format = "";
         this.deckName = "";
         this.points = 0;
+        this.bye = false;
     }
 
     public Player(String id,
@@ -46,7 +49,8 @@ public class Player {
                   String name,
                   String roomCode,
                   String format,
-                  String deckName)
+                  String deckName,
+                  boolean bye)
     {
         this.id = id;
         this.tournamentID = tournamentID;
@@ -55,6 +59,7 @@ public class Player {
         this.format = format;
         this.deckName = deckName;
         this.points = 0;
+        this.bye = bye;
     }
 
     public String getID()
@@ -82,6 +87,9 @@ public class Player {
     }
 
     public int getPoints() { return this.points; }
+
+    public boolean getBye() { return this.bye; }
+    public void setBye(boolean bye) { this.bye = bye; }
 
     public void setTournamentID(String tournamentID) {this.tournamentID = tournamentID; }
 

@@ -10,11 +10,11 @@ import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 
 public interface PlayerDao {
-    Player insertPlayer(String id, String tournamentID, String name, String roomCode, String format, String deckName);
+    Player insertPlayer(String id, String tournamentID, String name, String roomCode, String format, String deckName, boolean bye);
 
-    default Player insertPlayer(String tournamentID, String name, String roomCode, String format, String deckName) {
+    default Player insertPlayer(String tournamentID, String name, String roomCode, String format, String deckName, boolean bye) {
         UUID id = UUID.randomUUID();
-        return insertPlayer(id.toString(), tournamentID, name, roomCode, format, deckName);
+        return insertPlayer(id.toString(), tournamentID, name, roomCode, format, deckName, bye);
     }
 
     List<Player> selectAllPlayers();
