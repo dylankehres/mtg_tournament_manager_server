@@ -1,6 +1,7 @@
 package com.djk.tournament_manager.api;
 
 import com.djk.tournament_manager.dto.MatchDataDTO;
+import com.djk.tournament_manager.dto.PlayerHubDTO;
 import com.djk.tournament_manager.model.Game;
 import com.djk.tournament_manager.model.Match;
 import com.djk.tournament_manager.model.Player;
@@ -72,10 +73,9 @@ public class TournamentController {
         return tournamentService.generatePairings(id);
     }
 
-    @GetMapping(path = "join/{id}")
-    public Player getPlayerById(@PathVariable("id") String id) {
-        Player newPlayer = tournamentService.getPlayerById(id);
-        return newPlayer;
+    @GetMapping(path = "playerHub/{id}")
+    public PlayerHubDTO getPlayerHubDTO(@PathVariable("id") String id) {
+        return tournamentService.getPlayerHubDTO(id);
     }
 
     @GetMapping(path = "playerList/{id}")
@@ -91,11 +91,6 @@ public class TournamentController {
     @GetMapping(path = "match/{id}")
     public MatchDataDTO getMatchForPlayer(@PathVariable("id") String id) {
         return tournamentService.getMatchByPlayerID(id);
-    }
-
-    @GetMapping(path = "tournament/{id}")
-    public Tournament getTournament(@PathVariable("id") String id) {
-        return tournamentService.getTournamentById(id);
     }
 
     @DeleteMapping(path = "host")

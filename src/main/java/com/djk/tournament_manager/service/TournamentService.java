@@ -5,6 +5,7 @@ import com.djk.tournament_manager.dao.MatchDao;
 import com.djk.tournament_manager.dao.PlayerDao;
 import com.djk.tournament_manager.dao.TournamentDao;
 import com.djk.tournament_manager.dto.MatchDataDTO;
+import com.djk.tournament_manager.dto.PlayerHubDTO;
 import com.djk.tournament_manager.model.Game;
 import com.djk.tournament_manager.model.Match;
 import com.djk.tournament_manager.model.Player;
@@ -72,7 +73,7 @@ public class TournamentService {
         Tournament tournament = tournamentDao.selectTournamentById(tmtID);
         List<Match> matches = matchDao.selectMatchesInTournament(tmtID);
         List<Game> games = gameDao.selectGamesInTournament(tmtID);
-        List<Player> players = playerDao.selectPlayersByTournamentID(tmtID);
+        ArrayList<Player> players = playerDao.selectPlayersByTournamentID(tmtID);
 
         // Delete all tournament data
         for(Player player : players) {
@@ -111,15 +112,15 @@ public class TournamentService {
         return playerDao.selectPlayerById(id);
     }
 
-    public List<Player> getPlayersInTournament(String code){
+    public ArrayList<Player> getPlayersInTournament(String code){
         return playerDao.selectPlayersByTournament(code);
     }
 
     public void deletePlayer(String id) { playerDao.deletePlayerById(id); }
 
-    public List<MatchDataDTO> getMatchesByRoomCode(String code) {
+    public ArrayList<MatchDataDTO> getMatchesByRoomCode(String code) {
         Tournament tournament = tournamentDao.selectTournamentByCode(code);
-        List<MatchDataDTO> matchDataList = new ArrayList<>();
+        ArrayList<MatchDataDTO> matchDataList = new ArrayList<>();
 
         if(tournament != null)
         {
@@ -179,6 +180,16 @@ public class TournamentService {
         }
     }
 
+    public PlayerHubDTO getPlayerHubDTO(String id) {
+        Player currPlayer = playerDao.selectPlayerById(id);
+        Tournament tournament = tournamentDao.selectTournamentById(currPlayer.getTournamentID());
+        ArrayList<Player> playerList = getPlayersInTournament(currPlayer.getRoomCode());
+        ArrayList<MatchDataDTO> pairings = getMatchesByRoomCode(currPlayer.getRoomCode());
+        MatchDataDTO matchData = getMatchByPlayerID(currPlayer.getID());
+
+        return new PlayerHubDTO(tournament, playerList, pairings, matchData, currPlayer);
+    }
+
     public List<MatchDataDTO> generatePairings(String tournamentID)  {
         Tournament tournament = tournamentDao.selectTournamentById(tournamentID);
 
@@ -194,7 +205,7 @@ public class TournamentService {
                 tournament.incrementCurrRound();
                 tournamentDao.updateTournamentById(tournament);
 
-                List<Player> waitingPlayers = playerDao.selectPlayersByTournament(tournament.getRoomCode());
+                ArrayList<Player> waitingPlayers = playerDao.selectPlayersByTournament(tournament.getRoomCode());
 
                 Player bye = null;
                 if (waitingPlayers.size() % 2 == 1)

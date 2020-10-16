@@ -1,13 +1,10 @@
 package com.djk.tournament_manager.dao;
 
 import com.djk.tournament_manager.model.Player;
-import com.djk.tournament_manager.model.Tournament;
-import com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
-import java.util.concurrent.ExecutionException;
 
 public interface PlayerDao {
     Player insertPlayer(String id, String tournamentID, String name, String roomCode, String format, String deckName, boolean bye);
@@ -17,11 +14,11 @@ public interface PlayerDao {
         return insertPlayer(id.toString(), tournamentID, name, roomCode, format, deckName, bye);
     }
 
-    List<Player> selectAllPlayers();
+    ArrayList<Player> selectAllPlayers();
 
-    List<Player> selectPlayersByTournament(String code);
+    ArrayList<Player> selectPlayersByTournament(String code);
 
-    List<Player> selectPlayersByTournamentID (String tmtID);
+    ArrayList<Player> selectPlayersByTournamentID (String tmtID);
 
     Player selectPlayerById(String id);
 

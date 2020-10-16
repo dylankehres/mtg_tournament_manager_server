@@ -1,7 +1,6 @@
 package com.djk.tournament_manager.dao;
 
 import com.djk.tournament_manager.model.Player;
-import com.djk.tournament_manager.model.Tournament;
 import com.google.api.core.ApiFuture;
 import com.google.cloud.firestore.*;
 import com.google.firebase.cloud.FirestoreClient;
@@ -9,8 +8,6 @@ import org.springframework.stereotype.Repository;
 
 import java.util.*;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Future;
 
 @Repository("firebasePlayerDao")
 public class PlayerDataAccessService implements PlayerDao{
@@ -38,10 +35,10 @@ public class PlayerDataAccessService implements PlayerDao{
     }
 
     @Override
-    public List<Player> selectAllPlayers() {
+    public ArrayList<Player> selectAllPlayers() {
         Firestore dbFirestore = FirestoreClient.getFirestore();
         ApiFuture<QuerySnapshot> querySnapshot = dbFirestore.collection(collection).get();
-        List<Player> selectedPlayers = new ArrayList();
+        ArrayList<Player> selectedPlayers = new ArrayList();
 
         try {
             for (DocumentSnapshot document : querySnapshot.get().getDocuments()) {
@@ -57,10 +54,10 @@ public class PlayerDataAccessService implements PlayerDao{
     }
 
     @Override
-    public List<Player> selectPlayersByTournament(String code) {
+    public ArrayList<Player> selectPlayersByTournament(String code) {
         Firestore dbFirestore = FirestoreClient.getFirestore();
         ApiFuture<QuerySnapshot> querySnapshot = dbFirestore.collection(collection).whereEqualTo("roomCode", code).get();
-        List<Player> playersInTournament = new ArrayList();
+        ArrayList<Player> playersInTournament = new ArrayList();
 
         try {
             List<QueryDocumentSnapshot> docList = querySnapshot.get().getDocuments();
@@ -80,10 +77,10 @@ public class PlayerDataAccessService implements PlayerDao{
         return playersInTournament;
     }
 
-    public List<Player> selectPlayersByTournamentID (String tmtID) {
+    public ArrayList<Player> selectPlayersByTournamentID (String tmtID) {
         Firestore dbFirestore = FirestoreClient.getFirestore();
         ApiFuture<QuerySnapshot> querySnapshot = dbFirestore.collection(collection).whereEqualTo("tournamentID", tmtID).get();
-        List<Player> playersInTournament = new ArrayList();
+        ArrayList<Player> playersInTournament = new ArrayList();
 
         try {
             List<QueryDocumentSnapshot> docList = querySnapshot.get().getDocuments();
