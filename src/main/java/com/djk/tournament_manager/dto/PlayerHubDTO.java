@@ -16,7 +16,7 @@ public class PlayerHubDTO {
     public PlayerHubDTO() {
         this.tournament = new Tournament();
         this.playerList = new ArrayList<>();
-        this.pairings = new ArrayList<MatchDataDTO>();
+        this.pairings = new ArrayList<>();
         this.matchData = new MatchDataDTO();
         this.currPlayer = new Player();
     }

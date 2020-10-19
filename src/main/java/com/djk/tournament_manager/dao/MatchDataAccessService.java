@@ -16,9 +16,8 @@ public class MatchDataAccessService implements MatchDao {
     static final String collection = "match";
 
     @Override
-    public Match insertMatch(String id, String tournamentID, int numGames, String player1ID, String player2ID, int tableNum, int roundNum) {
+    public Match insertMatch(String id, Match newMatch) {
         Firestore dbFirestore = FirestoreClient.getFirestore();
-        Match newMatch = new Match(id, tournamentID, numGames, player1ID, player2ID, tableNum, roundNum);
         ApiFuture<WriteResult> collectionApiFuture = dbFirestore.collection(collection).document(id.toString()).set(newMatch);
 
         try {
@@ -137,7 +136,6 @@ public class MatchDataAccessService implements MatchDao {
                 .whereEqualTo("player2ID", playerId)
                 .whereEqualTo("roundNum", roundNum)
                 .get();
-        Match match = null;
 
         try {
             List<QueryDocumentSnapshot> docList = new ArrayList<>();
@@ -157,6 +155,39 @@ public class MatchDataAccessService implements MatchDao {
         }
 
         return null;
+    }
+
+    @Override
+    public ArrayList<Match> selectAllMatchesByPlayerID(String playerId) {
+        Firestore dbFirestore = FirestoreClient.getFirestore();
+        ApiFuture<QuerySnapshot> querySnapshotP1 = dbFirestore.collection(collection)
+                .whereEqualTo("player1ID", playerId)
+                .get();
+        ApiFuture<QuerySnapshot> querySnapshotP2 = dbFirestore.collection(collection)
+                .whereEqualTo("player2ID", playerId)
+                .get();
+        ArrayList<Match> matches = new ArrayList<>();
+
+        try {
+            List<QueryDocumentSnapshot> docList = new ArrayList<>();
+            List<QueryDocumentSnapshot> player1MatchList = querySnapshotP1.get().getDocuments();
+            List<QueryDocumentSnapshot> player2MatchList = querySnapshotP2.get().getDocuments();
+
+            docList.addAll(player1MatchList);
+            docList.addAll(player2MatchList);
+
+            if(!docList.isEmpty()){
+                for(int i = 0; i<docList.size(); i++) {
+                    matches.add(docList.get(i).toObject(Match.class));
+                }
+            }
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        }
+
+        return matches;
     }
 
     @Override

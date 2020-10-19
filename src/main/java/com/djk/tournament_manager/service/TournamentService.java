@@ -4,6 +4,7 @@ import com.djk.tournament_manager.dao.GameDao;
 import com.djk.tournament_manager.dao.MatchDao;
 import com.djk.tournament_manager.dao.PlayerDao;
 import com.djk.tournament_manager.dao.TournamentDao;
+import com.djk.tournament_manager.dto.HostHubDTO;
 import com.djk.tournament_manager.dto.MatchDataDTO;
 import com.djk.tournament_manager.dto.PlayerHubDTO;
 import com.djk.tournament_manager.model.Game;
@@ -15,6 +16,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.stream.IntStream;
 
 @Service
 public class TournamentService {
@@ -118,6 +120,31 @@ public class TournamentService {
 
     public void deletePlayer(String id) { playerDao.deletePlayerById(id); }
 
+    public ArrayList<MatchDataDTO> getMatchesByID(String id) {
+        Tournament tournament = tournamentDao.selectTournamentById(id);
+        ArrayList<MatchDataDTO> matchDataList = new ArrayList<>();
+
+        if(tournament != null)
+        {
+            List<Match> matches = matchDao.selectMatchesInRound(tournament.getID(), tournament.getCurrRound());
+            Player p1 = new Player();
+            Player p2 = new Player();
+            List<Game> gameList = new ArrayList<>();
+
+            for(Match match : matches) {
+                p1 = playerDao.selectPlayerById(match.getPlayer1ID());
+                p2 = playerDao.selectPlayerById(match.getPlayer2ID());
+                gameList = gameDao.selectGamesInMatch(match.getID());
+
+                matchDataList.add(new MatchDataDTO(p1, p2, match, gameList));
+            }
+        }
+
+        matchDataList.sort(Comparator.comparingInt(matchData -> matchData.match.getTableNum()));
+
+        return matchDataList;
+    }
+
     public ArrayList<MatchDataDTO> getMatchesByRoomCode(String code) {
         Tournament tournament = tournamentDao.selectTournamentByCode(code);
         ArrayList<MatchDataDTO> matchDataList = new ArrayList<>();
@@ -180,14 +207,50 @@ public class TournamentService {
         }
     }
 
-    public PlayerHubDTO getPlayerHubDTO(String id) {
-        Player currPlayer = playerDao.selectPlayerById(id);
+    /**
+     * Builds DTO for the PlayerHub component
+     *
+     * @param playerID ID of the player requesting the DTO
+     * @return PlayerHubDTO
+     */
+    public PlayerHubDTO getPlayerHubDTO(String playerID) {
+        Player currPlayer = playerDao.selectPlayerById(playerID);
         Tournament tournament = tournamentDao.selectTournamentById(currPlayer.getTournamentID());
         ArrayList<Player> playerList = getPlayersInTournament(currPlayer.getRoomCode());
-        ArrayList<MatchDataDTO> pairings = getMatchesByRoomCode(currPlayer.getRoomCode());
+        ArrayList<MatchDataDTO> pairings = getMatchesByID(tournament.getID());
         MatchDataDTO matchData = getMatchByPlayerID(currPlayer.getID());
 
         return new PlayerHubDTO(tournament, playerList, pairings, matchData, currPlayer);
+    }
+
+    /**
+     * Builds DTO for the HostHub component
+     *
+     * @param tournamentID ID of the tournament requesting the DTO
+     * @return HostHubDTO
+     */
+    public HostHubDTO getHostHubDTO(String tournamentID) {
+        Tournament tournament = tournamentDao.selectTournamentById(tournamentID);
+        ArrayList<MatchDataDTO> pairings = getMatchesByID(tournament.getID());
+        ArrayList<Player> playerList = getPlayersInTournament(tournament.getRoomCode());
+
+        return new HostHubDTO(tournament, pairings, playerList);
+    }
+
+
+    public int findUnmatchedOpponent(ArrayList<Player> waitingPlayers, String playerIDToMatch, int fromIndex, int toIndex)
+    {
+
+        for (int playerIndex = fromIndex; playerIndex < toIndex; playerIndex++) {
+            if (matchDao.selectAllMatchesByPlayerID(waitingPlayers.get(playerIndex).getID())
+                                .stream()
+                                .noneMatch(match -> match.getPlayer1ID().equals(playerIDToMatch) || match.getPlayer2ID().equals(playerIDToMatch)))
+            {
+                return playerIndex;
+            }
+        }
+
+        return -1;
     }
 
     public List<MatchDataDTO> generatePairings(String tournamentID)  {
@@ -206,16 +269,17 @@ public class TournamentService {
                 tournamentDao.updateTournamentById(tournament);
 
                 ArrayList<Player> waitingPlayers = playerDao.selectPlayersByTournament(tournament.getRoomCode());
+                Optional<Player> byeMaybe = waitingPlayers.stream().filter(player -> player.getBye()).findFirst();
+                Player bye = byeMaybe.isPresent() ? byeMaybe.get() : null;
 
-                Player bye = null;
                 if (waitingPlayers.size() % 2 == 1)
                 {
-                    bye = playerDao.insertPlayer(tournament.getID(), "BYE", tournament.getRoomCode(), tournament.getFormat(), "", true);
-                    waitingPlayers.add(bye);
-                } else {
-                    Optional<Player> byeMaybe = waitingPlayers.stream().filter(player -> player.getBye()).findFirst();
-                    if (byeMaybe.isPresent()) {
-                        bye = byeMaybe.get();
+                    if(bye != null) { // A real player left the tournament, so we no longer need a bye
+                        playerDao.deletePlayerById(bye.getID());
+                        waitingPlayers.remove(bye);
+                    } else {
+                        bye = playerDao.insertPlayer(tournament.getID(), "BYE", tournament.getRoomCode(), tournament.getFormat(), "", true);
+                        waitingPlayers.add(bye);
                     }
                 }
 
@@ -236,25 +300,89 @@ public class TournamentService {
                 // Primary sort: players point totals
                 waitingPlayers.sort(Comparator.comparing(Player::getPoints).reversed());
 
+                boolean pairingSuccess;
+                boolean acceptNonUniqueOpponents = false;
+                int failedPairingsCount = 0;
                 int tableNum = 1;
+                ArrayList<Match> matches = new ArrayList<>();
                 for (int i = 0; i < waitingPlayers.size(); i += 2) {
-                    Match newMatch = matchDao.insertMatch(tournament.getID(), tournament.getNumGames(), waitingPlayers.get(i).getID(), waitingPlayers.get(i + 1).getID(), tableNum++, tournament.getCurrRound());
+                    pairingSuccess = true;
+                    String p1ID = waitingPlayers.get(i).getID();
+                    String p2ID = waitingPlayers.get(i + 1).getID();
+                    ArrayList<Match> p1PrevMatches = matchDao.selectAllMatchesByPlayerID(p1ID);
+
+                    // Have these players played each other yet?
+                    if(!acceptNonUniqueOpponents && p1PrevMatches.stream().anyMatch(match -> match.getPlayer1ID().equals(p2ID) || match.getPlayer2ID().equals(p2ID))) {
+                        // Find the first unpairing player that p1 has not paired against yet
+                        // We want to leave the top players with their best match opponent and rearrange the lower standings if possible
+                        boolean swapPlayers = false;
+                        int opponentIndex = findUnmatchedOpponent(waitingPlayers, p1ID, i, waitingPlayers.size());
+                        Player opponent = new Player();
+
+                        int playerIndex = i + 1;
+                        Player player = waitingPlayers.get(playerIndex);
+
+                        if (opponentIndex > -1) {
+                            // These players have not faced each other, swap their opponents and repair the match
+                            opponent = waitingPlayers.get(opponentIndex);
+                            swapPlayers = true;
+                            i-=2;
+
+                            // Have we tried the every combination of pairings? Short circuit this logic and repair solely on standings
+                            acceptNonUniqueOpponents = failedPairingsCount == waitingPlayers.size() * (waitingPlayers.size() - 1);
+
+                        } else {
+                            // All unpaired players faced this player find a paired player
+                            // Find the first unpairing player that p1 has not paired against yet
+                            opponentIndex = findUnmatchedOpponent(waitingPlayers, p1ID, 0, i);
+                            if (opponentIndex > -1) {
+                                // These players have not faced each other, swap their opponents
+                                opponent = waitingPlayers.get(opponentIndex);
+                                swapPlayers = true;
+
+                                // We need to repair all players, clear everything and restart
+                                i = 0;
+                                tableNum = 0;
+                                matches = new ArrayList<>();
+                                failedPairingsCount++;
+
+                                // Have we tried the every combination of pairings? Short circuit this logic and repair solely on standings
+                                acceptNonUniqueOpponents = failedPairingsCount == waitingPlayers.size() * (waitingPlayers.size() - 1);
+                            }
+                        }
+
+                        if (swapPlayers) {
+                            waitingPlayers.set(opponentIndex, player);
+                            waitingPlayers.set(playerIndex, opponent);
+
+                            pairingSuccess = false;
+                        }
+                    }
+
+                    if (pairingSuccess){
+                        Match newMatch = new Match("", tournament.getID(), tournament.getNumGames(), p1ID, p2ID, tableNum++, tournament.getCurrRound());
+                        matches.add(newMatch);
+                    }
+                }
+
+                Match savedMatch;
+                for(Match newMatch : matches) {
+                    savedMatch = matchDao.insertMatch(newMatch);
 
                     // Does this match have a bye?
-                    if(bye != null && newMatch.playerIsInMatch(bye.getID())) {
+                    if (bye != null && savedMatch.playerIsInMatch(bye.getID())) {
                         // Report results for enough games to declare the real player winner
-                        String realPlayerID = newMatch.getPlayer1ID().equals(bye.getID()) ? newMatch.getPlayer2ID() : newMatch.getPlayer1ID();
+                        String realPlayerID = savedMatch.getPlayer1ID().equals(bye.getID()) ? savedMatch.getPlayer2ID() : savedMatch.getPlayer1ID();
                         Player realPlayer = waitingPlayers.stream().filter(player -> player.getID().equals(realPlayerID)).findFirst().get();
 
-                        for (double game = 0; game / (double) newMatch.getNumGames() < 0.5; game++) {
-                            newMatch.addPlayerWin(realPlayerID);
+                        for (double game = 0; game / (double) savedMatch.getNumGames() < 0.5; game++) {
+                            savedMatch.addPlayerWin(realPlayerID);
                         }
 
                         realPlayer.addWinPoints(true);
                         playerDao.updatePlayerById(realPlayer);
+                        matchDao.updateMatch(savedMatch);
                     }
-
-                    matchDao.updateMatch(newMatch);
                 }
             }
 
@@ -264,7 +392,7 @@ public class TournamentService {
         return new ArrayList<>();
     }
 
-    public MatchDataDTO reportGameResults(String votingPlayerID, String winningPlayerID, int roundNum) {
+    public PlayerHubDTO reportGameResults(String votingPlayerID, String winningPlayerID, int roundNum) {
         // Query for the corresponding match and game
         Match match = matchDao.selectMatchByPlayerID(votingPlayerID, roundNum);
         Game game = gameDao.selectGameById(match.getActiveGameID());
@@ -318,13 +446,14 @@ public class TournamentService {
             tournamentDao.updateTournamentById(tournament);
         }
 
-        // Prepare MatchDatDTO
-        List<Game> gameList = gameDao.selectGamesInMatch(match.getID());
-        Player p1 = playerDao.selectPlayerById(match.getPlayer1ID());
-        Player p2 = playerDao.selectPlayerById(match.getPlayer2ID());
-        MatchDataDTO matchData = new MatchDataDTO(p1, p2, match, gameList);
+        // Prepare PlayerHubDTO
+//        List<Game> gameList = gameDao.selectGamesInMatch(match.getID());
+//        Player p1 = playerDao.selectPlayerById(match.getPlayer1ID());
+//        Player p2 = playerDao.selectPlayerById(match.getPlayer2ID());
+//        MatchDataDTO matchData = new MatchDataDTO(p1, p2, match, gameList);
+//        return matchData;
 
-        return matchData;
+        return getPlayerHubDTO(votingPlayerID);
     }
 
     public MatchDataDTO setPlayerReady(String playerID, int roundNum) {

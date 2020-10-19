@@ -1,5 +1,6 @@
 package com.djk.tournament_manager.api;
 
+import com.djk.tournament_manager.dto.HostHubDTO;
 import com.djk.tournament_manager.dto.MatchDataDTO;
 import com.djk.tournament_manager.dto.PlayerHubDTO;
 import com.djk.tournament_manager.model.Game;
@@ -41,7 +42,7 @@ public class TournamentController {
     }
 
     @PostMapping(path = "/match/gameResults/{playerID}/{winnerID}/{roundNum}")
-    public MatchDataDTO receiveGameResults(@PathVariable("playerID") String votingPlayerID, @PathVariable("winnerID") String winningPlayerID, @PathVariable("roundNum") int roundNum) {
+    public PlayerHubDTO receiveGameResults(@PathVariable("playerID") String votingPlayerID, @PathVariable("winnerID") String winningPlayerID, @PathVariable("roundNum") int roundNum) {
         return tournamentService.reportGameResults(votingPlayerID, winningPlayerID, roundNum);
     }
 
@@ -55,22 +56,14 @@ public class TournamentController {
         return tournamentService.getAllTournaments();
     }
 
-    @GetMapping(path = "host/{id}")
-    public Tournament getTournamentById(@PathVariable("id") String id)
-    {
-        Tournament tournament = tournamentService.getTournamentById(id);
-
-        if(!tournament.equals(null)){
-            return tournament;
-        }
-        else {
-            return null;
-        }
-    }
-
     @GetMapping(path = "host/pairings/{id}")
     public List<MatchDataDTO> generatePairings(@PathVariable("id") String id) {
         return tournamentService.generatePairings(id);
+    }
+
+    @GetMapping(path = "hostHub/{id}")
+    public HostHubDTO getHostHubDTO(@PathVariable("id") String id) {
+        return tournamentService.getHostHubDTO(id);
     }
 
     @GetMapping(path = "playerHub/{id}")
