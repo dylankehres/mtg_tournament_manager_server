@@ -1,9 +1,6 @@
 package com.djk.tournament_manager.service;
 
-import com.djk.tournament_manager.dao.GameDao;
-import com.djk.tournament_manager.dao.MatchDao;
-import com.djk.tournament_manager.dao.PlayerDao;
-import com.djk.tournament_manager.dao.TournamentDao;
+import com.djk.tournament_manager.dao.*;
 import com.djk.tournament_manager.dto.HostHubDTO;
 import com.djk.tournament_manager.dto.MatchDataDTO;
 import com.djk.tournament_manager.dto.PlayerHubDTO;
@@ -21,7 +18,7 @@ import java.util.stream.IntStream;
 @Service
 public class TournamentService {
 
-    private final TournamentDao tournamentDao;
+    private final TournamentDAO_NEW tournamentDao;
     private final PlayerDao playerDao;
     private final MatchDao matchDao;
     private final GameDao gameDao;
@@ -38,7 +35,7 @@ public class TournamentService {
 
     @Autowired
 //    public TournamentService(@Qualifier("fakeTournamentDao") TournamentDao tournamentDao, @Qualifier("fakePlayerDao") PlayerDao playerDao, @Qualifier("fakeMatchDao") MatchDao matchDao)
-    public TournamentService(@Qualifier("firebaseTournamentDao") TournamentDao tournamentDao, @Qualifier("firebasePlayerDao") PlayerDao playerDao, @Qualifier("firebaseMatchDao") MatchDao matchDao, @Qualifier("firebaseGameDao") GameDao gameDao)
+    public TournamentService(@Qualifier("firebaseTournamentDaoNew") TournamentDAO_NEW tournamentDao, @Qualifier("firebasePlayerDao") PlayerDao playerDao, @Qualifier("firebaseMatchDao") MatchDao matchDao, @Qualifier("firebaseGameDao") GameDao gameDao)
     {
         this.tournamentDao = tournamentDao;
         this.playerDao = playerDao;
@@ -52,7 +49,7 @@ public class TournamentService {
             return "-1";
         }
 
-        Tournament newTournament = tournamentDao.insertTournament(tournament);
+        Tournament newTournament = tournamentDao.insert(tournament);
         return newTournament.getID();
     }
 
@@ -67,7 +64,7 @@ public class TournamentService {
     }
 
     public void deleteTournament(String id) {
-        tournamentDao.deleteTournamentById(id);
+        tournamentDao.deleteById(id);
     }
 
     public void deleteTournamentData(String tmtID) {
@@ -90,12 +87,12 @@ public class TournamentService {
             matchDao.deleteMatchById(match.getID());
         }
 
-        tournamentDao.deleteTournamentById(tmtID);
+        tournamentDao.deleteById(tmtID);
     }
 
     public void updateTournament(String id, Tournament tournament)
     {
-        tournamentDao.updateTournamentById(tournament);
+        tournamentDao.update(tournament);
     }
 
     public Player addPlayer(Player player) {
@@ -266,7 +263,7 @@ public class TournamentService {
                 }
 
                 tournament.incrementCurrRound();
-                tournamentDao.updateTournamentById(tournament);
+                tournamentDao.update(tournament);
 
                 ArrayList<Player> waitingPlayers = playerDao.selectPlayersByTournament(tournament.getRoomCode());
                 Optional<Player> byeMaybe = waitingPlayers.stream().filter(player -> player.getBye()).findFirst();
@@ -443,7 +440,7 @@ public class TournamentService {
                         .allMatch(m -> m.getMatchStatus() == Match.MatchStatus.Complete.ordinal()))
         {
             tournament.setTournamentStatus(Tournament.TournamentStatus.Complete.ordinal());
-            tournamentDao.updateTournamentById(tournament);
+            tournamentDao.update(tournament);
         }
 
         // Prepare PlayerHubDTO

@@ -1,11 +1,8 @@
 package com.djk.tournament_manager.model;
 
-import com.djk.tournament_manager.service.TournamentService;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import javax.validation.constraints.NotBlank;
-
-public class Tournament {
+public class Tournament extends BaseModel {
 
     @JsonProperty("id") private final String id;
     @JsonProperty("name") private final String name;
@@ -19,6 +16,8 @@ public class Tournament {
 
     public Tournament()
     {
+        super();
+
         this.id = "";
         this.name = "";
         this.roomCode = "";
@@ -37,6 +36,8 @@ public class Tournament {
                       int numRounds,
                       int numGames)
     {
+        super();
+
         this.id = id;
         this.name = name;
         this.roomCode = roomCode;
