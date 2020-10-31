@@ -1,18 +1,19 @@
-package com.djk.tournament_manager.dao;
+package com.djk.tournament_manager.dao.base;
 
 import com.djk.tournament_manager.model.BaseModel;
 import com.google.api.core.ApiFuture;
 import com.google.cloud.firestore.*;
 import com.google.firebase.cloud.FirestoreClient;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 
 public class FirebaseDAO<T extends BaseModel> implements BaseDAO<T> {
-    static final Firestore dbFirestore = FirestoreClient.getFirestore();
-    static String collection = "";
+    private final String collection;
+
+    public FirebaseDAO(String collection) {
+        this.collection = collection;
+    }
 
     @Override
     public T insert(T model) {
@@ -22,6 +23,8 @@ public class FirebaseDAO<T extends BaseModel> implements BaseDAO<T> {
 
     @Override
     public T insert(String id, T model) {
+        Firestore dbFirestore = FirestoreClient.getFirestore();
+        model.setID(id);
         ApiFuture<WriteResult> collectionApiFuture = dbFirestore.collection(collection).document(id.toString()).set(model);
 
         try {
@@ -47,6 +50,7 @@ public class FirebaseDAO<T extends BaseModel> implements BaseDAO<T> {
 
     @Override
     public T update(T model) {
+        Firestore dbFirestore = FirestoreClient.getFirestore();
         ApiFuture<WriteResult> collectionApiFuture = dbFirestore.collection(collection).document(model.getID()).set(model);
 
         try {

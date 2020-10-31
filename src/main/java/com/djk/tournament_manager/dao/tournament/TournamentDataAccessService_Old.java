@@ -1,6 +1,5 @@
-package com.djk.tournament_manager.dao;
+package com.djk.tournament_manager.dao.tournament;
 
-import com.djk.tournament_manager.model.Player;
 import com.djk.tournament_manager.model.Tournament;
 import com.google.api.core.ApiFuture;
 import com.google.cloud.firestore.*;
@@ -11,7 +10,7 @@ import java.util.*;
 import java.util.concurrent.ExecutionException;
 
 @Repository("firebaseTournamentDao")
-public class TournamentDataAccessService implements TournamentDao {
+public class TournamentDataAccessService_Old implements TournamentDao_Old {
     static final String collection = "tournament";
 
     @Override

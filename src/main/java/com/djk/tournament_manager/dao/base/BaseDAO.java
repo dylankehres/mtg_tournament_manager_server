@@ -1,4 +1,4 @@
-package com.djk.tournament_manager.dao;
+package com.djk.tournament_manager.dao.base;
 
 import com.djk.tournament_manager.model.BaseModel;
 import com.djk.tournament_manager.model.Tournament;

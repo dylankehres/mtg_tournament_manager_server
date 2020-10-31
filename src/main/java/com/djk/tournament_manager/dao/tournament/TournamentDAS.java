@@ -1,5 +1,6 @@
-package com.djk.tournament_manager.dao;
+package com.djk.tournament_manager.dao.tournament;
 
+import com.djk.tournament_manager.dao.base.FirebaseDAO;
 import com.djk.tournament_manager.model.Tournament;
 import com.google.api.core.ApiFuture;
 import com.google.cloud.firestore.*;
@@ -11,8 +12,12 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 @Repository("firebaseTournamentDaoNew")
-public class TournamentDAS_NEW extends FirebaseDAO<Tournament> implements TournamentDAO_NEW {
+public class TournamentDAS extends FirebaseDAO<Tournament> implements TournamentDAO {
     static final String collection = "tournament";
+
+    public TournamentDAS() {
+        super(collection);
+    }
 
     @Override
     public List<Tournament> selectAllTournaments() {
@@ -60,6 +65,7 @@ public class TournamentDAS_NEW extends FirebaseDAO<Tournament> implements Tourna
 
     @Override
     public Tournament selectTournamentByCode(String code) {
+        Firestore dbFirestore = FirestoreClient.getFirestore();
         ApiFuture<QuerySnapshot> querySnapshot = dbFirestore.collection(collection).whereEqualTo("roomCode", code).get();
 
         List<QueryDocumentSnapshot> docList = null;

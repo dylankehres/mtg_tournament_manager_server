@@ -1,6 +1,7 @@
 package com.djk.tournament_manager.service;
 
 import com.djk.tournament_manager.dao.*;
+import com.djk.tournament_manager.dao.tournament.TournamentDAO;
 import com.djk.tournament_manager.dto.HostHubDTO;
 import com.djk.tournament_manager.dto.MatchDataDTO;
 import com.djk.tournament_manager.dto.PlayerHubDTO;
@@ -13,12 +14,11 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
-import java.util.stream.IntStream;
 
 @Service
 public class TournamentService {
 
-    private final TournamentDAO_NEW tournamentDao;
+    private final TournamentDAO tournamentDao;
     private final PlayerDao playerDao;
     private final MatchDao matchDao;
     private final GameDao gameDao;
@@ -34,8 +34,7 @@ public class TournamentService {
 //    }
 
     @Autowired
-//    public TournamentService(@Qualifier("fakeTournamentDao") TournamentDao tournamentDao, @Qualifier("fakePlayerDao") PlayerDao playerDao, @Qualifier("fakeMatchDao") MatchDao matchDao)
-    public TournamentService(@Qualifier("firebaseTournamentDaoNew") TournamentDAO_NEW tournamentDao, @Qualifier("firebasePlayerDao") PlayerDao playerDao, @Qualifier("firebaseMatchDao") MatchDao matchDao, @Qualifier("firebaseGameDao") GameDao gameDao)
+    public TournamentService(@Qualifier("firebaseTournamentDaoNew") TournamentDAO tournamentDao, @Qualifier("firebasePlayerDao") PlayerDao playerDao, @Qualifier("firebaseMatchDao") MatchDao matchDao, @Qualifier("firebaseGameDao") GameDao gameDao)
     {
         this.tournamentDao = tournamentDao;
         this.playerDao = playerDao;
@@ -50,7 +49,12 @@ public class TournamentService {
         }
 
         Tournament newTournament = tournamentDao.insert(tournament);
-        return newTournament.getID();
+
+        if (newTournament != null) {
+            return newTournament.getID();
+        }
+
+        return "-1";
     }
 
     public List<Tournament> getAllTournaments()

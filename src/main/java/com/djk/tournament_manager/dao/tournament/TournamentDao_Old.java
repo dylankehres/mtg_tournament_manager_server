@@ -1,10 +1,10 @@
-package com.djk.tournament_manager.dao;
+package com.djk.tournament_manager.dao.tournament;
 
 import com.djk.tournament_manager.model.Tournament;
 
 import java.util.*;
 
-public interface TournamentDao {
+public interface TournamentDao_Old {
 
     Tournament insertTournament(String id, Tournament tournament);
 

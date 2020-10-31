@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class Tournament extends BaseModel {
 
-    @JsonProperty("id") private final String id;
     @JsonProperty("name") private final String name;
     @JsonProperty("roomCode") private final String roomCode;
     @JsonProperty("format") private final String format;
@@ -12,13 +11,11 @@ public class Tournament extends BaseModel {
     @JsonProperty("numGames") private final int numGames;
     @JsonProperty("currRound") private int currRound;
     @JsonProperty("tournamentStatus") private int tournamentStatus;
-    @JsonProperty("active") private boolean active;
 
     public Tournament()
     {
         super();
 
-        this.id = "";
         this.name = "";
         this.roomCode = "";
         this.format = "";
@@ -26,7 +23,6 @@ public class Tournament extends BaseModel {
         this.numGames = 0;
         this.currRound = 0;
         this.tournamentStatus = 0;
-        this.active = true;
     }
 
     public Tournament(String id,
@@ -36,9 +32,8 @@ public class Tournament extends BaseModel {
                       int numRounds,
                       int numGames)
     {
-        super();
+        super(id);
 
-        this.id = id;
         this.name = name;
         this.roomCode = roomCode;
         this.format = format;
@@ -46,14 +41,11 @@ public class Tournament extends BaseModel {
         this.numGames = numGames;
         this.currRound = 0;
         this.tournamentStatus = TournamentStatus.AwaitingStart.ordinal();
-        this.active = true;
     }
 
     public enum TournamentStatus {
         AwaitingStart, InProgress, Complete
     }
-
-    public String getID() { return this.id; }
 
     public String getName() { return this.name; }
 
@@ -70,6 +62,4 @@ public class Tournament extends BaseModel {
 
     public int getTournamentStatus() { return this.tournamentStatus; }
     public void setTournamentStatus(int status) { this.tournamentStatus = status; }
-
-    public boolean getActive() { return this.active; }
 }
