@@ -57,7 +57,7 @@ public class TournamentController {
     }
 
     @GetMapping(path = "host/pairings/{id}")
-    public List<MatchDataDTO> generatePairings(@PathVariable("id") String id) {
+    public HostHubDTO generatePairings(@PathVariable("id") String id) {
         return tournamentService.generatePairings(id);
     }
 

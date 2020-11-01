@@ -229,9 +229,8 @@ public class TournamentService {
         return -1;
     }
 
-    public List<MatchDataDTO> generatePairings(String tournamentID)  {
+    public HostHubDTO generatePairings(String tournamentID)  {
         Tournament tournament = tournamentDAO.selectById(tournamentID);
-
 
         if(tournament != null)
         {
@@ -367,10 +366,10 @@ public class TournamentService {
                 }
             }
 
-            return getMatchesByRoomCode(tournament.getRoomCode());
+            return getHostHubDTO(tournamentID);
         }
 
-        return new ArrayList<>();
+        return new HostHubDTO();
     }
 
     public PlayerHubDTO reportGameResults(String votingPlayerID, String winningPlayerID, int roundNum) {
