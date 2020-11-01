@@ -101,6 +101,6 @@ public class TournamentController {
     @PutMapping(path = "{id}")
     public void updateTournamentById(@PathVariable("id") String id, @Valid @NonNull @RequestBody Tournament tournamentToUpdate)
     {
-        tournamentService.updateTournament(id, tournamentToUpdate);
+        tournamentService.updateTournament(tournamentToUpdate);
     }
 }

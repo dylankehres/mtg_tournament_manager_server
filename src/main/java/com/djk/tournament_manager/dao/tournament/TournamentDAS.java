@@ -7,7 +7,6 @@ import com.google.cloud.firestore.*;
 import com.google.firebase.cloud.FirestoreClient;
 import org.springframework.stereotype.Repository;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
@@ -16,51 +15,7 @@ public class TournamentDAS extends FirebaseDAO<Tournament> implements Tournament
     static final String collection = "tournament";
 
     public TournamentDAS() {
-        super(collection);
-    }
-
-    @Override
-    public List<Tournament> selectAllTournaments() {
-        Firestore dbFirestore = FirestoreClient.getFirestore();
-        ApiFuture<QuerySnapshot> querySnapshot = dbFirestore.collection(collection).get();
-        List<Tournament> selectedTournaments = new ArrayList();
-
-        try {
-            for (DocumentSnapshot document : querySnapshot.get().getDocuments()) {
-                selectedTournaments.add(document.toObject(Tournament.class));
-            }
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (ExecutionException e) {
-            e.printStackTrace();
-        }
-
-        return selectedTournaments;
-    }
-
-    @Override
-    public Tournament selectTournamentById(String id) {
-        Firestore dbFirestore = FirestoreClient.getFirestore();
-        DocumentReference documentReference = dbFirestore.collection(collection).document(id.toString());
-        ApiFuture<DocumentSnapshot> future = documentReference.get();
-
-        Tournament tournament = null;
-        DocumentSnapshot document = null;
-        try {
-            document = future.get();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (ExecutionException e) {
-            e.printStackTrace();
-        }
-
-
-        if(document.exists()){
-            tournament = document.toObject(Tournament.class);
-            return tournament;
-        }
-
-        return null;
+        super(collection, Tournament.class);
     }
 
     @Override
@@ -71,12 +26,11 @@ public class TournamentDAS extends FirebaseDAO<Tournament> implements Tournament
         List<QueryDocumentSnapshot> docList = null;
         try {
             docList = querySnapshot.get().getDocuments();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (ExecutionException e) {
+        } catch (InterruptedException | ExecutionException e) {
             e.printStackTrace();
         }
-        if(!docList.isEmpty()){
+
+        if(docList != null && !docList.isEmpty()){
             return docList.get(0).toObject(Tournament.class);
         }
 

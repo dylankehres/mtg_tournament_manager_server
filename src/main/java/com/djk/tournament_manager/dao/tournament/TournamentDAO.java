@@ -15,9 +15,9 @@ public interface TournamentDAO {
 
     Tournament update(Tournament model);
 
-    List<Tournament> selectAllTournaments();
+    List<Tournament> selectAll();
 
-    Tournament selectTournamentById(String id);
+    Tournament selectById(String id);
 
      Tournament selectTournamentByCode(String code);
 }
