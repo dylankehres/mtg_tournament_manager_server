@@ -7,8 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-public class Match {
-    @JsonProperty("id")  private final String id;
+public class Match extends BaseModel {
     @JsonProperty("tournamentID") private final String tournamentID;
     @JsonProperty("player1ID") private final String player1ID;
     @JsonProperty("player2ID") private final String player2ID;
@@ -18,7 +17,6 @@ public class Match {
     @JsonProperty("player1Ready") private boolean player1Ready;
     @JsonProperty("player2Ready") private boolean player2Ready;
     @JsonProperty("tableNum") private int tableNum;
-    @JsonProperty("active") private boolean active;
     @JsonProperty("matchStatus") private int matchStatus;
     @JsonProperty("gameKeys") private List<String> gameKeys;
     @JsonProperty("activeGameID") private String activeGameID;
@@ -30,7 +28,8 @@ public class Match {
 
     public Match()
     {
-        this.id = null;
+        super();
+
         this.tournamentID = null;
         this.player1ID = "";
         this.player2ID = "";
@@ -40,7 +39,6 @@ public class Match {
         this.player1Ready = false;
         this.player2Ready = false;
         this.tableNum = 0;
-        this.active = true;
         this.matchStatus = MatchStatus.AwaitingPlayers.ordinal();
         this.gameKeys = new ArrayList<>();
         this.activeGameID = "";
@@ -53,7 +51,8 @@ public class Match {
 
     public Match(String id, String tournamentID, int numGames, String player1ID, String player2ID, int tableNum, int roundNum)
     {
-        this.id = id;
+        super();
+
         this.tournamentID = tournamentID;
         this.player1ID = player1ID;
         this.player2ID = player2ID;
@@ -63,7 +62,6 @@ public class Match {
         this.player1Ready = false;
         this.player2Ready = false;
         this.tableNum = tableNum;
-        this.active = true;
         this.matchStatus = MatchStatus.AwaitingPlayers.ordinal();
         this.activeGameID = "";
         this.gameKeys = new ArrayList<>();
@@ -76,9 +74,7 @@ public class Match {
 
     public enum MatchStatus {
         AwaitingPlayers, InProgress, Complete
-    };
-
-    public String getID() { return this.id; }
+    }
 
     public String getTournamentID() {return this.tournamentID; }
 
@@ -101,8 +97,6 @@ public class Match {
     public String getActiveGameID() { return this.activeGameID; }
 
     public int getTableNum() { return this.tableNum; }
-    
-    public boolean getActive() { return this.active; }
 
     public int getMatchStatus() { return this.matchStatus; }
 
@@ -117,8 +111,6 @@ public class Match {
     public int getNumGames() { return this.numGames; }
 
     public void setTableNum(int tableNum) { this.tableNum = tableNum; }
-
-//    public void setActive(boolean active) { this.active = active; }
 
     public void setMatchStatus(int status) { this.matchStatus = status; }
 

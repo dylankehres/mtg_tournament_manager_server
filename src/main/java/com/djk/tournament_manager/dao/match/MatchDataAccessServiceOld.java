@@ -1,6 +1,5 @@
-package com.djk.tournament_manager.dao;
+package com.djk.tournament_manager.dao.match;
 
-import com.djk.tournament_manager.model.Game;
 import com.djk.tournament_manager.model.Match;
 import com.google.api.core.ApiFuture;
 import com.google.cloud.firestore.*;
@@ -11,12 +10,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-@Repository("firebaseMatchDao")
-public class MatchDataAccessService implements MatchDao {
+@Repository("firebaseMatchDaoOld")
+public class MatchDataAccessServiceOld implements MatchDaoOld {
     static final String collection = "match";
 
     @Override
-    public Match insertMatch(String id, Match newMatch) {
+    public Match insert(String id, Match newMatch) {
         Firestore dbFirestore = FirestoreClient.getFirestore();
         ApiFuture<WriteResult> collectionApiFuture = dbFirestore.collection(collection).document(id.toString()).set(newMatch);
 
@@ -36,7 +35,7 @@ public class MatchDataAccessService implements MatchDao {
     }
 
     @Override
-    public List<Match> selectAllMatches() {
+    public List<Match> selectAll() {
         Firestore dbFirestore = FirestoreClient.getFirestore();
         ApiFuture<QuerySnapshot> querySnapshot = dbFirestore.collection(collection).get();
         List<Match> selectedMatches = new ArrayList();
@@ -102,7 +101,7 @@ public class MatchDataAccessService implements MatchDao {
     }
 
     @Override
-    public Match selectMatchById(String id) {
+    public Match selectById(String id) {
         Firestore dbFirestore = FirestoreClient.getFirestore();
         DocumentReference documentReference = dbFirestore.collection(collection).document(id.toString());
         ApiFuture<DocumentSnapshot> future = documentReference.get();
@@ -191,13 +190,13 @@ public class MatchDataAccessService implements MatchDao {
     }
 
     @Override
-    public void deleteMatchById(String id) {
+    public void deleteById(String id) {
         Firestore dbFirestore = FirestoreClient.getFirestore();
         ApiFuture<WriteResult> collectionApiFuture = dbFirestore.collection(collection).document(id).delete();
     }
 
     @Override
-    public Match updateMatch(Match match) {
+    public Match update(Match match) {
         Firestore dbFirestore = FirestoreClient.getFirestore();
         ApiFuture<WriteResult> collectionApiFuture = dbFirestore.collection(collection).document(match.getID()).set(match);
 
