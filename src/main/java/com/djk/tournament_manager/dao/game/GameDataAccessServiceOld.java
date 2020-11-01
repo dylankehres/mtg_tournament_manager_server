@@ -1,4 +1,4 @@
-package com.djk.tournament_manager.dao;
+package com.djk.tournament_manager.dao.game;
 
 import com.djk.tournament_manager.model.Game;
 import com.google.api.core.ApiFuture;
@@ -11,14 +11,15 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-@Repository("firebaseGameDao")
-public class GameDataAccessService implements GameDao{
+@Repository("firebaseGameDaoOld")
+public class GameDataAccessServiceOld implements GameDaoOld {
     static final String collection = "game";
 
     @Override
-    public Game insertGame(String id, String matchID, String tournamentID, int gameNum) {
+    public Game insert(String id, String matchID, String tournamentID, int gameNum) {
         Firestore dbFirestore = FirestoreClient.getFirestore();
-        Game newGame = new Game(id, matchID, tournamentID, gameNum);
+        Game newGame = new Game(matchID, tournamentID, gameNum);
+        newGame.setID(id);
         ApiFuture<WriteResult> collectionApiFuture = dbFirestore.collection(collection).document(id.toString()).set(newGame);
 
         try {
@@ -37,7 +38,7 @@ public class GameDataAccessService implements GameDao{
     }
 
     @Override
-    public List<Game> selectAllGames() {
+    public List<Game> selectAll() {
         Firestore dbFirestore = FirestoreClient.getFirestore();
         ApiFuture<QuerySnapshot> querySnapshot = dbFirestore.collection(collection).get();
         List<Game> selectedGames = new ArrayList();
@@ -108,7 +109,7 @@ public class GameDataAccessService implements GameDao{
     }
 
     @Override
-    public Game selectGameById(String id) {
+    public Game selectById(String id) {
         Firestore dbFirestore = FirestoreClient.getFirestore();
         DocumentReference documentReference = dbFirestore.collection(collection).document(id.toString());
         ApiFuture<DocumentSnapshot> future = documentReference.get();
@@ -132,14 +133,14 @@ public class GameDataAccessService implements GameDao{
     }
 
     @Override
-    public void deleteGameById(String id) {
+    public void deleteById(String id) {
         Firestore dbFirestore = FirestoreClient.getFirestore();
         ApiFuture<WriteResult> collectionApiFuture = dbFirestore.collection(collection).document(id).delete();
 
     }
 
     @Override
-    public Game updateGame(Game game) {
+    public Game update(Game game) {
         Firestore dbFirestore = FirestoreClient.getFirestore();
         ApiFuture<WriteResult> collectionApiFuture = dbFirestore.collection(collection).document(game.getID()).set(game);
 

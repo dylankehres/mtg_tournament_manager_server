@@ -10,7 +10,7 @@ public interface TournamentDao_Old {
 
     default Tournament insertTournament(Tournament tournament) {
         UUID id = UUID.randomUUID();
-        return insertTournament(id.toString(), new Tournament(id.toString(), tournament.getName(), tournament.getRoomCode(), tournament.getFormat(), tournament.getNumRounds(), tournament.getNumGames()));
+        return insertTournament(id.toString(), new Tournament(tournament.getName(), tournament.getRoomCode(), tournament.getFormat(), tournament.getNumRounds(), tournament.getNumGames()));
     }
 
     List<Tournament> selectAllTournaments();

@@ -25,14 +25,13 @@ public class Tournament extends BaseModel {
         this.tournamentStatus = 0;
     }
 
-    public Tournament(String id,
-                      String name,
+    public Tournament(String name,
                       String roomCode,
                       String format,
                       int numRounds,
                       int numGames)
     {
-        super(id);
+        super();
 
         this.name = name;
         this.roomCode = roomCode;

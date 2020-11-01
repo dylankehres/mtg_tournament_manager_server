@@ -2,10 +2,9 @@ package com.djk.tournament_manager.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class Game {
-    @JsonProperty("id") private String id;
-    @JsonProperty("matchID") private String matchID;
-    @JsonProperty("tournamentID") private String tournamentID;
+public class Game extends BaseModel{
+    @JsonProperty("matchID") private final String matchID;
+    @JsonProperty("tournamentID") private final String tournamentID;
     @JsonProperty("gameNum") private int gameNum;
     @JsonProperty("player1Voted") private boolean player1Voted;
     @JsonProperty("player2Voted") private boolean player2Voted;
@@ -14,16 +13,16 @@ public class Game {
     @JsonProperty("player1Ready") private boolean player1Ready;
     @JsonProperty("player2Ready") private boolean player2Ready;
     @JsonProperty("draw") private int draw;
-    @JsonProperty("isActive") private boolean isActive;
     @JsonProperty("resultStatus") private int resultStatus;
     @JsonProperty("winningPlayerID") private String winningPlayerID;
 
     enum ResultStatus {
         NoResults, ResultsPending, ResultsFinal, ResultsDisputed
-    };
+    }
 
     public Game() {
-        this.id = "";
+        super();
+
         this.matchID = "";
         this.tournamentID = "";
         this.gameNum = 0;
@@ -34,13 +33,13 @@ public class Game {
         this.draw = 0;
         this.player1Voted = false;
         this.player2Voted = false;
-        this.isActive = false;
         this.resultStatus = ResultStatus.NoResults.ordinal();
         this.winningPlayerID = "-1";
     }
 
-    public Game(String id, String matchID, String tournamentID, int gameNum) {
-        this.id = id;
+    public Game(String matchID, String tournamentID, int gameNum) {
+        super();
+
         this.matchID = matchID;
         this.tournamentID = tournamentID;
         this.gameNum = gameNum;
@@ -51,13 +50,8 @@ public class Game {
         this.draw = 0;
         this.player1Voted = false;
         this.player2Voted = false;
-        this.isActive = true;
         this.resultStatus = ResultStatus.NoResults.ordinal();
         this.winningPlayerID = "-1";
-    }
-
-    public String getID() {
-        return this.id;
     }
 
     public String getMatchID() {
@@ -67,6 +61,7 @@ public class Game {
     public String getTournamentID() { return this.tournamentID; }
 
     public int getGameNum() { return this.gameNum; }
+    public void setGameNum(int gameNum) { this.gameNum = gameNum; }
 
     public boolean getPlayer1Voted() { return this.player1Voted; }
 
@@ -82,28 +77,18 @@ public class Game {
 
     public int getResultStatus() { return this.resultStatus; }
 
-    public boolean getIsActive() { return this.isActive; }
-
-    public void setIsActive(boolean isActive) { this.isActive = isActive; }
-
     public int votePlayerWin(Match match, String votingPlayerID, String winningPlayerID) {
         boolean playerCanVote = false;
 
         // Check if this player has already voted for a winner
         if (match.getPlayer1ID().equals(votingPlayerID)) {
-            if(this.player1Voted) {
-                playerCanVote = false;
-            }
-            else {
+            if(!this.player1Voted) {
                 playerCanVote = true;
                 this.player1Voted = true;
             }
         }
         else if (match.getPlayer2ID().equals(votingPlayerID)) {
-            if(this.player2Voted) {
-                playerCanVote = false;
-            }
-            else {
+            if(!this.player2Voted) {
                 playerCanVote = true;
                 this.player2Voted = true;
             }
@@ -130,7 +115,7 @@ public class Game {
         if (player1Voted && player2Voted && playerCanVote) {
             if(player1Wins == 2 || player2Wins == 2) {
                 String winningPlayer = player1Wins == 2 ? match.getPlayer1ID() : match.getPlayer2ID();
-                String losingPlayer = winningPlayer.equals(match.getPlayer1ID()) ? match.getPlayer2ID() : match.getPlayer1ID();
+//                String losingPlayer = winningPlayer.equals(match.getPlayer1ID()) ? match.getPlayer2ID() : match.getPlayer1ID();
 
                 match.addPlayerWin(winningPlayer);
                 this.winningPlayerID = winningPlayer;
