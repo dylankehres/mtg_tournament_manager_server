@@ -1,18 +1,12 @@
 package com.djk.tournament_manager.model;
 
-import com.djk.tournament_manager.dao.PlayerDao;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import org.springframework.beans.factory.annotation.Qualifier;
 
 import javax.validation.constraints.NotBlank;
-import java.util.UUID;
 
-public class Player {
+public class Player extends BaseModel {
 
-    @JsonProperty("id") private final String id;
     @JsonProperty("tournamentID") private String tournamentID;
-
-    @NotBlank
     @JsonProperty("name")  private String name;
     @JsonProperty("roomCode") private String roomCode;
     @JsonProperty("format") private String format;
@@ -22,7 +16,6 @@ public class Player {
 
     public Player()
     {
-        this.id = "";
         this.tournamentID = "";
         this.name = "";
         this.roomCode = "";
@@ -32,27 +25,15 @@ public class Player {
         this.bye = false;
     }
 
-    public Player(String id)
-    {
-        this.id = id;
-        this.tournamentID = "";
-        this.name = "";
-        this.roomCode = "";
-        this.format = "";
-        this.deckName = "";
-        this.points = 0;
-        this.bye = false;
-    }
-
-    public Player(String id,
-                  String tournamentID,
+    public Player(String tournamentID,
                   String name,
                   String roomCode,
                   String format,
                   String deckName,
                   boolean bye)
     {
-        this.id = id;
+        super();
+
         this.tournamentID = tournamentID;
         this.name = name;
         this.roomCode = roomCode;
@@ -60,11 +41,6 @@ public class Player {
         this.deckName = deckName;
         this.points = 0;
         this.bye = bye;
-    }
-
-    public String getID()
-    {
-        return this.id;
     }
 
     public String getTournamentID() {return this.tournamentID; }

@@ -1,8 +1,8 @@
 package com.djk.tournament_manager.service;
 
-import com.djk.tournament_manager.dao.*;
 import com.djk.tournament_manager.dao.game.GameDAO;
 import com.djk.tournament_manager.dao.match.MatchDAO;
+import com.djk.tournament_manager.dao.player.PlayerDAO;
 import com.djk.tournament_manager.dao.tournament.TournamentDAO;
 import com.djk.tournament_manager.dto.HostHubDTO;
 import com.djk.tournament_manager.dto.MatchDataDTO;
@@ -21,7 +21,7 @@ import java.util.*;
 public class TournamentService {
 
     private final TournamentDAO tournamentDAO;
-    private final PlayerDao playerDao;
+    private final PlayerDAO playerDAO;
     private final MatchDAO matchDAO;
     private final GameDAO gameDAO;
 
@@ -36,10 +36,10 @@ public class TournamentService {
 //    }
 
     @Autowired
-    public TournamentService(@Qualifier("firebaseTournamentDaoNew") TournamentDAO tournamentDAO, @Qualifier("firebasePlayerDao") PlayerDao playerDao, @Qualifier("firebaseMatchDao") MatchDAO matchDAO, @Qualifier("firebaseGameDao") GameDAO gameDAO)
+    public TournamentService(@Qualifier("firebaseTournamentDao") TournamentDAO tournamentDAO, @Qualifier("firebasePlayerDao") PlayerDAO playerDAO, @Qualifier("firebaseMatchDao") MatchDAO matchDAO, @Qualifier("firebaseGameDao") GameDAO gameDAO)
     {
         this.tournamentDAO = tournamentDAO;
-        this.playerDao = playerDao;
+        this.playerDAO = playerDAO;
         this.matchDAO = matchDAO;
         this.gameDAO = gameDAO;
     }
@@ -68,11 +68,11 @@ public class TournamentService {
         // Query for all objects that are children of this tournament
         List<Match> matches = matchDAO.selectMatchesInTournament(tmtID);
         List<Game> games = gameDAO.selectGamesInTournament(tmtID);
-        ArrayList<Player> players = playerDao.selectPlayersByTournamentID(tmtID);
+        ArrayList<Player> players = playerDAO.selectPlayersByTournamentID(tmtID);
 
         // Delete all tournament data
         for(Player player : players) {
-            playerDao.deletePlayerById(player.getID());
+            playerDAO.deleteById(player.getID());
         }
 
         for(Game game : games) {
@@ -97,17 +97,17 @@ public class TournamentService {
         if(tournament != null)
         {
             player.setTournamentID(tournament.getID());
-            return playerDao.insertPlayer(player.getTournamentID(), player.getName(), player.getRoomCode(), player.getFormat(), player.getDeckName(), false);
+            return playerDAO.insert(player);
         }
 
         return null;
     }
 
     public ArrayList<Player> getPlayersInTournament(String code){
-        return playerDao.selectPlayersByTournament(code);
+        return playerDAO.selectPlayersByTournamentCode(code);
     }
 
-    public void deletePlayer(String id) { playerDao.deletePlayerById(id); }
+    public void deletePlayer(String id) { playerDAO.deleteById(id); }
 
     public ArrayList<MatchDataDTO> getMatchesByID(String id) {
         Tournament tournament = tournamentDAO.selectById(id);
@@ -118,8 +118,8 @@ public class TournamentService {
             List<Match> matches = matchDAO.selectMatchesInRound(tournament.getID(), tournament.getCurrRound());
 
             for(Match match : matches) {
-                Player p1 = playerDao.selectPlayerById(match.getPlayer1ID());
-                Player p2 = playerDao.selectPlayerById(match.getPlayer2ID());
+                Player p1 = playerDAO.selectById(match.getPlayer1ID());
+                Player p2 = playerDAO.selectById(match.getPlayer2ID());
                 List<Game>  gameList = gameDAO.selectGamesInMatch(match.getID());
 
                 matchDataList.add(new MatchDataDTO(p1, p2, match, gameList));
@@ -140,8 +140,8 @@ public class TournamentService {
             List<Match> matches = matchDAO.selectMatchesInRound(tournament.getID(), tournament.getCurrRound());
 
             for(Match match : matches) {
-                Player p1 = playerDao.selectPlayerById(match.getPlayer1ID());
-                Player p2 = playerDao.selectPlayerById(match.getPlayer2ID());
+                Player p1 = playerDAO.selectById(match.getPlayer1ID());
+                Player p2 = playerDAO.selectById(match.getPlayer2ID());
                 List<Game> gameList = gameDAO.selectGamesInMatch(match.getID());
 
                 matchDataList.add(new MatchDataDTO(p1, p2, match, gameList));
@@ -155,7 +155,7 @@ public class TournamentService {
 
     public MatchDataDTO getMatchByPlayerID(String playerID)
     {
-        Player player = playerDao.selectPlayerById(playerID);
+        Player player = playerDAO.selectById(playerID);
         Tournament tournament = tournamentDAO.selectById(player.getTournamentID());
         Match match = matchDAO.selectMatchByPlayerID(playerID, tournament.getCurrRound());
         Player p1 = new Player();
@@ -163,8 +163,8 @@ public class TournamentService {
         List<Game> gameList = new ArrayList<>();
 
         if(match != null) {
-            p1 = playerDao.selectPlayerById(match.getPlayer1ID());
-            p2 = playerDao.selectPlayerById(match.getPlayer2ID());
+            p1 = playerDAO.selectById(match.getPlayer1ID());
+            p2 = playerDAO.selectById(match.getPlayer2ID());
             gameList = gameDAO.selectGamesInMatch(match.getID());
         }
         else {
@@ -190,7 +190,7 @@ public class TournamentService {
      * @return PlayerHubDTO
      */
     public PlayerHubDTO getPlayerHubDTO(String playerID) {
-        Player currPlayer = playerDao.selectPlayerById(playerID);
+        Player currPlayer = playerDAO.selectById(playerID);
         Tournament tournament = tournamentDAO.selectById(currPlayer.getTournamentID());
         ArrayList<Player> playerList = getPlayersInTournament(currPlayer.getRoomCode());
         ArrayList<MatchDataDTO> pairings = getMatchesByID(tournament.getID());
@@ -244,17 +244,17 @@ public class TournamentService {
                 tournament.incrementCurrRound();
                 tournamentDAO.update(tournament);
 
-                ArrayList<Player> waitingPlayers = playerDao.selectPlayersByTournament(tournament.getRoomCode());
+                ArrayList<Player> waitingPlayers = playerDAO.selectPlayersByTournamentCode(tournament.getRoomCode());
                 Optional<Player> byeMaybe = waitingPlayers.stream().filter(Player::getBye).findFirst();
                 Player bye = byeMaybe.orElse(null);
 
                 if (waitingPlayers.size() % 2 == 1)
                 {
                     if(bye != null) { // A real player left the tournament, so we no longer need a bye
-                        playerDao.deletePlayerById(bye.getID());
+                        playerDAO.deleteById(bye.getID());
                         waitingPlayers.remove(bye);
                     } else {
-                        bye = playerDao.insertPlayer(tournament.getID(), "BYE", tournament.getRoomCode(), tournament.getFormat(), "", true);
+                        bye = playerDAO.insert(new Player(tournament.getID(), "BYE", tournament.getRoomCode(), tournament.getFormat(), "", true));
                         waitingPlayers.add(bye);
                     }
                 }
@@ -359,7 +359,7 @@ public class TournamentService {
 
                             if (realPlayer != null) {
                                 realPlayer.addWinPoints(true);
-                                playerDao.updatePlayerById(realPlayer);
+                                playerDAO.update(realPlayer);
                                 matchDAO.update(savedMatch);
                             }
                         }
@@ -400,18 +400,18 @@ public class TournamentService {
             // The game is over tally the points
             if ("draw".equals(winningPlayerID)) {
                 // They drew, each player gets a point
-                Player p1 = playerDao.selectPlayerById(match.getPlayer1ID());
-                Player p2 = playerDao.selectPlayerById(match.getPlayer2ID());
+                Player p1 = playerDAO.selectById(match.getPlayer1ID());
+                Player p2 = playerDAO.selectById(match.getPlayer2ID());
 
                 p1.addDrawPoints();
                 p2.addDrawPoints();
 
-                playerDao.updatePlayerById(p1);
-                playerDao.updatePlayerById(p2);
+                playerDAO.update(p1);
+                playerDAO.update(p2);
             } else {
-                Player winner = playerDao.selectPlayerById(winningPlayerID);
+                Player winner = playerDAO.selectById(winningPlayerID);
                 winner.addWinPoints(match.wasShutout(winningPlayerID));
-                playerDao.updatePlayerById(winner);
+                playerDAO.update(winner);
             }
 
             game.setActive(false);
@@ -451,8 +451,8 @@ public class TournamentService {
 
         // Prepare MatchDatDTO
         List<Game> gameList = gameDAO.selectGamesInMatch(match.getID());
-        Player p1 = playerDao.selectPlayerById(match.getPlayer1ID());
-        Player p2 = playerDao.selectPlayerById(match.getPlayer2ID());
+        Player p1 = playerDAO.selectById(match.getPlayer1ID());
+        Player p2 = playerDAO.selectById(match.getPlayer2ID());
 
         return new MatchDataDTO(p1, p2, match, gameList);
     }

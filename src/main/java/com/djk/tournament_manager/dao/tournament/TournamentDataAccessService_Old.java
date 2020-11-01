@@ -9,7 +9,7 @@ import org.springframework.stereotype.Repository;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 
-@Repository("firebaseTournamentDao")
+@Repository("firebaseTournamentDaoOld")
 public class TournamentDataAccessService_Old implements TournamentDao_Old {
     static final String collection = "tournament";
 

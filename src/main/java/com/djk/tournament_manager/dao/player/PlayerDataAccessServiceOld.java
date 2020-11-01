@@ -1,4 +1,4 @@
-package com.djk.tournament_manager.dao;
+package com.djk.tournament_manager.dao.player;
 
 import com.djk.tournament_manager.model.Player;
 import com.google.api.core.ApiFuture;
@@ -9,21 +9,20 @@ import org.springframework.stereotype.Repository;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 
-@Repository("firebasePlayerDao")
-public class PlayerDataAccessService implements PlayerDao{
+@Repository("firebasePlayerDaoOld")
+public class PlayerDataAccessServiceOld implements PlayerDaoOld {
     static final String collection = "player";
 
     @Override
-    public Player insertPlayer(String id, String tournamentID, String name, String roomCode, String format, String deckName, boolean bye) {
+    public Player insert(String id, Player player) {
         Firestore dbFirestore = FirestoreClient.getFirestore();
-        Player newPlayer = new Player(id, tournamentID, name, roomCode, format, deckName, bye);
-        ApiFuture<WriteResult> collectionApiFuture = dbFirestore.collection(collection).document(id.toString()).set(newPlayer);
+        ApiFuture<WriteResult> collectionApiFuture = dbFirestore.collection(collection).document(id).set(player);
 
         try {
             WriteResult res = collectionApiFuture.get();
 
             if (collectionApiFuture.isDone()) {
-                return newPlayer;
+                return player;
             }
         } catch (InterruptedException e) {
             e.printStackTrace();
@@ -35,7 +34,7 @@ public class PlayerDataAccessService implements PlayerDao{
     }
 
     @Override
-    public ArrayList<Player> selectAllPlayers() {
+    public ArrayList<Player> selectAll() {
         Firestore dbFirestore = FirestoreClient.getFirestore();
         ApiFuture<QuerySnapshot> querySnapshot = dbFirestore.collection(collection).get();
         ArrayList<Player> selectedPlayers = new ArrayList();
@@ -54,7 +53,7 @@ public class PlayerDataAccessService implements PlayerDao{
     }
 
     @Override
-    public ArrayList<Player> selectPlayersByTournament(String code) {
+    public ArrayList<Player> selectPlayersByTournamentCode(String code) {
         Firestore dbFirestore = FirestoreClient.getFirestore();
         ApiFuture<QuerySnapshot> querySnapshot = dbFirestore.collection(collection).whereEqualTo("roomCode", code).get();
         ArrayList<Player> playersInTournament = new ArrayList();
@@ -99,7 +98,7 @@ public class PlayerDataAccessService implements PlayerDao{
     }
 
     @Override
-    public Player selectPlayerById(String id) {
+    public Player selectById(String id) {
         Firestore dbFirestore = FirestoreClient.getFirestore();
         DocumentReference documentReference = dbFirestore.collection(collection).document(id.toString());
         ApiFuture<DocumentSnapshot> future = documentReference.get();
@@ -124,13 +123,13 @@ public class PlayerDataAccessService implements PlayerDao{
     }
 
     @Override
-    public void deletePlayerById(String id) {
+    public void deleteById(String id) {
         Firestore dbFirestore = FirestoreClient.getFirestore();
         ApiFuture<WriteResult> collectionApiFuture = dbFirestore.collection(collection).document(id).delete();
     }
 
     @Override
-    public Player updatePlayerById(Player player) {
+    public Player update(Player player) {
         Firestore dbFirestore = FirestoreClient.getFirestore();
         ApiFuture<WriteResult> collectionApiFuture = dbFirestore.collection(collection).document(player.getID()).set(player);
 

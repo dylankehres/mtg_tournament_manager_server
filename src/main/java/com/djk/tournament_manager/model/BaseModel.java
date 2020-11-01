@@ -12,14 +12,7 @@ public class BaseModel {
         this.active = true;
     }
 
-    public BaseModel(String id)
-    {
-        this.id = id;
-        this.active = true;
-    }
-
     public String getID() { return this.id; }
-
     public void setID(String id) {
         this.id = id;
     }

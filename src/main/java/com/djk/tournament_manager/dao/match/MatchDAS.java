@@ -22,10 +22,10 @@ public class MatchDAS extends FirebaseDAO<Match> implements MatchDAO {
     }
 
     @Override
-    public List<Match> selectMatchesInTournament(String tournamentID) {
+    public ArrayList<Match> selectMatchesInTournament(String tournamentID) {
         Firestore dbFirestore = FirestoreClient.getFirestore();
         ApiFuture<QuerySnapshot> querySnapshot = dbFirestore.collection(collection).whereEqualTo("tournamentID", tournamentID).get();
-        List<Match> matchesInTournament = new ArrayList<>();
+        ArrayList<Match> matchesInTournament = new ArrayList<>();
 
         try {
             List<QueryDocumentSnapshot> docList = querySnapshot.get().getDocuments();
@@ -42,13 +42,13 @@ public class MatchDAS extends FirebaseDAO<Match> implements MatchDAO {
     }
 
     @Override
-    public List<Match> selectMatchesInRound(String tournamentID, int roundNum) {
+    public ArrayList<Match> selectMatchesInRound(String tournamentID, int roundNum) {
         Firestore dbFirestore = FirestoreClient.getFirestore();
         ApiFuture<QuerySnapshot> querySnapshot = dbFirestore.collection(collection)
                 .whereEqualTo("tournamentID", tournamentID)
                 .whereEqualTo("roundNum", roundNum)
                 .get();
-        List<Match> matchesInTournament = new ArrayList<>();
+        ArrayList<Match> matchesInTournament = new ArrayList<>();
 
         try {
             List<QueryDocumentSnapshot> docList = querySnapshot.get().getDocuments();

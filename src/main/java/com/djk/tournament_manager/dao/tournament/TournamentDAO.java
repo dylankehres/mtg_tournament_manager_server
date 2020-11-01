@@ -2,7 +2,7 @@ package com.djk.tournament_manager.dao.tournament;
 
 import com.djk.tournament_manager.model.Tournament;
 
-import java.util.List;
+import java.util.ArrayList;
 
 public interface TournamentDAO {
     Tournament insert(String id, Tournament model);
@@ -13,7 +13,7 @@ public interface TournamentDAO {
 
     Tournament update(Tournament model);
 
-    List<Tournament> selectAll();
+    ArrayList<Tournament> selectAll();
 
     Tournament selectById(String id);
 

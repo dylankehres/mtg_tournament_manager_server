@@ -10,7 +10,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-@Repository("firebaseTournamentDaoNew")
+@Repository("firebaseTournamentDao")
 public class TournamentDAS extends FirebaseDAO<Tournament> implements TournamentDAO {
     static final String collection = "tournament";
 

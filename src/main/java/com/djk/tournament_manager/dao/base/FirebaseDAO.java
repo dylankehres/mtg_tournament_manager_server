@@ -6,7 +6,6 @@ import com.google.cloud.firestore.*;
 import com.google.firebase.cloud.FirestoreClient;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 
@@ -67,10 +66,10 @@ public class FirebaseDAO<T extends BaseModel> implements BaseDAO<T> {
     }
 
     @Override
-    public List<T> selectAll() {
+    public ArrayList<T> selectAll() {
         Firestore dbFirestore = FirestoreClient.getFirestore();
         ApiFuture<QuerySnapshot> querySnapshot = dbFirestore.collection(collection).get();
-        List<T> selectedModels = new ArrayList<>();
+        ArrayList<T> selectedModels = new ArrayList<>();
 
         try {
             for (DocumentSnapshot document : querySnapshot.get().getDocuments()) {

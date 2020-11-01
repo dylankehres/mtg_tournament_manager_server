@@ -1,7 +1,7 @@
-package com.djk.tournament_manager.dao.game;
+package com.djk.tournament_manager.dao.player;
 
 import com.djk.tournament_manager.dao.base.FirebaseDAO;
-import com.djk.tournament_manager.model.Game;
+import com.djk.tournament_manager.model.Player;
 import com.google.api.core.ApiFuture;
 import com.google.cloud.firestore.Firestore;
 import com.google.cloud.firestore.QueryDocumentSnapshot;
@@ -14,53 +14,52 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-@Repository("firebaseGameDao")
-public class GameDAS extends FirebaseDAO<Game> implements GameDAO {
-    static final String collection = "game";
+@Repository("firebasePlayerDao")
+public class PlayerDAS extends FirebaseDAO<Player> implements PlayerDAO {
+    static final String collection = "player";
 
-    public GameDAS() {
-        super(collection, Game.class);
+    public PlayerDAS() {
+        super(collection, Player.class);
     }
 
     @Override
-    public ArrayList<Game> selectGamesInMatch(String matchID) {
+    public ArrayList<Player> selectPlayersByTournamentCode(String code) {
         Firestore dbFirestore = FirestoreClient.getFirestore();
-        ApiFuture<QuerySnapshot> querySnapshot = dbFirestore.collection(collection).whereEqualTo("matchID", matchID).get();
-        ArrayList<Game> gamesInMatch = new ArrayList<>();
+        ApiFuture<QuerySnapshot> querySnapshot = dbFirestore.collection(collection).whereEqualTo("roomCode", code).get();
+        ArrayList<Player> playersInTournament = new ArrayList<>();
 
         try {
             List<QueryDocumentSnapshot> docList = querySnapshot.get().getDocuments();
             if(!docList.isEmpty()){
                 for (QueryDocumentSnapshot queryDocumentSnapshot : docList) {
-                    gamesInMatch.add(queryDocumentSnapshot.toObject(Game.class));
+                    playersInTournament.add(queryDocumentSnapshot.toObject(Player.class));
                 }
             }
         } catch (InterruptedException | ExecutionException e) {
             e.printStackTrace();
         }
 
-        gamesInMatch.sort(Comparator.comparing(Game::getGameNum));
+        playersInTournament.sort(Comparator.comparing(Player::getPoints).reversed());
 
-        return gamesInMatch;
+        return playersInTournament;
     }
 
-    @Override
-    public ArrayList<Game> selectGamesInTournament(String tournamentID) {
+    public ArrayList<Player> selectPlayersByTournamentID (String tmtID) {
         Firestore dbFirestore = FirestoreClient.getFirestore();
-        ApiFuture<QuerySnapshot> querySnapshot = dbFirestore.collection(collection).whereEqualTo("tournamentID", tournamentID).get();
-        ArrayList<Game> gamesInMatch = new ArrayList<>();
+        ApiFuture<QuerySnapshot> querySnapshot = dbFirestore.collection(collection).whereEqualTo("tournamentID", tmtID).get();
+        ArrayList<Player> playersInTournament = new ArrayList<>();
 
         try {
             List<QueryDocumentSnapshot> docList = querySnapshot.get().getDocuments();
             if(!docList.isEmpty()){
                 for (QueryDocumentSnapshot queryDocumentSnapshot : docList) {
-                    gamesInMatch.add(queryDocumentSnapshot.toObject(Game.class));
+                    playersInTournament.add(queryDocumentSnapshot.toObject(Player.class));
                 }
             }
         } catch (InterruptedException | ExecutionException e) {
             e.printStackTrace();
         }
 
-        return gamesInMatch;
+        return playersInTournament;
     }
 }

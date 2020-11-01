@@ -2,18 +2,18 @@ package com.djk.tournament_manager.dao.game;
 
 import com.djk.tournament_manager.model.Game;
 
-import java.util.List;
+import java.util.ArrayList;
 
 public interface GameDAO {
     Game insert(String id, Game game);
 
     Game insert(Game game);
 
-    List<Game> selectAll();
+    ArrayList<Game> selectAll();
 
-    List<Game> selectGamesInMatch(String matchID);
+    ArrayList<Game> selectGamesInMatch(String matchID);
 
-    List<Game> selectGamesInTournament(String tournamentID);
+    ArrayList<Game> selectGamesInTournament(String tournamentID);
 
     Game selectById(String id);
 

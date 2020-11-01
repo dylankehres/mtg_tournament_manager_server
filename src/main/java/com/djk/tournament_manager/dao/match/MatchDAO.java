@@ -11,11 +11,11 @@ public interface MatchDAO {
 
     Match insert(Match newMatch);
 
-    List<Match> selectAll();
+    ArrayList<Match> selectAll();
 
-    List<Match> selectMatchesInTournament(String tournamentID);
+    ArrayList<Match> selectMatchesInTournament(String tournamentID);
 
-    List<Match> selectMatchesInRound(String tournamentID, int roundNum);
+    ArrayList<Match> selectMatchesInRound(String tournamentID, int roundNum);
 
     Match selectById(String id);
 
