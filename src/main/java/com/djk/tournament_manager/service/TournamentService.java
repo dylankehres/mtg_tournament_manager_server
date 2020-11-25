@@ -11,6 +11,7 @@ import com.djk.tournament_manager.model.Game;
 import com.djk.tournament_manager.model.Match;
 import com.djk.tournament_manager.model.Player;
 import com.djk.tournament_manager.model.Tournament;
+import com.djk.tournament_manager.tools.StableRoommates;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -214,20 +215,20 @@ public class TournamentService {
     }
 
 
-    public int findUnmatchedOpponent(ArrayList<Player> waitingPlayers, String playerIDToMatch, int fromIndex, int toIndex)
-    {
-
-        for (int playerIndex = fromIndex; playerIndex < toIndex; playerIndex++) {
-            if (matchDAO.selectAllMatchesByPlayerID(waitingPlayers.get(playerIndex).getID())
-                                .stream()
-                                .noneMatch(match -> match.getPlayer1ID().equals(playerIDToMatch) || match.getPlayer2ID().equals(playerIDToMatch)))
-            {
-                return playerIndex;
-            }
-        }
-
-        return -1;
-    }
+//    public int findUnmatchedOpponent(ArrayList<Player> waitingPlayers, String playerIDToMatch, int fromIndex, int toIndex)
+//    {
+//
+//        for (int playerIndex = fromIndex; playerIndex < toIndex; playerIndex++) {
+//            if (matchDAO.selectAllMatchesByPlayerID(waitingPlayers.get(playerIndex).getID())
+//                                .stream()
+//                                .noneMatch(match -> match.getPlayer1ID().equals(playerIDToMatch) || match.getPlayer2ID().equals(playerIDToMatch)))
+//            {
+//                return playerIndex;
+//            }
+//        }
+//
+//        return -1;
+//    }
 
     public HostHubDTO generatePairings(String tournamentID)  {
         Tournament tournament = tournamentDAO.selectById(tournamentID);
@@ -275,70 +276,73 @@ public class TournamentService {
                 // Primary sort: players point totals
                 waitingPlayers.sort(Comparator.comparing(Player::getPoints).reversed());
 
-                boolean pairingSuccess;
-                boolean acceptNonUniqueOpponents = false;
-                int failedPairingsCount = 0;
-                int tableNum = 1;
-                ArrayList<Match> matches = new ArrayList<>();
-                for (int i = 0; i < waitingPlayers.size(); i += 2) {
-                    pairingSuccess = true;
-                    String p1ID = waitingPlayers.get(i).getID();
-                    String p2ID = waitingPlayers.get(i + 1).getID();
-                    ArrayList<Match> p1PrevMatches = matchDAO.selectAllMatchesByPlayerID(p1ID);
+//                boolean pairingSuccess;
+//                boolean acceptNonUniqueOpponents = false;
+//                int failedPairingsCount = 0;
+//                int tableNum = 1;
+//                ArrayList<Match> matches = new ArrayList<>();
+//                for (int i = 0; i < waitingPlayers.size(); i += 2) {
+//                    pairingSuccess = true;
+//                    String p1ID = waitingPlayers.get(i).getID();
+//                    String p2ID = waitingPlayers.get(i + 1).getID();
+//                    ArrayList<Match> p1PrevMatches = matchDAO.selectAllMatchesByPlayerID(p1ID);
+//
+//                    // Have these players played each other yet?
+//                    if(!acceptNonUniqueOpponents && p1PrevMatches.stream().anyMatch(match -> match.getPlayer1ID().equals(p2ID) || match.getPlayer2ID().equals(p2ID))) {
+//                        // Find the first unpairing player that p1 has not paired against yet
+//                        // We want to leave the top players with their best match opponent and rearrange the lower standings if possible
+//                        boolean swapPlayers = false;
+//                        int opponentIndex = findUnmatchedOpponent(waitingPlayers, p1ID, i, waitingPlayers.size());
+//                        Player opponent = new Player();
+//
+//                        int playerIndex = i + 1;
+//                        Player player = waitingPlayers.get(playerIndex);
+//
+//                        if (opponentIndex > -1) {
+//                            // These players have not faced each other, swap their opponents and repair the match
+//                            opponent = waitingPlayers.get(opponentIndex);
+//                            swapPlayers = true;
+//                            i-=2;
+//
+//                            // Have we tried the every combination of pairings? Short circuit this logic and repair solely on standings
+//                            acceptNonUniqueOpponents = failedPairingsCount == waitingPlayers.size() * (waitingPlayers.size() - 1);
+//
+//                        } else {
+//                            // All unpaired players faced this player find a paired player
+//                            // Find the first unpairing player that p1 has not paired against yet
+//                            opponentIndex = findUnmatchedOpponent(waitingPlayers, p1ID, 0, i);
+//                            if (opponentIndex > -1) {
+//                                // These players have not faced each other, swap their opponents
+//                                opponent = waitingPlayers.get(opponentIndex);
+//                                swapPlayers = true;
+//
+//                                // We need to repair all players, clear everything and restart
+//                                i = 0;
+//                                tableNum = 0;
+//                                matches = new ArrayList<>();
+//                                failedPairingsCount++;
+//
+//                                // Have we tried the every combination of pairings? Short circuit this logic and repair solely on standings
+//                                acceptNonUniqueOpponents = failedPairingsCount == waitingPlayers.size() * (waitingPlayers.size() - 1);
+//                            }
+//                        }
+//
+//                        if (swapPlayers) {
+//                            waitingPlayers.set(opponentIndex, player);
+//                            waitingPlayers.set(playerIndex, opponent);
+//
+//                            pairingSuccess = false;
+//                        }
+//                    }
+//
+//                    if (pairingSuccess){
+//                        Match newMatch = new Match("", tournament.getID(), tournament.getNumGames(), p1ID, p2ID, tableNum++, tournament.getCurrRound());
+//                        matches.add(newMatch);
+//                    }
+//                }
 
-                    // Have these players played each other yet?
-                    if(!acceptNonUniqueOpponents && p1PrevMatches.stream().anyMatch(match -> match.getPlayer1ID().equals(p2ID) || match.getPlayer2ID().equals(p2ID))) {
-                        // Find the first unpairing player that p1 has not paired against yet
-                        // We want to leave the top players with their best match opponent and rearrange the lower standings if possible
-                        boolean swapPlayers = false;
-                        int opponentIndex = findUnmatchedOpponent(waitingPlayers, p1ID, i, waitingPlayers.size());
-                        Player opponent = new Player();
-
-                        int playerIndex = i + 1;
-                        Player player = waitingPlayers.get(playerIndex);
-
-                        if (opponentIndex > -1) {
-                            // These players have not faced each other, swap their opponents and repair the match
-                            opponent = waitingPlayers.get(opponentIndex);
-                            swapPlayers = true;
-                            i-=2;
-
-                            // Have we tried the every combination of pairings? Short circuit this logic and repair solely on standings
-                            acceptNonUniqueOpponents = failedPairingsCount == waitingPlayers.size() * (waitingPlayers.size() - 1);
-
-                        } else {
-                            // All unpaired players faced this player find a paired player
-                            // Find the first unpairing player that p1 has not paired against yet
-                            opponentIndex = findUnmatchedOpponent(waitingPlayers, p1ID, 0, i);
-                            if (opponentIndex > -1) {
-                                // These players have not faced each other, swap their opponents
-                                opponent = waitingPlayers.get(opponentIndex);
-                                swapPlayers = true;
-
-                                // We need to repair all players, clear everything and restart
-                                i = 0;
-                                tableNum = 0;
-                                matches = new ArrayList<>();
-                                failedPairingsCount++;
-
-                                // Have we tried the every combination of pairings? Short circuit this logic and repair solely on standings
-                                acceptNonUniqueOpponents = failedPairingsCount == waitingPlayers.size() * (waitingPlayers.size() - 1);
-                            }
-                        }
-
-                        if (swapPlayers) {
-                            waitingPlayers.set(opponentIndex, player);
-                            waitingPlayers.set(playerIndex, opponent);
-
-                            pairingSuccess = false;
-                        }
-                    }
-
-                    if (pairingSuccess){
-                        Match newMatch = new Match("", tournament.getID(), tournament.getNumGames(), p1ID, p2ID, tableNum++, tournament.getCurrRound());
-                        matches.add(newMatch);
-                    }
-                }
+                StableRoommates srp = new StableRoommates(matchDAO, tournament, waitingPlayers);
+                ArrayList<Match> matches = srp.getPairings();
 
                 Match savedMatch;
                 for(Match newMatch : matches) {
