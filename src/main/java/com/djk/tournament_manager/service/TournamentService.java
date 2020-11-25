@@ -259,22 +259,22 @@ public class TournamentService {
                     }
                 }
 
-                // Pair winning players with winning players and "randomize" players in each tier by sorting on the UUID assigned to the players ID
-                // Secondary sort: randomly in asc or desc by ID
-                Random rand = new Random();
-                int randInt = rand.nextInt(100);
-                boolean sortAsc = randInt % 2 == 1;
-                if (sortAsc)
-                {
-                    waitingPlayers.sort(Comparator.comparing(Player::getID));
-                }
-                else
-                {
-                    waitingPlayers.sort(Comparator.comparing(Player::getID).reversed());
-                }
-
-                // Primary sort: players point totals
-                waitingPlayers.sort(Comparator.comparing(Player::getPoints).reversed());
+//                // Pair winning players with winning players and "randomize" players in each tier by sorting on the UUID assigned to the players ID
+//                // Secondary sort: randomly in asc or desc by ID
+//                Random rand = new Random();
+//                int randInt = rand.nextInt(100);
+//                boolean sortAsc = randInt % 2 == 1;
+//                if (sortAsc)
+//                {
+//                    waitingPlayers.sort(Comparator.comparing(Player::getID));
+//                }
+//                else
+//                {
+//                    waitingPlayers.sort(Comparator.comparing(Player::getID).reversed());
+//                }
+//
+//                // Primary sort: players point totals
+//                waitingPlayers.sort(Comparator.comparing(Player::getPoints).reversed());
 
 //                boolean pairingSuccess;
 //                boolean acceptNonUniqueOpponents = false;

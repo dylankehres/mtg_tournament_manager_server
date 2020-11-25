@@ -5,10 +5,7 @@ import com.djk.tournament_manager.model.Match;
 import com.djk.tournament_manager.model.Player;
 import com.djk.tournament_manager.model.Tournament;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class StableRoommates {
@@ -16,7 +13,7 @@ public class StableRoommates {
     private final Tournament tournament;
     private final ArrayList<Player> playerList;
     private final HashMap<String, ArrayList<Match>> previousMatchesMap;
-    private HashMap<String, ArrayList<String>> prefsTable;
+    private HashMap<String, ArrayList<String>> prefsMap;
     private HashMap<String, String> proposals;
     private HashMap<String, String> accepts;
 
@@ -24,15 +21,19 @@ public class StableRoommates {
         this.matchDAO = matchDAO;
         this.tournament = tournament;
         this.playerList = playerList;
-        this.prefsTable = new HashMap<>();
+        this.prefsMap = new HashMap<>();
         this.proposals = new HashMap<>();
         this.accepts = new HashMap<>();
         this.previousMatchesMap = new HashMap<>();
         buildPreviousMatchesMap();
     }
 
-    public void buildPrefsTable(int numPrevMatchesAllowed) {
-        this.prefsTable = new HashMap<>();
+    /**
+     * Add each player's list of possible pairings to preferences map by player ID
+     * @param rematchesAllowed Number of rematches acceptable for each pairing
+     */
+    public void buildPrefsMap(int rematchesAllowed) {
+        this.prefsMap = new HashMap<>();
         for(Player player : this.playerList) {
             // Add all other players to the pref list
             ArrayList<Player> opponents = new ArrayList<>();
@@ -40,8 +41,9 @@ public class StableRoommates {
 
             for(Player opponent : this.playerList) {
                 if(!player.equals(opponent)) {
-                    if (playerPrevMatches.stream().filter(match -> match.playerIsInMatch(opponent.getID())).count() < numPrevMatchesAllowed) {
+                    if (playerPrevMatches.stream().filter(match -> match.playerIsInMatch(opponent.getID())).count() <= rematchesAllowed) {
 //                    if (playerPrevMatches.stream().noneMatch(match -> match.playerIsInMatch(opponent.getID()))) {
+                        // TODO: Separate opponents by number of previous matches
                         opponents.add(opponent);
                     }
                 }
@@ -50,52 +52,75 @@ public class StableRoommates {
             // Sort preferences by their difference in points
             opponents.sort(Comparator.comparingInt(opponent -> Math.abs(opponent.getPoints() - player.getPoints())));
             ArrayList<String> opponentIDs = opponents.stream().map(Player::getID).collect(Collectors.toCollection(ArrayList::new));
-            this.prefsTable.put(player.getID(), opponentIDs);
+            this.prefsMap.put(player.getID(), opponentIDs);
         }
     }
 
+    /**
+     * Builds map of all player's previous matches in the tournament
+     */
     public void buildPreviousMatchesMap() {
         ArrayList<Match> allPrevMatches = matchDAO.selectMatchesInTournament(this.tournament.getID());
         for(Match match : allPrevMatches) {
-            ArrayList<Match> p1PrevMatches = this.previousMatchesMap.get(match.getPlayer1ID());
-            ArrayList<Match> p2PrevMatches = this.previousMatchesMap.get(match.getPlayer2ID());
+            ArrayList<Match> p1PrevMatches = previousMatchesMap.containsKey(match.getPlayer1ID()) ? previousMatchesMap.get(match.getPlayer1ID()) : new ArrayList<>();
+            ArrayList<Match> p2PrevMatches = previousMatchesMap.containsKey(match.getPlayer2ID()) ? previousMatchesMap.get(match.getPlayer2ID()) : new ArrayList<>();
 
             p1PrevMatches.add(match);
             p2PrevMatches.add(match);
 
-            this.previousMatchesMap.put(match.getPlayer1ID(), p1PrevMatches);
-            this.previousMatchesMap.put(match.getPlayer2ID(), p2PrevMatches);
+            previousMatchesMap.put(match.getPlayer1ID(), p1PrevMatches);
+            previousMatchesMap.put(match.getPlayer2ID(), p2PrevMatches);
         }
     }
 
+    /**
+     * Use Stable Roommates algorithm to find the best pairings for all players
+     * @return
+     */
     public ArrayList<Match> getPairings() {
-        boolean useSRP = false;
+        boolean useSRP = true;
+        sortPlayerList();
 
         if(useSRP) {
+            // This is the first round, use completely random pairings
+            if(tournament.getCurrRound() == 1) {
+                return quickPair();
+            }
+
             return generatePairings();
         }
 
         return oldPairingAlgo();
     }
 
+    /**
+     * Remove players from each others preferences list
+     * @param p1ID player to be removed from player2's prefs list
+     * @param p2ID player to be removed from player1's prefs list
+     */
     private void rejectSymmetrically(String p1ID, String p2ID) {
-        ArrayList<String> p1Prefs = this.prefsTable.get(p1ID);
-        ArrayList<String> p2Prefs = this.prefsTable.get(p2ID);
+        ArrayList<String> p1Prefs = this.prefsMap.get(p1ID);
+        ArrayList<String> p2Prefs = this.prefsMap.get(p2ID);
 
         p1Prefs.remove(p2ID);
         p2Prefs.remove(p1ID);
 
-        this.prefsTable.put(p1ID, p1Prefs);
-        this.prefsTable.put(p2ID, p2Prefs);
+        this.prefsMap.put(p1ID, p1Prefs);
+        this.prefsMap.put(p2ID, p2Prefs);
     }
 
+    /**
+     * Add preferred to players proposal list and add player to preferred accepted list
+     * @param playerID
+     * @param preferredID
+     */
     private void acceptProposal(String playerID, String preferredID) {
         proposals.put(playerID, preferredID);
         accepts.put(preferredID, playerID);
     }
 
     private boolean wouldBreakup(String playerID, String preferredID) {
-        ArrayList<String> preferredPrefs = prefsTable.get(preferredID);
+        ArrayList<String> preferredPrefs = prefsMap.get(preferredID);
 
         int currProposalIndex = accepts.containsKey(preferredID) ? preferredPrefs.indexOf(accepts.get(preferredID)) : -1;
         int newProposalIndex = preferredPrefs.indexOf(playerID);
@@ -120,7 +145,7 @@ public class StableRoommates {
 
         while(unmatched.size() > 0) {
             playerID = unmatched.get(0);
-            preferredID = prefsTable.get(playerID).get(0);
+            preferredID = prefsMap.get(playerID).get(0);
 
             if(!accepts.containsKey(preferredID)) {
                 acceptProposal(playerID, preferredID);
@@ -137,9 +162,9 @@ public class StableRoommates {
     private void secondPhase() {
         ArrayList<String> toRemove;
         for (Player player : playerList) {
-            int acceptIndex = accepts.containsKey(player.getID()) ? prefsTable.get(player.getID()).indexOf(accepts.get(player.getID())) : -1;
+            int acceptIndex = accepts.containsKey(player.getID()) ? prefsMap.get(player.getID()).indexOf(accepts.get(player.getID())) : -1;
             if(acceptIndex > -1) {
-                toRemove = prefsTable.get(player.getID());
+                toRemove = prefsMap.get(player.getID());
                 for(int i = acceptIndex + 1; i < toRemove.size(); i++) {
                     rejectSymmetrically(player.getID(), toRemove.get(i));
                 }
@@ -152,16 +177,16 @@ public class StableRoommates {
             return rotationChoices;
         }
 
-        String second = "";
-        if (prefsTable.get(playerID).size() > 1) {
-            second = prefsTable.get(playerID).get(1);
+        String second;
+        if (prefsMap.get(playerID).size() > 1) {
+            second = prefsMap.get(playerID).get(1);
         } else {
             return new RotationChoices(null, null);
         }
 
         rotationChoices.secondChoices.add(second);
-        int secondLastIndex = prefsTable.get(second).size() - 1;
-        String secondLast = prefsTable.get(second).get(secondLastIndex);
+        int secondLastIndex = prefsMap.get(second).size() - 1;
+        String secondLast = prefsMap.get(second).get(secondLastIndex);
         rotationChoices.lastChoices.add(secondLast);
 
         return getRotation(secondLast, rotationChoices);
@@ -183,7 +208,7 @@ public class StableRoommates {
         while(i < playerList.size()) {
             playerID = playerList.get(i).getID();
 
-            if(prefsTable.get(playerID).size() == 1) {
+            if(prefsMap.get(playerID).size() == 1) {
                 i++;
             } else {
                 rotationChoices = getRotation(playerID, new RotationChoices(new ArrayList<>(), new ArrayList<>(Collections.singleton(playerID))));
@@ -195,7 +220,7 @@ public class StableRoommates {
                 removeRotation(rotationChoices);
 
                 for(Player player : playerList) {
-                    if(prefsTable.get(player.getID()).size() == 0) {
+                    if(prefsMap.get(player.getID()).size() == 0) {
                         return false;
                     }
                 }
@@ -206,11 +231,83 @@ public class StableRoommates {
         return true;
     }
 
-    public ArrayList<Match> generatePairings() {
+    private boolean computeMatches() {
+        firstPhase();
+        secondPhase();
+        return thirdPhase();
+    }
+
+    private ArrayList<Match> generatePairings() {
+        for(int i = 0; i < tournament.getCurrRound(); i++) {
+            buildPrefsMap(i);
+            if(computeMatches()) {
+                return createMatchList();
+            }
+        }
+
         return new ArrayList<>();
     }
 
-    public ArrayList<Match> oldPairingAlgo() {
+    private ArrayList<Match> createMatchList() {
+        String opponentID;
+        ArrayList<String> prefsList;
+        int tableNum = 1;
+        ArrayList<Match> matches = new ArrayList<>();
+
+        for(Player player : playerList) {
+            if(prefsMap.containsKey(player.getID())) {
+                prefsList = prefsMap.get(player.getID());
+
+                if (prefsList.size() > 0) {
+                    opponentID = prefsList.get(0);
+                    matches.add(new Match(tournament, tableNum++, player.getID(), opponentID));
+
+                    prefsMap.remove(player.getID());
+                    prefsMap.remove(opponentID);
+                }
+            }
+        }
+
+        return matches;
+    }
+
+    private ArrayList<Match> quickPair() {
+        int tableNum = 1;
+        ArrayList<Match> matches = new ArrayList<>();
+
+        for (int i = 0; i < this.playerList.size(); i += 2) {
+            String p1ID = this.playerList.get(i).getID();
+            String p2ID = this.playerList.get(i + 1).getID();
+
+            Match newMatch = new Match(this.tournament.getID(), this.tournament.getNumGames(), p1ID, p2ID, tableNum++, this.tournament.getCurrRound());
+            matches.add(newMatch);
+        }
+
+        return matches;
+    }
+
+    /**
+     * Pair winning players with winning players and "randomize" players in each tier by sorting on the UUID assigned to the players ID
+     */
+    private void sortPlayerList() {
+        // Secondary sort: randomly in asc or desc by ID
+        Random rand = new Random();
+        int randInt = rand.nextInt(100);
+        boolean sortAsc = randInt % 2 == 1;
+        if (sortAsc)
+        {
+            playerList.sort(Comparator.comparing(Player::getID));
+        }
+        else
+        {
+            playerList.sort(Comparator.comparing(Player::getID).reversed());
+        }
+
+        // Primary sort: players point totals
+        playerList.sort(Comparator.comparing(Player::getPoints).reversed());
+    }
+
+    private ArrayList<Match> oldPairingAlgo() {
         boolean pairingSuccess;
         boolean acceptNonUniqueOpponents = false;
         int failedPairingsCount = 0;
@@ -272,7 +369,7 @@ public class StableRoommates {
             }
 
             if (pairingSuccess){
-                Match newMatch = new Match("", this.tournament.getID(), this.tournament.getNumGames(), p1ID, p2ID, tableNum++, this.tournament.getCurrRound());
+                Match newMatch = new Match(this.tournament.getID(), this.tournament.getNumGames(), p1ID, p2ID, tableNum++, this.tournament.getCurrRound());
                 matches.add(newMatch);
             }
         }
@@ -280,7 +377,7 @@ public class StableRoommates {
         return matches;
     }
 
-    public int findUnmatchedOpponent(ArrayList<Player> waitingPlayers, String playerIDToMatch, int fromIndex, int toIndex)
+    private int findUnmatchedOpponent(ArrayList<Player> waitingPlayers, String playerIDToMatch, int fromIndex, int toIndex)
     {
 
         for (int playerIndex = fromIndex; playerIndex < toIndex; playerIndex++) {

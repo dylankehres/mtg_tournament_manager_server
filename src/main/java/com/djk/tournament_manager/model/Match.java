@@ -49,7 +49,30 @@ public class Match extends BaseModel {
         this.numGames = 0;
     }
 
-    public Match(String id, String tournamentID, int numGames, String player1ID, String player2ID, int tableNum, int roundNum)
+    public Match(Tournament tournament, int tableNum, String player1ID, String player2ID)
+    {
+        super();
+
+        this.tournamentID = tournament.getID();
+        this.player1ID = player1ID;
+        this.player2ID = player2ID;
+        this.draws = 0;
+        this.player1Wins = 0;
+        this.player2Wins = 0;
+        this.player1Ready = false;
+        this.player2Ready = false;
+        this.tableNum = tableNum;
+        this.matchStatus = MatchStatus.AwaitingPlayers.ordinal();
+        this.activeGameID = "";
+        this.gameKeys = new ArrayList<>();
+        this.startTime = 0;
+        this.endTime = 0;
+        this.timeLimit = 3000000;
+        this.roundNum = tournament.getCurrRound();
+        this.numGames = tournament.getNumGames();
+    }
+
+    public Match(String tournamentID, int numGames, String player1ID, String player2ID, int tableNum, int roundNum)
     {
         super();
 
