@@ -32,26 +32,35 @@ public class StableRoommates {
      * Add each player's list of possible pairings to preferences map by player ID
      * @param rematchesAllowed Number of rematches acceptable for each pairing
      */
-    public void buildPrefsMap(int rematchesAllowed) {
+    public void buildPrefsMap(long rematchesAllowed) {
         this.prefsMap = new HashMap<>();
         for(Player player : this.playerList) {
             // Add all other players to the pref list
-            ArrayList<Player> opponents = new ArrayList<>();
+            HashMap<Long, ArrayList<Player>> opponentsByPrevMatchCount = new HashMap<>();
             ArrayList<Match> playerPrevMatches = this.previousMatchesMap.get(player.getID());
 
             for(Player opponent : this.playerList) {
                 if(!player.equals(opponent)) {
-                    if (playerPrevMatches.stream().filter(match -> match.playerIsInMatch(opponent.getID())).count() <= rematchesAllowed) {
-//                    if (playerPrevMatches.stream().noneMatch(match -> match.playerIsInMatch(opponent.getID()))) {
-                        // TODO: Separate opponents by number of previous matches
-                        opponents.add(opponent);
+                    long numPreviousMatches = playerPrevMatches.stream().filter(match -> match.playerIsInMatch(opponent.getID())).count();
+                    if (numPreviousMatches <= rematchesAllowed) {
+                        ArrayList<Player> opponentsForCount = opponentsByPrevMatchCount.containsKey(numPreviousMatches) ? opponentsByPrevMatchCount.get(numPreviousMatches) : new ArrayList<>();
+                        opponentsForCount.add(opponent);
+                        opponentsByPrevMatchCount.put(numPreviousMatches, opponentsForCount);
                     }
                 }
             }
 
-            // Sort preferences by their difference in points
-            opponents.sort(Comparator.comparingInt(opponent -> Math.abs(opponent.getPoints() - player.getPoints())));
-            ArrayList<String> opponentIDs = opponents.stream().map(Player::getID).collect(Collectors.toCollection(ArrayList::new));
+            // Sort preferences by their difference in points, putting rematches at end of list
+            ArrayList<Player> opponents;
+            ArrayList<String> opponentIDs = new ArrayList<>();
+            for(long i = 0; i < opponentsByPrevMatchCount.size(); i++) {
+                if(opponentsByPrevMatchCount.containsKey(i)) {
+                    opponents = opponentsByPrevMatchCount.get(i);
+                    opponents.sort(Comparator.comparingInt(opponent -> Math.abs(opponent.getPoints() - player.getPoints())));
+                    opponentIDs.addAll(opponents.stream().map(Player::getID).collect(Collectors.toCollection(ArrayList::new)));
+                }
+            }
+
             this.prefsMap.put(player.getID(), opponentIDs);
         }
     }
@@ -75,22 +84,17 @@ public class StableRoommates {
 
     /**
      * Use Stable Roommates algorithm to find the best pairings for all players
-     * @return
+     * @return Array of best paired matches
      */
     public ArrayList<Match> getPairings() {
-        boolean useSRP = true;
         sortPlayerList();
 
-        if(useSRP) {
-            // This is the first round, use completely random pairings
-            if(tournament.getCurrRound() == 1) {
-                return quickPair();
-            }
-
-            return generatePairings();
+        // This is the first round, use completely random pairings
+        if(tournament.getCurrRound() == 1) {
+            return quickPair();
         }
 
-        return oldPairingAlgo();
+        return generatePairings();
     }
 
     /**
@@ -111,8 +115,8 @@ public class StableRoommates {
 
     /**
      * Add preferred to players proposal list and add player to preferred accepted list
-     * @param playerID
-     * @param preferredID
+     * @param playerID Proposing player
+     * @param preferredID Player being proposed to
      */
     private void acceptProposal(String playerID, String preferredID) {
         proposals.put(playerID, preferredID);
@@ -137,7 +141,7 @@ public class StableRoommates {
         return oldAcceptID;
     }
 
-    private void firstPhase() {
+    private boolean firstPhase() {
         String playerID;
         String preferredID;
         String preferredOldAccept;
@@ -145,7 +149,11 @@ public class StableRoommates {
 
         while(unmatched.size() > 0) {
             playerID = unmatched.get(0);
-            preferredID = prefsMap.get(playerID).get(0);
+            if(prefsMap.get(playerID).size() > 0) {
+                preferredID = prefsMap.get(playerID).get(0);
+            } else {
+                return false;
+            }
 
             if(!accepts.containsKey(preferredID)) {
                 acceptProposal(playerID, preferredID);
@@ -157,9 +165,11 @@ public class StableRoommates {
                 rejectSymmetrically(playerID, preferredID);
             }
         }
+
+        return true;
     }
 
-    private void secondPhase() {
+    private void removePlayersLessPreferredThanAccepted() {
         ArrayList<String> toRemove;
         for (Player player : playerList) {
             int acceptIndex = accepts.containsKey(player.getID()) ? prefsMap.get(player.getID()).indexOf(accepts.get(player.getID())) : -1;
@@ -173,7 +183,7 @@ public class StableRoommates {
     }
 
     private RotationChoices getRotation(String playerID, RotationChoices rotationChoices) {
-        if(rotationChoices.lastChoices.subList(0, rotationChoices.lastChoices.size() - 2).contains(rotationChoices.lastChoices.get(rotationChoices.lastChoices.size() -1))) {
+        if(rotationChoices.lastChoices.subList(0, rotationChoices.lastChoices.size() - 1).contains(rotationChoices.lastChoices.get(rotationChoices.lastChoices.size() - 1))) {
             return rotationChoices;
         }
 
@@ -200,7 +210,7 @@ public class StableRoommates {
         }
     }
 
-    private boolean thirdPhase() {
+    private boolean secondPhase() {
         String playerID;
         RotationChoices rotationChoices;
         int i = 0;
@@ -232,16 +242,24 @@ public class StableRoommates {
     }
 
     private boolean computeMatches() {
-        firstPhase();
-        secondPhase();
-        return thirdPhase();
+        boolean stablePairingsExist = firstPhase();
+
+        if(stablePairingsExist) {
+            removePlayersLessPreferredThanAccepted();
+            stablePairingsExist = secondPhase();
+        }
+
+        return stablePairingsExist;
     }
 
     private ArrayList<Match> generatePairings() {
-        for(int i = 0; i < tournament.getCurrRound(); i++) {
+        for(long i = 0; i < tournament.getCurrRound(); i++) {
             buildPrefsMap(i);
             if(computeMatches()) {
                 return createMatchList();
+            } else {
+                accepts = new HashMap<>();
+                proposals = new HashMap<>();
             }
         }
 
@@ -307,90 +325,90 @@ public class StableRoommates {
         playerList.sort(Comparator.comparing(Player::getPoints).reversed());
     }
 
-    private ArrayList<Match> oldPairingAlgo() {
-        boolean pairingSuccess;
-        boolean acceptNonUniqueOpponents = false;
-        int failedPairingsCount = 0;
-        int tableNum = 1;
-        ArrayList<Match> matches = new ArrayList<>();
-
-        for (int i = 0; i < this.playerList.size(); i += 2) {
-            pairingSuccess = true;
-            String p1ID = this.playerList.get(i).getID();
-            String p2ID = this.playerList.get(i + 1).getID();
-            ArrayList<Match> p1PrevMatches = this.matchDAO.selectAllMatchesByPlayerID(p1ID);
-
-            // Have these players played each other yet?
-            if(!acceptNonUniqueOpponents && p1PrevMatches.stream().anyMatch(match -> match.getPlayer1ID().equals(p2ID) || match.getPlayer2ID().equals(p2ID))) {
-                // Find the first unpairing player that p1 has not paired against yet
-                // We want to leave the top players with their best match opponent and rearrange the lower standings if possible
-                boolean swapPlayers = false;
-                int opponentIndex = findUnmatchedOpponent(this.playerList, p1ID, i, this.playerList.size());
-                Player opponent = new Player();
-
-                int playerIndex = i + 1;
-                Player player = this.playerList.get(playerIndex);
-
-                if (opponentIndex > -1) {
-                    // These players have not faced each other, swap their opponents and repair the match
-                    opponent = this.playerList.get(opponentIndex);
-                    swapPlayers = true;
-                    i-=2;
-
-                    // Have we tried the every combination of pairings? Short circuit this logic and repair solely on standings
-                    acceptNonUniqueOpponents = failedPairingsCount == this.playerList.size() * (this.playerList.size() - 1);
-
-                } else {
-                    // All unpaired players faced this player find a paired player
-                    // Find the first unpairing player that p1 has not paired against yet
-                    opponentIndex = findUnmatchedOpponent(this.playerList, p1ID, 0, i);
-                    if (opponentIndex > -1) {
-                        // These players have not faced each other, swap their opponents
-                        opponent = this.playerList.get(opponentIndex);
-                        swapPlayers = true;
-
-                        // We need to repair all players, clear everything and restart
-                        i = 0;
-                        tableNum = 0;
-                        matches = new ArrayList<>();
-                        failedPairingsCount++;
-
-                        // Have we tried the every combination of pairings? Short circuit this logic and repair solely on standings
-                        acceptNonUniqueOpponents = failedPairingsCount == this.playerList.size() * (this.playerList.size() - 1);
-                    }
-                }
-
-                if (swapPlayers) {
-                    this.playerList.set(opponentIndex, player);
-                    this.playerList.set(playerIndex, opponent);
-
-                    pairingSuccess = false;
-                }
-            }
-
-            if (pairingSuccess){
-                Match newMatch = new Match(this.tournament.getID(), this.tournament.getNumGames(), p1ID, p2ID, tableNum++, this.tournament.getCurrRound());
-                matches.add(newMatch);
-            }
-        }
-
-        return matches;
-    }
-
-    private int findUnmatchedOpponent(ArrayList<Player> waitingPlayers, String playerIDToMatch, int fromIndex, int toIndex)
-    {
-
-        for (int playerIndex = fromIndex; playerIndex < toIndex; playerIndex++) {
-            if (this.matchDAO.selectAllMatchesByPlayerID(waitingPlayers.get(playerIndex).getID())
-                    .stream()
-                    .noneMatch(match -> match.getPlayer1ID().equals(playerIDToMatch) || match.getPlayer2ID().equals(playerIDToMatch)))
-            {
-                return playerIndex;
-            }
-        }
-
-        return -1;
-    }
+//    private ArrayList<Match> oldPairingAlgo() {
+//        boolean pairingSuccess;
+//        boolean acceptNonUniqueOpponents = false;
+//        int failedPairingsCount = 0;
+//        int tableNum = 1;
+//        ArrayList<Match> matches = new ArrayList<>();
+//
+//        for (int i = 0; i < this.playerList.size(); i += 2) {
+//            pairingSuccess = true;
+//            String p1ID = this.playerList.get(i).getID();
+//            String p2ID = this.playerList.get(i + 1).getID();
+//            ArrayList<Match> p1PrevMatches = this.matchDAO.selectAllMatchesByPlayerID(p1ID);
+//
+//            // Have these players played each other yet?
+//            if(!acceptNonUniqueOpponents && p1PrevMatches.stream().anyMatch(match -> match.getPlayer1ID().equals(p2ID) || match.getPlayer2ID().equals(p2ID))) {
+//                // Find the first unpairing player that p1 has not paired against yet
+//                // We want to leave the top players with their best match opponent and rearrange the lower standings if possible
+//                boolean swapPlayers = false;
+//                int opponentIndex = findUnmatchedOpponent(this.playerList, p1ID, i, this.playerList.size());
+//                Player opponent = new Player();
+//
+//                int playerIndex = i + 1;
+//                Player player = this.playerList.get(playerIndex);
+//
+//                if (opponentIndex > -1) {
+//                    // These players have not faced each other, swap their opponents and repair the match
+//                    opponent = this.playerList.get(opponentIndex);
+//                    swapPlayers = true;
+//                    i-=2;
+//
+//                    // Have we tried the every combination of pairings? Short circuit this logic and repair solely on standings
+//                    acceptNonUniqueOpponents = failedPairingsCount == this.playerList.size() * (this.playerList.size() - 1);
+//
+//                } else {
+//                    // All unpaired players faced this player find a paired player
+//                    // Find the first unpairing player that p1 has not paired against yet
+//                    opponentIndex = findUnmatchedOpponent(this.playerList, p1ID, 0, i);
+//                    if (opponentIndex > -1) {
+//                        // These players have not faced each other, swap their opponents
+//                        opponent = this.playerList.get(opponentIndex);
+//                        swapPlayers = true;
+//
+//                        // We need to repair all players, clear everything and restart
+//                        i = 0;
+//                        tableNum = 0;
+//                        matches = new ArrayList<>();
+//                        failedPairingsCount++;
+//
+//                        // Have we tried the every combination of pairings? Short circuit this logic and repair solely on standings
+//                        acceptNonUniqueOpponents = failedPairingsCount == this.playerList.size() * (this.playerList.size() - 1);
+//                    }
+//                }
+//
+//                if (swapPlayers) {
+//                    this.playerList.set(opponentIndex, player);
+//                    this.playerList.set(playerIndex, opponent);
+//
+//                    pairingSuccess = false;
+//                }
+//            }
+//
+//            if (pairingSuccess){
+//                Match newMatch = new Match(this.tournament.getID(), this.tournament.getNumGames(), p1ID, p2ID, tableNum++, this.tournament.getCurrRound());
+//                matches.add(newMatch);
+//            }
+//        }
+//
+//        return matches;
+//    }
+//
+//    private int findUnmatchedOpponent(ArrayList<Player> waitingPlayers, String playerIDToMatch, int fromIndex, int toIndex)
+//    {
+//
+//        for (int playerIndex = fromIndex; playerIndex < toIndex; playerIndex++) {
+//            if (this.matchDAO.selectAllMatchesByPlayerID(waitingPlayers.get(playerIndex).getID())
+//                    .stream()
+//                    .noneMatch(match -> match.getPlayer1ID().equals(playerIDToMatch) || match.getPlayer2ID().equals(playerIDToMatch)))
+//            {
+//                return playerIndex;
+//            }
+//        }
+//
+//        return -1;
+//    }
 }
 
 class RotationChoices {

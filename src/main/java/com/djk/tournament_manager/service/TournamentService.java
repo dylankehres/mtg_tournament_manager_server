@@ -235,22 +235,19 @@ public class TournamentService {
 
         if(tournament != null)
         {
-            if (getMatchesByRoomCode(tournament.getRoomCode()).stream().allMatch(matchData -> matchData.match.getMatchStatus() == Match.MatchStatus.Complete.ordinal()))
-            {
-                if(tournament.getTournamentStatus() == Tournament.TournamentStatus.AwaitingStart.ordinal()) {
+            if (getMatchesByRoomCode(tournament.getRoomCode()).stream().allMatch(matchData -> matchData.match.getMatchStatus() == Match.MatchStatus.Complete.ordinal())) {
+                if (tournament.getTournamentStatus() == Tournament.TournamentStatus.AwaitingStart.ordinal()) {
                     tournament.setTournamentStatus(Tournament.TournamentStatus.InProgress.ordinal());
                 }
 
                 tournament.incrementCurrRound();
-                tournamentDAO.update(tournament);
 
                 ArrayList<Player> waitingPlayers = playerDAO.selectPlayersByTournamentCode(tournament.getRoomCode());
                 Optional<Player> byeMaybe = waitingPlayers.stream().filter(Player::getBye).findFirst();
                 Player bye = byeMaybe.orElse(null);
 
-                if (waitingPlayers.size() % 2 == 1)
-                {
-                    if(bye != null) { // A real player left the tournament, so we no longer need a bye
+                if (waitingPlayers.size() % 2 == 1) {
+                    if (bye != null) { // A real player left the tournament, so we no longer need a bye
                         playerDAO.deleteById(bye.getID());
                         waitingPlayers.remove(bye);
                     } else {
@@ -344,26 +341,30 @@ public class TournamentService {
                 StableRoommates srp = new StableRoommates(matchDAO, tournament, waitingPlayers);
                 ArrayList<Match> matches = srp.getPairings();
 
-                Match savedMatch;
-                for(Match newMatch : matches) {
-                    savedMatch = matchDAO.insert(newMatch);
+                if (waitingPlayers.size() / 2 == matches.size()) {
+                    tournamentDAO.update(tournament);
 
-                    if (savedMatch != null) {
-                        // Does this match have a bye?
-                        if (bye != null && savedMatch.playerIsInMatch(bye.getID())) {
-                            // Report results for enough games to declare the real player winner
-                            String realPlayerID = savedMatch.getPlayer1ID().equals(bye.getID()) ? savedMatch.getPlayer2ID() : savedMatch.getPlayer1ID();
-                            Optional<Player> playerMaybe = waitingPlayers.stream().filter(player -> player.getID().equals(realPlayerID)).findFirst();
-                            Player realPlayer = playerMaybe.orElse(null);
+                    Match savedMatch;
+                    for (Match newMatch : matches) {
+                        savedMatch = matchDAO.insert(newMatch);
 
-                            for (double game = 0; game / (double) savedMatch.getNumGames() < 0.5; game++) {
-                                savedMatch.addPlayerWin(realPlayerID);
-                            }
+                        if (savedMatch != null) {
+                            // Does this match have a bye?
+                            if (bye != null && savedMatch.playerIsInMatch(bye.getID())) {
+                                // Report results for enough games to declare the real player winner
+                                String realPlayerID = savedMatch.getPlayer1ID().equals(bye.getID()) ? savedMatch.getPlayer2ID() : savedMatch.getPlayer1ID();
+                                Optional<Player> playerMaybe = waitingPlayers.stream().filter(player -> player.getID().equals(realPlayerID)).findFirst();
+                                Player realPlayer = playerMaybe.orElse(null);
 
-                            if (realPlayer != null) {
-                                realPlayer.addWinPoints(true);
-                                playerDAO.update(realPlayer);
-                                matchDAO.update(savedMatch);
+                                for (double game = 0; game / (double) savedMatch.getNumGames() < 0.5; game++) {
+                                    savedMatch.addPlayerWin(realPlayerID);
+                                }
+
+                                if (realPlayer != null) {
+                                    realPlayer.addWinPoints(true);
+                                    playerDAO.update(realPlayer);
+                                    matchDAO.update(savedMatch);
+                                }
                             }
                         }
                     }
