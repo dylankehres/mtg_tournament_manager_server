@@ -30,35 +30,37 @@ public class StableRoommates {
 
     /**
      * Add each player's list of possible pairings to preferences map by player ID
-     * @param rematchesAllowed Number of rematches acceptable for each pairing
      */
-    public void buildPrefsMap(long rematchesAllowed) {
+    public void buildPrefsMap() {
         this.prefsMap = new HashMap<>();
         for(Player player : this.playerList) {
             // Add all other players to the pref list
-            HashMap<Long, ArrayList<Player>> opponentsByPrevMatchCount = new HashMap<>();
+//            HashMap<Long, ArrayList<Player>> opponentsByPrevMatchCount = new HashMap<>();
+            ArrayList<ArrayList<Player>> opponentsByPrevMatchCount = new ArrayList<>();
             ArrayList<Match> playerPrevMatches = this.previousMatchesMap.get(player.getID());
 
             for(Player opponent : this.playerList) {
                 if(!player.equals(opponent)) {
-                    long numPreviousMatches = playerPrevMatches.stream().filter(match -> match.playerIsInMatch(opponent.getID())).count();
-                    if (numPreviousMatches <= rematchesAllowed) {
-                        ArrayList<Player> opponentsForCount = opponentsByPrevMatchCount.containsKey(numPreviousMatches) ? opponentsByPrevMatchCount.get(numPreviousMatches) : new ArrayList<>();
-                        opponentsForCount.add(opponent);
-                        opponentsByPrevMatchCount.put(numPreviousMatches, opponentsForCount);
+                    int numPreviousMatches = (int) playerPrevMatches.stream().filter(match -> match.playerIsInMatch(opponent.getID())).count();
+//                    ArrayList<Player> opponentsForCount = opponentsByPrevMatchCount.containsKey(numPreviousMatches) ? opponentsByPrevMatchCount.get(numPreviousMatches) : new ArrayList<>();
+
+                    // Make sure the array is indexed deep enough
+                    while(opponentsByPrevMatchCount.size() - 1 < numPreviousMatches) {
+                        opponentsByPrevMatchCount.add(new ArrayList<>());
                     }
+                    ArrayList<Player> opponentsForCount = opponentsByPrevMatchCount.get(numPreviousMatches);
+                    opponentsForCount.add(opponent);
+                    opponentsByPrevMatchCount.set(numPreviousMatches, opponentsForCount);
                 }
             }
 
             // Sort preferences by their difference in points, putting rematches at end of list
             ArrayList<Player> opponents;
             ArrayList<String> opponentIDs = new ArrayList<>();
-            for(long i = 0; i < opponentsByPrevMatchCount.size(); i++) {
-                if(opponentsByPrevMatchCount.containsKey(i)) {
-                    opponents = opponentsByPrevMatchCount.get(i);
-                    opponents.sort(Comparator.comparingInt(opponent -> Math.abs(opponent.getPoints() - player.getPoints())));
-                    opponentIDs.addAll(opponents.stream().map(Player::getID).collect(Collectors.toCollection(ArrayList::new)));
-                }
+            for(int i = 0; i < opponentsByPrevMatchCount.size(); i++) {
+                opponents = opponentsByPrevMatchCount.get(i);
+                opponents.sort(Comparator.comparingInt(opponent -> Math.abs(opponent.getPoints() - player.getPoints())));
+                opponentIDs.addAll(opponents.stream().map(Player::getID).collect(Collectors.toCollection(ArrayList::new)));
             }
 
             this.prefsMap.put(player.getID(), opponentIDs);
@@ -253,14 +255,9 @@ public class StableRoommates {
     }
 
     private ArrayList<Match> generatePairings() {
-        for(long i = 0; i < tournament.getCurrRound(); i++) {
-            buildPrefsMap(i);
-            if(computeMatches()) {
-                return createMatchList();
-            } else {
-                accepts = new HashMap<>();
-                proposals = new HashMap<>();
-            }
+        buildPrefsMap();
+        if(computeMatches()) {
+            return createMatchList();
         }
 
         return new ArrayList<>();
