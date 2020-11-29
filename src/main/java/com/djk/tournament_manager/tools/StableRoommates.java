@@ -185,7 +185,7 @@ public class StableRoommates {
     }
 
     private RotationChoices getRotation(String playerID, RotationChoices rotationChoices) {
-        if(rotationChoices.lastChoices.subList(0, rotationChoices.lastChoices.size() - 1).contains(rotationChoices.lastChoices.get(rotationChoices.lastChoices.size() - 1))) {
+        if(rotationChoices.lastChoices.size() > 1 && rotationChoices.lastChoices.subList(0, rotationChoices.lastChoices.size() - 2).contains(rotationChoices.lastChoices.get(rotationChoices.lastChoices.size() - 1))) {
             return rotationChoices;
         }
 
