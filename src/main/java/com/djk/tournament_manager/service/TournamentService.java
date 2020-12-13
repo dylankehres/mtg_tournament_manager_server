@@ -264,27 +264,29 @@ public class TournamentService {
 
                     Match savedMatch;
                     for (Match newMatch : matches) {
-                        savedMatch = matchDAO.insert(newMatch);
+//                        savedMatch = matchDAO.insert(newMatch);
 
-                        if (savedMatch != null) {
+                        if (newMatch != null) {
                             // Does this match have a bye?
-                            if (bye != null && savedMatch.playerIsInMatch(bye.getID())) {
+                            if (bye != null && newMatch.playerIsInMatch(bye.getID())) {
                                 // Report results for enough games to declare the real player winner
-                                String realPlayerID = savedMatch.getPlayer1ID().equals(bye.getID()) ? savedMatch.getPlayer2ID() : savedMatch.getPlayer1ID();
+                                String realPlayerID = newMatch.getPlayer1ID().equals(bye.getID()) ? newMatch.getPlayer2ID() : newMatch.getPlayer1ID();
                                 Optional<Player> playerMaybe = waitingPlayers.stream().filter(player -> player.getID().equals(realPlayerID)).findFirst();
                                 Player realPlayer = playerMaybe.orElse(null);
 
-                                for (double game = 0; game / (double) savedMatch.getNumGames() < 0.5; game++) {
-                                    savedMatch.addPlayerWin(realPlayerID);
+                                for (double game = 0; game / (double) newMatch.getNumGames() < 0.5; game++) {
+                                    newMatch.addPlayerWin(realPlayerID);
                                 }
 
                                 if (realPlayer != null) {
                                     realPlayer.addWinPoints(true);
                                     playerDAO.update(realPlayer);
-                                    matchDAO.update(savedMatch);
+//                                    matchDAO.update(savedMatch);
                                 }
                             }
                         }
+
+                        matchDAO.insert(newMatch);
                     }
                 }
             }
