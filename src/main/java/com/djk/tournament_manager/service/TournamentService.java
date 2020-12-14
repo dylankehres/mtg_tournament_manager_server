@@ -251,7 +251,7 @@ public class TournamentService {
                         playerDAO.deleteById(bye.getID());
                         waitingPlayers.remove(bye);
                     } else {
-                        bye = playerDAO.insert(new Player(tournament.getID(), "BYE", tournament.getRoomCode(), tournament.getFormat(), "", true));
+                        bye = playerDAO.insert(new Player(tournament.getID(), "BYE", tournament.getRoomCode(), "", "", true));
                         waitingPlayers.add(bye);
                     }
                 }

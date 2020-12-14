@@ -2,15 +2,13 @@ package com.djk.tournament_manager.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import javax.validation.constraints.NotBlank;
-
 public class Player extends BaseModel {
 
     @JsonProperty("tournamentID") private String tournamentID;
     @JsonProperty("name")  private String name;
     @JsonProperty("roomCode") private String roomCode;
-    @JsonProperty("format") private String format;
     @JsonProperty("deckName") private String deckName;
+    @JsonProperty("deckList") private String deckList;
     @JsonProperty("points") private int points;
     @JsonProperty("bye") private boolean bye;
 
@@ -19,8 +17,8 @@ public class Player extends BaseModel {
         this.tournamentID = "";
         this.name = "";
         this.roomCode = "";
-        this.format = "";
         this.deckName = "";
+        this.deckList = "";
         this.points = 0;
         this.bye = false;
     }
@@ -28,8 +26,8 @@ public class Player extends BaseModel {
     public Player(String tournamentID,
                   String name,
                   String roomCode,
-                  String format,
                   String deckName,
+                  String deckList,
                   boolean bye)
     {
         super();
@@ -37,8 +35,8 @@ public class Player extends BaseModel {
         this.tournamentID = tournamentID;
         this.name = name;
         this.roomCode = roomCode;
-        this.format = format;
         this.deckName = deckName;
+        this.deckList = deckList;
         this.points = 0;
         this.bye = bye;
     }
@@ -52,9 +50,9 @@ public class Player extends BaseModel {
 
     public String getRoomCode() { return this.roomCode; }
 
-    public String getFormat()
+    public String getDeckList()
     {
-        return this.format;
+        return this.deckList;
     }
 
     public String getDeckName()

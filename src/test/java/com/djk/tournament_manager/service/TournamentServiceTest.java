@@ -36,12 +36,12 @@ class TournamentServiceTest {
         tournamentID = tournamentService.addTournament(new Tournament("TestTournament", "test", "Modern", 3, 3));
 
         players = new ArrayList<>();
-        players.add(tournamentService.addPlayer(new Player(tournamentID, "Dylan", "test", "Modern", "Devoted Druid", false)));
-        players.add(tournamentService.addPlayer(new Player(tournamentID, "Keir", "test", "Modern", "Shadow", false)));
-        players.add(tournamentService.addPlayer(new Player(tournamentID, "Bobby", "test", "Modern", "Scales", false)));
-        players.add(tournamentService.addPlayer(new Player(tournamentID, "Andy", "test", "Modern", "Bant Soulherder", false)));
-        players.add(tournamentService.addPlayer(new Player(tournamentID, "Aaron", "test", "Modern", "UR Kiki", false)));
-        players.add(tournamentService.addPlayer(new Player(tournamentID, "Joe", "test", "Modern", "Humans", false)));
+        players.add(tournamentService.addPlayer(new Player(tournamentID, "Dylan", "test", "", "Devoted Druid", false)));
+        players.add(tournamentService.addPlayer(new Player(tournamentID, "Keir", "test", "", "Shadow", false)));
+        players.add(tournamentService.addPlayer(new Player(tournamentID, "Bobby", "test", "", "Scales", false)));
+        players.add(tournamentService.addPlayer(new Player(tournamentID, "Andy", "test", "", "Bant Soulherder", false)));
+        players.add(tournamentService.addPlayer(new Player(tournamentID, "Aaron", "test", "", "UR Kiki", false)));
+        players.add(tournamentService.addPlayer(new Player(tournamentID, "Joe", "test", "", "Humans", false)));
     }
 
     @AfterEach
