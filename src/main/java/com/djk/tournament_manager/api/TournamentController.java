@@ -56,6 +56,11 @@ public class TournamentController {
         return tournamentService.getAllTournaments();
     }
 
+    @GetMapping(path = "tournament/{roomCode}")
+    public Tournament getTournamentByCode(@PathVariable("roomCode") String roomCode) {
+        return tournamentService.getTournamentByCode(roomCode);
+    }
+
     @GetMapping(path = "host/pairings/{id}")
     public HostHubDTO generatePairings(@PathVariable("id") String id) {
         return tournamentService.generatePairings(id);

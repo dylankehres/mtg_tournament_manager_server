@@ -65,6 +65,14 @@ public class TournamentService {
          return tournamentDAO.selectAll();
     }
 
+    public Tournament getTournamentByCode(String roomCode) {
+        return tournamentDAO.selectTournamentByCode(roomCode);
+    }
+
+    public Tournament getTournamentByID(String id) {
+        return tournamentDAO.selectById(id);
+    }
+
     public void deleteTournamentData(String tmtID) {
         // Query for all objects that are children of this tournament
         List<Match> matches = matchDAO.selectMatchesInTournament(tmtID);

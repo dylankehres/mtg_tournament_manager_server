@@ -266,10 +266,7 @@ class TournamentServiceTest {
 
         checkByeResults();
 
-        Tournament tournament = tournamentService.getAllTournaments().stream()
-                .filter(tmt -> tmt.getID().equals(tournamentID))
-                .findFirst()
-                .orElse(new Tournament());
+        Tournament tournament = tournamentService.getTournamentByID(tournamentID);
 
         if(tournament.getTournamentStatus() != Tournament.TournamentStatus.Complete.ordinal()) {
             throw new AssertionError();
