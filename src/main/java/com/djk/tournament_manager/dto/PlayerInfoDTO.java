@@ -9,18 +9,18 @@ import java.util.ArrayList;
 public class PlayerInfoDTO {
     @JsonProperty("tournament") public Tournament tournament;
     @JsonProperty("player") public Player player;
-    @JsonProperty("matches") public ArrayList<MatchDataDTO> matches;
+    @JsonProperty("matchDataList") public ArrayList<MatchDataDTO> matchDataList;
 
     public PlayerInfoDTO() {
         this.tournament = new Tournament();
         this.player = new Player();
-        this.matches = new ArrayList<>();
+        this.matchDataList = new ArrayList<>();
     }
 
-    public PlayerInfoDTO(Tournament tournament, Player player, ArrayList<MatchDataDTO> matches) {
+    public PlayerInfoDTO(Tournament tournament, Player player, ArrayList<MatchDataDTO> matchDataList) {
 
         this.tournament = tournament;
         this.player = player;
-        this.matches = matches;
+        this.matchDataList = matchDataList;
     }
 }
