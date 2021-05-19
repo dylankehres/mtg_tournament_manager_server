@@ -18,8 +18,7 @@ import java.util.*;
 
 
 @RequestMapping("api/v1/tournament")
-//@CrossOrigin(origins = "http://localhost:3000/")
-@CrossOrigin
+@CrossOrigin(origins = {"http://localhost:3000", "http://192.168.1.108:3000", "http://dylankehres.com"})
 @RestController
 public class TournamentController {
 

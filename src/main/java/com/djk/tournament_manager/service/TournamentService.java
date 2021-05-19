@@ -16,6 +16,8 @@ import com.djk.tournament_manager.tools.StableRoommates;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import java.util.*;
 
@@ -26,16 +28,6 @@ public class TournamentService {
     private final PlayerDAO playerDAO;
     private final MatchDAO matchDAO;
     private final GameDAO gameDAO;
-
-//    public WebMvcConfigurer corsConfigurer() {
-//        return new WebMvcConfigurer() {
-//            @Override
-//            public void addCorsMappings(CorsRegistry registry) {
-////                registry.addMapping("/api/v1/tournament").allowedOrigins("http://localhost:3000");
-//                registry.addMapping("/").allowedOrigins("*");
-//            }
-//        };
-//    }
 
     @Autowired
     public TournamentService(@Qualifier("firebaseTournamentDao") TournamentDAO tournamentDAO, @Qualifier("firebasePlayerDao") PlayerDAO playerDAO, @Qualifier("firebaseMatchDao") MatchDAO matchDAO, @Qualifier("firebaseGameDao") GameDAO gameDAO)
