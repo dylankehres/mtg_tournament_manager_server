@@ -15,6 +15,8 @@ public interface TournamentDAO {
 
     ArrayList<Tournament> selectAll();
 
+    ArrayList<Tournament> selectTournamentByStatus(int status);
+
     Tournament selectById(String id);
 
      Tournament selectTournamentByCode(String code);

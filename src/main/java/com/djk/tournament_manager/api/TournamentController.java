@@ -56,9 +56,19 @@ public class TournamentController {
         return tournamentService.getAllTournaments();
     }
 
+    @GetMapping(path = "tournaments/status/{status}")
+    public List<Tournament> getTournamentsByStatus(@PathVariable("status") int status) {
+        return tournamentService.getTournamentsByStatus(status);
+    }
+
     @GetMapping(path = "tournament/{roomCode}")
     public Tournament getTournamentByCode(@PathVariable("roomCode") String roomCode) {
-        return tournamentService.getTournamentByCode(roomCode);
+        Tournament tournament = tournamentService.getTournamentByCode(roomCode);
+
+        if(tournament == null) {
+            return new Tournament();
+        }
+        return tournament;
     }
 
     @GetMapping(path = "host/pairings/{id}")

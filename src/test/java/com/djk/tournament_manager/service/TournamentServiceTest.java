@@ -14,6 +14,7 @@ import org.junit.jupiter.api.*;
 
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -299,11 +300,33 @@ class TournamentServiceTest {
         }
     }
 
+    List<Tournament> getTournamentListByStatus(Tournament.TournamentStatus status) {
+        return this.tournamentService.getTournamentsByStatus(status.ordinal());
+    }
+
+    void testNewTournamentList() {
+        int numNewTmts = getTournamentListByStatus(Tournament.TournamentStatus.AwaitingStart).size();
+        assertNotEquals(0, numNewTmts);
+    }
+
+    void testActiveTournamentList() {
+        int numActiveTmts = getTournamentListByStatus(Tournament.TournamentStatus.InProgress).size();
+        assertNotEquals(0, numActiveTmts);
+    }
+
+    void testCompletedTournamentList() {
+        int numCompletedTmts = getTournamentListByStatus(Tournament.TournamentStatus.Complete).size();
+        assertNotEquals(0, numCompletedTmts);
+    }
+
     @Test
     void testThreeRoundTournament() {
+        testNewTournamentList();
         generateRoundOnePairings();
+        testActiveTournamentList();
         generateRoundTwoPairings();
         generateRoundThreePairings();
         resultRoundThree();
+        testCompletedTournamentList();
     }
 }
