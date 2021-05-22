@@ -7,6 +7,7 @@ import com.google.cloud.firestore.*;
 import com.google.firebase.cloud.FirestoreClient;
 import org.springframework.stereotype.Repository;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
@@ -16,6 +17,23 @@ public class TournamentDAS extends FirebaseDAO<Tournament> implements Tournament
 
     public TournamentDAS() {
         super(collection, Tournament.class);
+    }
+
+    @Override
+    public ArrayList<Tournament> selectTournamentByStatus(int status) {
+        Firestore dbFirestore = FirestoreClient.getFirestore();
+        ApiFuture<QuerySnapshot> querySnapshot = dbFirestore.collection(collection).whereEqualTo("tournamentStatus", status).get();
+        ArrayList<Tournament> selectedTournaments = new ArrayList<>();
+
+        try {
+            for (DocumentSnapshot document : querySnapshot.get().getDocuments()) {
+                selectedTournaments.add(document.toObject(Tournament.class));
+            }
+        } catch (InterruptedException | ExecutionException e) {
+            e.printStackTrace();
+        }
+
+        return selectedTournaments;
     }
 
     @Override

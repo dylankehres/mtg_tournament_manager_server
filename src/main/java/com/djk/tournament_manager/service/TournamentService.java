@@ -58,6 +58,11 @@ public class TournamentService {
          return tournamentDAO.selectAll();
     }
 
+    public List<Tournament> getTournamentsByStatus(int status)
+    {
+        return tournamentDAO.selectTournamentByStatus(status);
+    }
+
     public Tournament getTournamentByCode(String roomCode) {
         return tournamentDAO.selectTournamentByCode(roomCode);
     }
@@ -96,7 +101,7 @@ public class TournamentService {
     public Player addPlayer(Player player) {
         Tournament tournament = tournamentDAO.selectTournamentByCode(player.getRoomCode());
 
-        if(tournament != null)
+        if(tournament.getID() != null)
         {
             player.setTournamentID(tournament.getID());
             return playerDAO.insert(player);
